@@ -2,69 +2,361 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Navigation System</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Portal Navigation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    colors: { primary: '#1e3a8a', secondary: '#bfdbfe', accent: '#fbbf24' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; }
+        .glass-panel { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .swiper-slide img { width: 100%; height: 200px; object-fit: cover; border-radius: 1rem; }
+        @media (min-width: 768px) { .swiper-slide img { height: 350px; } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body>
-    <div id="app">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-compass"></i>
-                    <span id="siteTitle">Navigation</span>
-                </div>
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </header>
+<body class="text-slate-800 antialiased selection:bg-primary selection:text-white">
 
-        <!-- Banner Slider -->
-        <section class="banner-section">
-            <div class="banner-slider" id="bannerSlider">
-                <div class="banner-container" id="bannerContainer">
-                    <!-- Banners loaded dynamically -->
-                </div>
-                <div class="banner-dots" id="bannerDots"></div>
+    <div id="app" class="max-w-md md:max-w-4xl mx-auto min-h-screen relative pb-10">
+        <div id="loading" class="flex h-screen items-center justify-center">
+            <div class="text-center">
+                <i class="fas fa-spinner fa-spin text-4xl text-primary mb-4"></i>
+                <p class="text-slate-500 font-medium animate-pulse">กำลังโหลดข้อมูลองค์กร...</p>
             </div>
-        </section>
-
-        <!-- News Ticker -->
-        <section class="news-section">
-            <div class="news-header">
-                <i class="fas fa-bullhorn"></i>
-                <span>ประกาศข่าวสาร</span>
-            </div>
-            <div class="news-ticker" id="newsTicker">
-                <!-- News loaded dynamically -->
-            </div>
-        </section>
-
-        <!-- Department Filter -->
-        <section class="filter-section">
-            <div class="filter-scroll" id="deptFilter">
-                <button class="filter-btn active" data-dept="all">ทั้งหมด</button>
-                <!-- Departments loaded dynamically -->
-            </div>
-        </section>
-
-        <!-- Grid Menu -->
-        <section class="menu-section">
-            <div class="menu-grid" id="menuGrid">
-                <!-- Menu items loaded dynamically -->
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <p>&copy; 2026 Navigation System. All rights reserved.</p>
-        </footer>
+        </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+    <script>
+        // ==========================================
+        // ตั้งค่า URL Web App จาก Google Apps Script
+        // ==========================================
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyb1fm6bZqzRBBKPbVYWPa0HVxtxyO_fa7X60eb7sqvtDG06rF7pGhQiMlh6QPg-u8/exec'; 
+
+        const appDiv = document.getElementById('app');
+        const urlParams = new URLSearchParams(window.location.search);
+        const isPageAdmin = urlParams.has('page') && urlParams.get('page') === 'admin';
+        
+        let appData = { banners: [], news: [], menus: [], departments: [] };
+        let currentDept = 'All';
+
+        // เริ่มต้นการทำงาน
+        async function init() {
+            if (isPageAdmin) {
+                checkAdminAuth();
+            } else {
+                await fetchData();
+                renderPublicApp();
+            }
+        }
+
+        // ดึงข้อมูล API
+        async function fetchData() {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=getData`);
+                const result = await response.json();
+                if(result.status === 'success') {
+                    appData = result.data;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                appDiv.innerHTML = '<p class="text-center text-red-500 mt-10"><i class="fas fa-exclamation-triangle"></i> เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+            }
+        }
+
+        // ==========================================
+        // ส่วนหน้าจอผู้ใช้งานทั่วไป (Public User)
+        // ==========================================
+        function renderPublicApp() {
+            let html = `
+                <header class="bg-primary text-white p-5 rounded-b-3xl shadow-lg mb-6 flex justify-between items-center relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h1 class="text-2xl font-bold">องค์กรของเรา</h1>
+                        <p class="text-sm text-secondary">Smart Portal Navigation</p>
+                    </div>
+                    <a href="?page=admin" class="relative z-10 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition">
+                        <i class="fas fa-user-shield text-xl"></i>
+                    </a>
+                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
+                </header>
+
+                <main class="px-4">
+                    <div class="swiper mySwiper mb-6 shadow-xl rounded-2xl border border-slate-100">
+                        <div class="swiper-wrapper">
+                            ${appData.banners.map(b => `
+                                <div class="swiper-slide cursor-pointer" onclick="window.open('${b.link_url}', '_blank')">
+                                    <img src="${b.image_url}" alt="Banner">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+
+                    <div class="glass-panel p-3 rounded-xl shadow-sm border border-slate-200 mb-6 flex items-center gap-3">
+                        <div class="bg-accent text-primary font-bold px-3 py-1.5 rounded-lg text-sm shrink-0 shadow-sm">
+                            <i class="fas fa-bullhorn mr-1"></i> ข่าวสาร
+                        </div>
+                        <marquee class="text-sm text-slate-600 font-medium">
+                            ${appData.news.map(n => `<span class="mr-8">• ${n.title} <span class="text-xs text-slate-400">(${n.date})</span></span>`).join('')}
+                        </marquee>
+                    </div>
+
+                    <div class="flex overflow-x-auto gap-2 mb-6 no-scrollbar pb-2">
+                        <button onclick="filterMenus('All')" class="dept-btn shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all ${currentDept === 'All' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border'}">ทั้งหมด</button>
+                        ${appData.departments.map(d => `
+                            <button onclick="filterMenus('${d}')" class="dept-btn shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all ${currentDept === d ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border'}">${d}</button>
+                        `).join('')}
+                    </div>
+
+                    <div id="menu-grid" class="grid grid-cols-3 md:grid-cols-4 gap-4 pb-8">
+                        ${generateMenuHTML(appData.menus)}
+                    </div>
+                </main>
+            `;
+            appDiv.innerHTML = html;
+
+            new Swiper(".mySwiper", {
+                pagination: { el: ".swiper-pagination", dynamicBullets: true },
+                autoplay: { delay: 3500, disableOnInteraction: false },
+                loop: true,
+                effect: "fade",
+            });
+        }
+
+        function generateMenuHTML(menus) {
+            return menus.map(m => `
+                <a href="${m.link_url}" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 group">
+                    <div class="w-14 h-14 bg-blue-50 text-primary rounded-2xl flex items-center justify-center text-2xl mb-3 group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm">
+                        <i class="${m.icon || 'fas fa-link'}"></i>
+                    </div>
+                    <span class="text-xs text-center font-medium text-slate-700 line-clamp-2">${m.name}</span>
+                </a>
+            `).join('');
+        }
+
+        function filterMenus(dept) {
+            currentDept = dept;
+            const filtered = dept === 'All' ? appData.menus : appData.menus.filter(m => m.department === dept);
+            document.getElementById('menu-grid').innerHTML = generateMenuHTML(filtered);
+            renderPublicApp();
+        }
+
+        // ==========================================
+        // ส่วนหน้าจอแอดมิน (Admin Panel)
+        // ==========================================
+        function checkAdminAuth() {
+            const token = sessionStorage.getItem('adminToken');
+            if (token) renderAdminDashboard();
+            else renderLogin();
+        }
+
+        function renderLogin() {
+            appDiv.innerHTML = `
+                <div class="flex flex-col items-center justify-center min-h-screen px-4 bg-slate-50">
+                    <div class="w-full max-w-sm bg-white p-8 rounded-[2rem] shadow-2xl border border-slate-100">
+                        <div class="text-center mb-8">
+                            <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center mx-auto text-3xl mb-4 shadow-lg rotate-3">
+                                <i class="fas fa-user-lock -rotate-3"></i>
+                            </div>
+                            <h2 class="text-2xl font-bold text-slate-800">Admin Login</h2>
+                            <p class="text-sm text-slate-500 mt-1">เข้าสู่ระบบจัดการแผงควบคุม</p>
+                        </div>
+                        <form onsubmit="handleLogin(event)">
+                            <div class="mb-4">
+                                <label class="block text-sm font-semibold mb-1 text-slate-700">ชื่อผู้ใช้</label>
+                                <div class="relative">
+                                    <i class="fas fa-user absolute left-4 top-3.5 text-slate-400"></i>
+                                    <input type="text" id="username" class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="admin" required>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold mb-1 text-slate-700">รหัสผ่าน</label>
+                                <div class="relative">
+                                    <i class="fas fa-lock absolute left-4 top-3.5 text-slate-400"></i>
+                                    <input type="password" id="password" class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="••••••••" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-300">
+                                เข้าสู่ระบบ
+                            </button>
+                        </form>
+                        <div class="text-center mt-6">
+                            <a href="index.html" class="text-sm text-slate-500 hover:text-primary transition"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> กำลังตรวจสอบ...';
+            btn.disabled = true;
+            
+            const payload = {
+                action: 'login',
+                username: e.target.username.value,
+                password: e.target.password.value
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    sessionStorage.setItem('adminToken', result.token);
+                    renderAdminDashboard();
+                } else {
+                    alert('เข้าสู่ระบบไม่สำเร็จ: ' + result.message);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function renderAdminDashboard() {
+            appDiv.innerHTML = `<div class="flex h-screen items-center justify-center"><i class="fas fa-spinner fa-spin text-4xl text-primary"></i></div>`;
+            await fetchData(); 
+
+            appDiv.innerHTML = `
+                <div class="p-4 md:p-6 pb-20">
+                    <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <h2 class="text-xl font-bold text-primary flex items-center"><i class="fas fa-cogs mr-2 bg-blue-50 p-2 rounded-lg"></i> แผงควบคุมระบบ</h2>
+                        <button onclick="sessionStorage.removeItem('adminToken'); window.location.reload();" class="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition text-sm font-medium"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
+                        <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-plus-circle text-accent"></i> เพิ่มเมนูนำทางใหม่</h3>
+                        <form id="addMenuForm" onsubmit="submitAddMenu(event)" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">ชื่อเมนู</label>
+                                <input type="text" id="menuName" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="เช่น ระบบลางาน" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">แผนก / หมวดหมู่</label>
+                                <input type="text" id="menuDept" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="เช่น HR, IT" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">ลิงก์ปลายทาง (URL)</label>
+                                <input type="text" id="menuLink" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="https://..." required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1">ไอคอน (FontAwesome Class)</label>
+                                <input type="text" id="menuIcon" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="fas fa-link" value="fas fa-link">
+                            </div>
+                            <div class="md:col-span-2 pt-2">
+                                <button type="submit" id="btnAdd" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-800 transition shadow-md"><i class="fas fa-save mr-1"></i> บันทึกข้อมูลเมนู</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-list text-primary"></i> รายการเมนูปัจจุบัน</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[500px]">
+                                <thead>
+                                    <tr class="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider">
+                                        <th class="py-3 px-4 rounded-tl-lg">ไอคอน</th>
+                                        <th class="py-3 px-4">ชื่อเมนู</th>
+                                        <th class="py-3 px-4">แผนก</th>
+                                        <th class="py-3 px-4 text-right rounded-tr-lg">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${appData.menus.map(m => `
+                                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                                            <td class="py-3 px-4 text-primary text-lg"><i class="${m.icon}"></i></td>
+                                            <td class="py-3 px-4 font-medium text-sm text-slate-700">${m.name}</td>
+                                            <td class="py-3 px-4 text-xs text-slate-500"><span class="bg-white border border-slate-200 px-2.5 py-1 rounded-md shadow-sm">${m.department}</span></td>
+                                            <td class="py-3 px-4 text-right">
+                                                <button onclick="submitDeleteMenu('${m.id}', '${m.name}')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50"><i class="fas fa-trash-alt"></i></button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-8">
+                        <a href="index.html" class="inline-flex items-center justify-center px-6 py-3 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-900 transition shadow-lg"><i class="fas fa-mobile-alt mr-2"></i> กลับไปดูหน้าแสดงผล</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function submitAddMenu(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnAdd');
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> กำลังบันทึก...';
+            btn.disabled = true;
+
+            const payload = {
+                action: 'addMenu',
+                name: document.getElementById('menuName').value,
+                department: document.getElementById('menuDept').value,
+                link_url: document.getElementById('menuLink').value,
+                icon: document.getElementById('menuIcon').value
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    renderAdminDashboard();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                    btn.innerHTML = '<i class="fas fa-save mr-1"></i> บันทึกข้อมูลเมนู';
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                alert('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
+                btn.innerHTML = '<i class="fas fa-save mr-1"></i> บันทึกข้อมูลเมนู';
+                btn.disabled = false;
+            }
+        }
+
+        async function submitDeleteMenu(id, name) {
+            if (!confirm(`ยืนยันการลบเมนู: "${name}" ใช่หรือไม่?`)) return;
+
+            try {
+                const payload = { action: 'deleteMenu', id: id };
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    renderAdminDashboard();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                }
+            } catch (error) {
+                alert('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
+            }
+        }
+
+        // เริ่มต้นการทำงานของสคริปต์
+        init();
+    </script>
 </body>
 </html>
