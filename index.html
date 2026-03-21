@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MY MDU25 :: แอปชาว นพค.25</title>
+    <title>Premium Portal Navigation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Prompt', 'sans-serif'] },
+                    // 🟢 ตั้งค่าให้ Tailwind ใช้ฟอนต์ Sarabun เป็นหลัก
+                    fontFamily: { sans: ['Sarabun', 'sans-serif'] },
                     colors: { primary: '#1e3a8a', secondary: '#bfdbfe', accent: '#fbbf24' }
                 }
             }
@@ -66,7 +67,7 @@
     
     <script>
         // ==========================================
-        // 🔴 ใส่ URL WEB APP ของคุณที่นี่
+        // 🔴 อย่าลืมใส่ URL WEB APP ของคุณที่นี่
         // ==========================================
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyb1fm6bZqzRBBKPbVYWPa0HVxtxyO_fa7X60eb7sqvtDG06rF7pGhQiMlh6QPg-u8/exec'; 
 
@@ -97,7 +98,6 @@
         // ระบบ Modal ข่าวสาร
         // ==========================================
         function openNewsModal(newsId) {
-            // ค้นหาข้อมูลข่าวจาก ID เพื่อป้องกันปัญหา Quote/Double Quote ใน String
             const newsItem = appData.news.find(n => n.id === newsId);
             if(!newsItem) return;
 
@@ -109,7 +109,6 @@
             const modalContent = document.getElementById('news-modal-content');
             
             modal.classList.remove('hidden');
-            // Timeout เล็กน้อยเพื่อให้ CSS Transition ทำงาน
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 modalContent.classList.remove('scale-95');
@@ -123,7 +122,7 @@
             modal.classList.add('opacity-0');
             modalContent.classList.add('scale-95');
             
-            setTimeout(() => { modal.classList.add('hidden'); }, 300); // รอให้ transition จบ
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
         // ==========================================
@@ -135,8 +134,8 @@
             let html = `
                 <header class="bg-primary text-white p-5 rounded-b-3xl shadow-lg mb-6 flex justify-between items-center relative overflow-hidden animate-fade-in">
                     <div class="relative z-10">
-                        <h1 class="text-2xl font-bold tracking-wide">My MDU.25</h1>
-                        <p class="text-sm text-secondary font-medium">นพค.25 สนภ.2 นทพ.</p>
+                        <h1 class="text-2xl font-bold tracking-wide">องค์กรของเรา</h1>
+                        <p class="text-sm text-secondary font-medium">Smart Portal Navigation</p>
                     </div>
                     <a href="?page=admin" class="relative z-10 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition">
                         <i class="fas fa-user-shield text-xl"></i>
@@ -181,8 +180,8 @@
                         <h2 class="text-lg font-bold text-slate-800"><i class="fas fa-th-large text-primary mr-2"></i>ระบบปฏิบัติการ</h2>
                     </div>
                     <div class="flex overflow-x-auto gap-2 mb-6 no-scrollbar pb-2">
-                        <button onclick="filterMenus('All')" class="dept-btn shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${currentDept === 'All' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}">ทั้งหมด</button>
-                        ${appData.departments.map(d => `<button onclick="filterMenus('${d}')" class="dept-btn shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${currentDept === d ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}">${d}</button>`).join('')}
+                        <button onclick="filterMenus('All')" class="dept-btn shrink-0 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${currentDept === 'All' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}">ทั้งหมด</button>
+                        ${appData.departments.map(d => `<button onclick="filterMenus('${d}')" class="dept-btn shrink-0 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${currentDept === d ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}">${d}</button>`).join('')}
                     </div>
 
                     <div id="menu-grid" class="grid grid-cols-3 md:grid-cols-4 gap-4 pb-8">
@@ -268,7 +267,7 @@
                 <div class="p-4 md:p-6 pb-20 max-w-5xl mx-auto animate-fade-in">
                     <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                         <h2 class="text-xl font-bold text-primary flex items-center"><i class="fas fa-cogs mr-2 bg-blue-50 p-2 rounded-lg"></i> แผงควบคุมระบบ</h2>
-                        <button onclick="sessionStorage.removeItem('adminToken'); window.location.reload();" class="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition text-sm font-medium"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+                        <button onclick="sessionStorage.removeItem('adminToken'); window.location.reload();" class="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition text-sm font-bold"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
                     </div>
 
                     <div class="flex bg-white rounded-2xl shadow-sm border border-slate-100 p-1 mb-6 overflow-x-auto no-scrollbar">
@@ -280,7 +279,7 @@
                     <div class="animate-scale-up">${contentHTML}</div>
                     
                     <div class="text-center mt-8">
-                        <a href="index.html" class="inline-flex items-center justify-center px-6 py-3 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-900 transition shadow-lg"><i class="fas fa-mobile-alt mr-2"></i> กลับไปดูหน้าแสดงผล</a>
+                        <a href="index.html" class="inline-flex items-center justify-center px-6 py-3 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition shadow-lg"><i class="fas fa-mobile-alt mr-2"></i> กลับไปดูหน้าแสดงผล</a>
                     </div>
                 </div>
             `;
