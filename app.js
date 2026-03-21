@@ -1,5 +1,5 @@
 // Configuration
-const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyC0WDSBVO5NIheRTcsgR56PdhInmy_F7UcjVmlaFlI0oPIVLPl48aWA9wah95U_qHo/exec';
 let currentData = {};
 let currentSlide = 0;
 let slideInterval;
