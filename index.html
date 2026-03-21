@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Navigation App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap');
+    body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
+    .glass-effect { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+    .swiper-pagination-bullet-active { background: #4f46e5; }
+  </style>
+</head>
+<body class="pb-20">
+
+  <!-- Top Navigation / Brand -->
+  <nav class="sticky top-0 z-50 glass-effect border-b p-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-indigo-600">SmartPortal</h1>
+    <div class="text-gray-500"><i data-lucide="bell"></i></div>
+  </nav>
+
+  <!-- Banner Slider -->
+  <div class="swiper mySwiper h-48 md:h-64 w-full">
+    <div class="swiper-wrapper" id="banner-wrapper">
+      <!-- ข้อมูลจาก API จะมาแสดงตรงนี้ -->
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+
+  <!-- News Ticker -->
+  <div class="bg-indigo-50 p-2 overflow-hidden border-y border-indigo-100">
+    <div class="flex items-center space-x-4 animate-marquee whitespace-nowrap" id="news-ticker">
+      <!-- ข้อมูลข่าวแจ้งเตือน -->
+    </div>
+  </div>
+
+  <!-- Department Filter -->
+  <div class="p-4 flex space-x-2 overflow-x-auto no-scrollbar">
+    <button onclick="filterMenu('all')" class="px-4 py-2 rounded-full bg-indigo-600 text-white shadow-md text-sm">ทั้งหมด</button>
+    <button onclick="filterMenu('IT')" class="px-4 py-2 rounded-full bg-white text-gray-600 border text-sm">ไอที</button>
+    <button onclick="filterMenu('HR')" class="px-4 py-2 rounded-full bg-white text-gray-600 border text-sm">บุคคล</button>
+  </div>
+
+  <!-- Grid Menu -->
+  <div class="p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4" id="menu-grid">
+    <!-- เมนูจะแสดงตรงนี้ -->
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    // สมมติ URL ของ Apps Script API
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyp3Yr_4JavpBfgd5iHBXGY5DblQy1i65FyjgcPWR3CnXMA0U0me8Qkplj3-L6RVwRt/exec';
+
+    async function initApp() {
+      // ในที่นี้ถ้าเอาขึ้น GitHub ให้ใช้ fetch(API_URL) 
+      // แต่ถ้าอยู่ใน GAS ใช้ google.script.run
+      const data = await fetchData();
+      renderBanners(data.banners);
+      renderNews(data.news);
+      renderMenu(data.menu);
+      lucide.createIcons();
+    }
+
+    function renderMenu(items) {
+      const container = document.getElementById('menu-grid');
+      container.innerHTML = items.map(item => `
+        <a href="${item.url}" class="flex flex-col items-center p-3 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95 border border-gray-100">
+          <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-2">
+            <i data-lucide="${item.icon || 'grid'}"></i>
+          </div>
+          <span class="text-xs font-medium text-gray-700 text-center">${item.title}</span>
+        </a>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function renderBanners(banners) {
+      const wrapper = document.getElementById('banner-wrapper');
+      wrapper.innerHTML = banners.map(b => `
+        <div class="swiper-slide">
+          <a href="${b.linkUrl}">
+            <img src="${b.imageUrl}" class="w-full h-full object-cover" />
+          </a>
+        </div>
+      `).join('');
+      
+      new Swiper(".mySwiper", {
+        pagination: { el: ".swiper-pagination", clickable: true },
+        autoplay: { delay: 3000 },
+        loop: true
+      });
+    }
+
+    // ฟังก์ชันอื่นๆ ...
+    initApp();
+  </script>
+</body>
+</html>
