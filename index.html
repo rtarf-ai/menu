@@ -26,6 +26,8 @@
         @media (min-width: 768px) { .swiper-slide img { height: 350px; } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="text-slate-800 antialiased selection:bg-primary selection:text-white">
@@ -43,7 +45,7 @@
     
     <script>
         // ==========================================
-        // ตั้งค่า URL Web App จาก Google Apps Script
+        // 🔴 ใส่ URL WEB APP ของคุณที่นี่
         // ==========================================
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyb1fm6bZqzRBBKPbVYWPa0HVxtxyO_fa7X60eb7sqvtDG06rF7pGhQiMlh6QPg-u8/exec'; 
 
@@ -53,6 +55,7 @@
         
         let appData = { banners: [], news: [], menus: [], departments: [] };
         let currentDept = 'All';
+        let adminTab = 'menus'; 
 
         // เริ่มต้นการทำงาน
         async function init() {
@@ -64,14 +67,11 @@
             }
         }
 
-        // ดึงข้อมูล API
         async function fetchData() {
             try {
                 const response = await fetch(`${SCRIPT_URL}?action=getData`);
                 const result = await response.json();
-                if(result.status === 'success') {
-                    appData = result.data;
-                }
+                if(result.status === 'success') appData = result.data;
             } catch (error) {
                 console.error('Error:', error);
                 appDiv.innerHTML = '<p class="text-center text-red-500 mt-10"><i class="fas fa-exclamation-triangle"></i> เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
@@ -97,62 +97,36 @@
                 <main class="px-4">
                     <div class="swiper mySwiper mb-6 shadow-xl rounded-2xl border border-slate-100">
                         <div class="swiper-wrapper">
-                            ${appData.banners.map(b => `
-                                <div class="swiper-slide cursor-pointer" onclick="window.open('${b.link_url}', '_blank')">
-                                    <img src="${b.image_url}" alt="Banner">
-                                </div>
-                            `).join('')}
+                            ${appData.banners.map(b => `<div class="swiper-slide cursor-pointer" onclick="window.open('${b.link_url}', '_blank')"><img src="${b.image_url}" alt="Banner"></div>`).join('')}
                         </div>
                         <div class="swiper-pagination"></div>
                     </div>
 
                     <div class="glass-panel p-3 rounded-xl shadow-sm border border-slate-200 mb-6 flex items-center gap-3">
-                        <div class="bg-accent text-primary font-bold px-3 py-1.5 rounded-lg text-sm shrink-0 shadow-sm">
-                            <i class="fas fa-bullhorn mr-1"></i> ข่าวสาร
-                        </div>
-                        <marquee class="text-sm text-slate-600 font-medium">
-                            ${appData.news.map(n => `<span class="mr-8">• ${n.title} <span class="text-xs text-slate-400">(${n.date})</span></span>`).join('')}
-                        </marquee>
+                        <div class="bg-accent text-primary font-bold px-3 py-1.5 rounded-lg text-sm shrink-0 shadow-sm"><i class="fas fa-bullhorn mr-1"></i> ข่าวสาร</div>
+                        <marquee class="text-sm text-slate-600 font-medium">${appData.news.map(n => `<span class="mr-8">• ${n.title} <span class="text-xs text-slate-400">(${n.date})</span></span>`).join('')}</marquee>
                     </div>
 
                     <div class="flex overflow-x-auto gap-2 mb-6 no-scrollbar pb-2">
                         <button onclick="filterMenus('All')" class="dept-btn shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all ${currentDept === 'All' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border'}">ทั้งหมด</button>
-                        ${appData.departments.map(d => `
-                            <button onclick="filterMenus('${d}')" class="dept-btn shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all ${currentDept === d ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border'}">${d}</button>
-                        `).join('')}
+                        ${appData.departments.map(d => `<button onclick="filterMenus('${d}')" class="dept-btn shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all ${currentDept === d ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border'}">${d}</button>`).join('')}
                     </div>
 
-                    <div id="menu-grid" class="grid grid-cols-3 md:grid-cols-4 gap-4 pb-8">
-                        ${generateMenuHTML(appData.menus)}
-                    </div>
+                    <div id="menu-grid" class="grid grid-cols-3 md:grid-cols-4 gap-4 pb-8">${generateMenuHTML(appData.menus)}</div>
                 </main>
             `;
             appDiv.innerHTML = html;
-
-            new Swiper(".mySwiper", {
-                pagination: { el: ".swiper-pagination", dynamicBullets: true },
-                autoplay: { delay: 3500, disableOnInteraction: false },
-                loop: true,
-                effect: "fade",
-            });
+            new Swiper(".mySwiper", { pagination: { el: ".swiper-pagination", dynamicBullets: true }, autoplay: { delay: 3500, disableOnInteraction: false }, loop: true, effect: "fade" });
         }
 
         function generateMenuHTML(menus) {
-            return menus.map(m => `
-                <a href="${m.link_url}" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 group">
-                    <div class="w-14 h-14 bg-blue-50 text-primary rounded-2xl flex items-center justify-center text-2xl mb-3 group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm">
-                        <i class="${m.icon || 'fas fa-link'}"></i>
-                    </div>
-                    <span class="text-xs text-center font-medium text-slate-700 line-clamp-2">${m.name}</span>
-                </a>
-            `).join('');
+            return menus.map(m => `<a href="${m.link_url}" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 group"><div class="w-14 h-14 bg-blue-50 text-primary rounded-2xl flex items-center justify-center text-2xl mb-3 group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm"><i class="${m.icon || 'fas fa-link'}"></i></div><span class="text-xs text-center font-medium text-slate-700 line-clamp-2">${m.name}</span></a>`).join('');
         }
 
-        function filterMenus(dept) {
-            currentDept = dept;
-            const filtered = dept === 'All' ? appData.menus : appData.menus.filter(m => m.department === dept);
-            document.getElementById('menu-grid').innerHTML = generateMenuHTML(filtered);
-            renderPublicApp();
+        function filterMenus(dept) { 
+            currentDept = dept; 
+            document.getElementById('menu-grid').innerHTML = generateMenuHTML(dept === 'All' ? appData.menus : appData.menus.filter(m => m.department === dept)); 
+            renderPublicApp(); 
         }
 
         // ==========================================
@@ -160,8 +134,7 @@
         // ==========================================
         function checkAdminAuth() {
             const token = sessionStorage.getItem('adminToken');
-            if (token) renderAdminDashboard();
-            else renderLogin();
+            if (token) renderAdminDashboard(); else renderLogin();
         }
 
         function renderLogin() {
@@ -169,37 +142,24 @@
                 <div class="flex flex-col items-center justify-center min-h-screen px-4 bg-slate-50">
                     <div class="w-full max-w-sm bg-white p-8 rounded-[2rem] shadow-2xl border border-slate-100">
                         <div class="text-center mb-8">
-                            <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center mx-auto text-3xl mb-4 shadow-lg rotate-3">
-                                <i class="fas fa-user-lock -rotate-3"></i>
-                            </div>
+                            <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center mx-auto text-3xl mb-4 shadow-lg rotate-3"><i class="fas fa-user-lock -rotate-3"></i></div>
                             <h2 class="text-2xl font-bold text-slate-800">Admin Login</h2>
                             <p class="text-sm text-slate-500 mt-1">เข้าสู่ระบบจัดการแผงควบคุม</p>
                         </div>
                         <form onsubmit="handleLogin(event)">
                             <div class="mb-4">
                                 <label class="block text-sm font-semibold mb-1 text-slate-700">ชื่อผู้ใช้</label>
-                                <div class="relative">
-                                    <i class="fas fa-user absolute left-4 top-3.5 text-slate-400"></i>
-                                    <input type="text" id="username" class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="admin" required>
-                                </div>
+                                <div class="relative"><i class="fas fa-user absolute left-4 top-3.5 text-slate-400"></i><input type="text" id="username" class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="admin" required></div>
                             </div>
                             <div class="mb-6">
                                 <label class="block text-sm font-semibold mb-1 text-slate-700">รหัสผ่าน</label>
-                                <div class="relative">
-                                    <i class="fas fa-lock absolute left-4 top-3.5 text-slate-400"></i>
-                                    <input type="password" id="password" class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="••••••••" required>
-                                </div>
+                                <div class="relative"><i class="fas fa-lock absolute left-4 top-3.5 text-slate-400"></i><input type="password" id="password" class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="••••••••" required></div>
                             </div>
-                            <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-blue-800 hover:shadow-xl transition-all duration-300">
-                                เข้าสู่ระบบ
-                            </button>
+                            <button type="submit" class="w-full bg-primary text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-blue-800 transition-all duration-300">เข้าสู่ระบบ</button>
                         </form>
-                        <div class="text-center mt-6">
-                            <a href="index.html" class="text-sm text-slate-500 hover:text-primary transition"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
-                        </div>
+                        <div class="text-center mt-6"><a href="index.html" class="text-sm text-slate-500 hover:text-primary transition"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a></div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         async function handleLogin(e) {
@@ -208,95 +168,37 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> กำลังตรวจสอบ...';
             btn.disabled = true;
-            
-            const payload = {
-                action: 'login',
-                username: e.target.username.value,
-                password: e.target.password.value
-            };
-
             try {
-                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: e.target.username.value, password: e.target.password.value }) });
                 const result = await response.json();
-                
-                if (result.status === 'success') {
-                    sessionStorage.setItem('adminToken', result.token);
-                    renderAdminDashboard();
-                } else {
-                    alert('เข้าสู่ระบบไม่สำเร็จ: ' + result.message);
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }
-            } catch (error) {
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+                if (result.status === 'success') { sessionStorage.setItem('adminToken', result.token); renderAdminDashboard(); } 
+                else { alert(result.message); btn.innerHTML = originalText; btn.disabled = false; }
+            } catch (error) { alert('เชื่อมต่อไม่ได้'); btn.innerHTML = originalText; btn.disabled = false; }
         }
 
         async function renderAdminDashboard() {
             appDiv.innerHTML = `<div class="flex h-screen items-center justify-center"><i class="fas fa-spinner fa-spin text-4xl text-primary"></i></div>`;
             await fetchData(); 
 
+            let contentHTML = '';
+            if (adminTab === 'menus') contentHTML = getMenusTabHTML();
+            else if (adminTab === 'banners') contentHTML = getBannersTabHTML();
+            else if (adminTab === 'news') contentHTML = getNewsTabHTML();
+
             appDiv.innerHTML = `
-                <div class="p-4 md:p-6 pb-20">
+                <div class="p-4 md:p-6 pb-20 max-w-5xl mx-auto">
                     <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                         <h2 class="text-xl font-bold text-primary flex items-center"><i class="fas fa-cogs mr-2 bg-blue-50 p-2 rounded-lg"></i> แผงควบคุมระบบ</h2>
                         <button onclick="sessionStorage.removeItem('adminToken'); window.location.reload();" class="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition text-sm font-medium"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
-                        <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-plus-circle text-accent"></i> เพิ่มเมนูนำทางใหม่</h3>
-                        <form id="addMenuForm" onsubmit="submitAddMenu(event)" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1">ชื่อเมนู</label>
-                                <input type="text" id="menuName" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="เช่น ระบบลางาน" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1">แผนก / หมวดหมู่</label>
-                                <input type="text" id="menuDept" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="เช่น HR, IT" required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1">ลิงก์ปลายทาง (URL)</label>
-                                <input type="text" id="menuLink" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="https://..." required>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1">ไอคอน (FontAwesome Class)</label>
-                                <input type="text" id="menuIcon" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="fas fa-link" value="fas fa-link">
-                            </div>
-                            <div class="md:col-span-2 pt-2">
-                                <button type="submit" id="btnAdd" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-800 transition shadow-md"><i class="fas fa-save mr-1"></i> บันทึกข้อมูลเมนู</button>
-                            </div>
-                        </form>
+                    <div class="flex bg-white rounded-2xl shadow-sm border border-slate-100 p-1 mb-6 overflow-x-auto no-scrollbar">
+                        <button onclick="changeTab('menus')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${adminTab === 'menus' ? 'bg-blue-50 text-primary shadow-sm' : 'text-slate-500 hover:bg-slate-50'}"><i class="fas fa-th-large mr-1"></i> จัดการเมนู</button>
+                        <button onclick="changeTab('banners')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${adminTab === 'banners' ? 'bg-blue-50 text-primary shadow-sm' : 'text-slate-500 hover:bg-slate-50'}"><i class="fas fa-images mr-1"></i> จัดการแบนเนอร์</button>
+                        <button onclick="changeTab('news')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${adminTab === 'news' ? 'bg-blue-50 text-primary shadow-sm' : 'text-slate-500 hover:bg-slate-50'}"><i class="fas fa-bullhorn mr-1"></i> จัดการข่าวสาร</button>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                        <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-list text-primary"></i> รายการเมนูปัจจุบัน</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[500px]">
-                                <thead>
-                                    <tr class="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider">
-                                        <th class="py-3 px-4 rounded-tl-lg">ไอคอน</th>
-                                        <th class="py-3 px-4">ชื่อเมนู</th>
-                                        <th class="py-3 px-4">แผนก</th>
-                                        <th class="py-3 px-4 text-right rounded-tr-lg">จัดการ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${appData.menus.map(m => `
-                                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                                            <td class="py-3 px-4 text-primary text-lg"><i class="${m.icon}"></i></td>
-                                            <td class="py-3 px-4 font-medium text-sm text-slate-700">${m.name}</td>
-                                            <td class="py-3 px-4 text-xs text-slate-500"><span class="bg-white border border-slate-200 px-2.5 py-1 rounded-md shadow-sm">${m.department}</span></td>
-                                            <td class="py-3 px-4 text-right">
-                                                <button onclick="submitDeleteMenu('${m.id}', '${m.name}')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50"><i class="fas fa-trash-alt"></i></button>
-                                            </td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <div class="animate-fade-in">${contentHTML}</div>
                     
                     <div class="text-center mt-8">
                         <a href="index.html" class="inline-flex items-center justify-center px-6 py-3 bg-slate-800 text-white rounded-xl text-sm font-medium hover:bg-slate-900 transition shadow-lg"><i class="fas fa-mobile-alt mr-2"></i> กลับไปดูหน้าแสดงผล</a>
@@ -305,57 +207,102 @@
             `;
         }
 
-        async function submitAddMenu(e) {
+        function changeTab(tab) { adminTab = tab; renderAdminDashboard(); }
+
+        // --- Tabs HTML ---
+        function getMenusTabHTML() {
+            return `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
+                    <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-plus-circle text-accent"></i> เพิ่มเมนูนำทางใหม่</h3>
+                    <form onsubmit="submitAction(event, 'addMenu')" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div><label class="block text-xs font-semibold text-slate-500 mb-1">ชื่อเมนู</label><input type="text" name="name" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" required></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 mb-1">แผนก</label><input type="text" name="department" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" required></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 mb-1">ลิงก์ปลายทาง (URL)</label><input type="text" name="link_url" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" required></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 mb-1">ไอคอน (FontAwesome Class)</label><input type="text" name="icon" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" value="fas fa-link"></div>
+                        <div class="md:col-span-2 pt-2"><button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-800 transition shadow-md"><i class="fas fa-save mr-1"></i> บันทึกเมนู</button></div>
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[500px]">
+                            <thead><tr class="bg-slate-50 text-xs text-slate-500 uppercase"><th class="py-3 px-4 rounded-tl-lg">เมนู</th><th class="py-3 px-4">แผนก</th><th class="py-3 px-4 text-right rounded-tr-lg">จัดการ</th></tr></thead>
+                            <tbody>${appData.menus.map(m => `<tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="py-3 px-4"><i class="${m.icon} text-primary w-6 text-lg"></i> <span class="font-medium text-sm">${m.name}</span></td><td class="py-3 px-4"><span class="bg-white border border-slate-200 px-2.5 py-1 rounded-md text-xs shadow-sm">${m.department}</span></td><td class="py-3 px-4 text-right"><button onclick="deleteAction('deleteMenu', '${m.id}', '${m.name}')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        function getBannersTabHTML() {
+            return `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
+                    <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-plus-circle text-accent"></i> เพิ่มแบนเนอร์ใหม่</h3>
+                    <form onsubmit="submitAction(event, 'addBanner')" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div><label class="block text-xs font-semibold text-slate-500 mb-1">ลิงก์รูปภาพ (Image URL)</label><input type="url" name="image_url" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="https://..." required></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 mb-1">ลิงก์ปลายทางเมื่อคลิก</label><input type="url" name="link_url" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="https://..." required></div>
+                        <div class="md:col-span-2 pt-2"><button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-800 transition shadow-md"><i class="fas fa-save mr-1"></i> บันทึกแบนเนอร์</button></div>
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[500px]">
+                            <thead><tr class="bg-slate-50 text-xs text-slate-500 uppercase"><th class="py-3 px-4 w-32 rounded-tl-lg">รูปภาพ</th><th class="py-3 px-4">ลิงก์ปลายทาง</th><th class="py-3 px-4 text-right rounded-tr-lg">จัดการ</th></tr></thead>
+                            <tbody>${appData.banners.map(b => `<tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="py-3 px-4"><img src="${b.image_url}" class="w-24 h-12 object-cover rounded-md border shadow-sm"></td><td class="py-3 px-4 text-xs text-blue-500 truncate max-w-[200px]"><a href="${b.link_url}" target="_blank" class="hover:underline">${b.link_url}</a></td><td class="py-3 px-4 text-right"><button onclick="deleteAction('deleteBanner', '${b.id}', 'แบนเนอร์นี้')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        function getNewsTabHTML() {
+            return `
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
+                    <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-plus-circle text-accent"></i> เพิ่มประกาศข่าวสาร</h3>
+                    <form onsubmit="submitAction(event, 'addNews')" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div><label class="block text-xs font-semibold text-slate-500 mb-1">หัวข้อข่าว / ประกาศ</label><input type="text" name="title" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" required></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 mb-1">วันที่ (ข้อความ)</label><input type="text" name="date" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="เช่น 25 มี.ค. 2026" required></div>
+                        <div class="md:col-span-2 pt-2"><button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-800 transition shadow-md"><i class="fas fa-save mr-1"></i> บันทึกข่าวสาร</button></div>
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[500px]">
+                            <thead><tr class="bg-slate-50 text-xs text-slate-500 uppercase"><th class="py-3 px-4 rounded-tl-lg">หัวข้อข่าว</th><th class="py-3 px-4">วันที่</th><th class="py-3 px-4 text-right rounded-tr-lg">จัดการ</th></tr></thead>
+                            <tbody>${appData.news.map(n => `<tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="py-3 px-4 font-medium text-sm text-slate-700">${n.title}</td><td class="py-3 px-4 text-xs text-slate-500">${n.date}</td><td class="py-3 px-4 text-right"><button onclick="deleteAction('deleteNews', '${n.id}', '${n.title}')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        // --- Core Actions ---
+        async function submitAction(e, actionType) {
             e.preventDefault();
-            const btn = document.getElementById('btnAdd');
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> กำลังบันทึก...';
             btn.disabled = true;
 
-            const payload = {
-                action: 'addMenu',
-                name: document.getElementById('menuName').value,
-                department: document.getElementById('menuDept').value,
-                link_url: document.getElementById('menuLink').value,
-                icon: document.getElementById('menuIcon').value
-            };
+            const formData = new FormData(e.target);
+            const payload = { action: actionType };
+            formData.forEach((value, key) => payload[key] = value);
 
             try {
                 const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await response.json();
-                
-                if (result.status === 'success') {
-                    renderAdminDashboard();
-                } else {
-                    alert('เกิดข้อผิดพลาด: ' + result.message);
-                    btn.innerHTML = '<i class="fas fa-save mr-1"></i> บันทึกข้อมูลเมนู';
-                    btn.disabled = false;
-                }
-            } catch (error) {
-                alert('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
-                btn.innerHTML = '<i class="fas fa-save mr-1"></i> บันทึกข้อมูลเมนู';
-                btn.disabled = false;
-            }
+                if (result.status === 'success') renderAdminDashboard();
+                else { alert('ข้อผิดพลาด: ' + result.message); btn.innerHTML = originalText; btn.disabled = false; }
+            } catch (error) { alert('เชื่อมต่อไม่ได้'); btn.innerHTML = originalText; btn.disabled = false; }
         }
 
-        async function submitDeleteMenu(id, name) {
-            if (!confirm(`ยืนยันการลบเมนู: "${name}" ใช่หรือไม่?`)) return;
-
+        async function deleteAction(actionType, id, nameLabel) {
+            if (!confirm(`ยืนยันการลบ: "${nameLabel}" ใช่หรือไม่?`)) return;
             try {
-                const payload = { action: 'deleteMenu', id: id };
-                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: actionType, id: id }) });
                 const result = await response.json();
-                
-                if (result.status === 'success') {
-                    renderAdminDashboard();
-                } else {
-                    alert('เกิดข้อผิดพลาด: ' + result.message);
-                }
-            } catch (error) {
-                alert('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้');
-            }
+                if (result.status === 'success') renderAdminDashboard();
+                else alert('ข้อผิดพลาด: ' + result.message);
+            } catch (error) { alert('เชื่อมต่อไม่ได้'); }
         }
 
-        // เริ่มต้นการทำงานของสคริปต์
+        // เริ่มแอป
         init();
     </script>
 </body>
