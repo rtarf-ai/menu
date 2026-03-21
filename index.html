@@ -1,138 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-  <base target="_top">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap');
-    body { font-family: 'Kanit', sans-serif; background-color: #F3F4F6; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .swiper-pagination-bullet-active { background: #6366F1 !important; }
-    .marquee { white-space: nowrap; animation: marquee 20s linear infinite; }
-    @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Navigation System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="max-w-md mx-auto bg-white min-h-screen shadow-xl relative">
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-compass"></i>
+                    <span id="siteTitle">Navigation</span>
+                </div>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </header>
 
-  <!-- Header -->
-  <header class="p-4 flex justify-between items-center bg-white sticky top-0 z-50 border-b">
-    <div class="flex items-center gap-2">
-      <div class="bg-indigo-600 p-2 rounded-lg text-white">
-        <i data-lucide="layout-grid" class="w-5 h-5"></i>
-      </div>
-      <h1 class="font-bold text-xl text-gray-800">SmartPortal</h1>
+        <!-- Banner Slider -->
+        <section class="banner-section">
+            <div class="banner-slider" id="bannerSlider">
+                <div class="banner-container" id="bannerContainer">
+                    <!-- Banners loaded dynamically -->
+                </div>
+                <div class="banner-dots" id="bannerDots"></div>
+            </div>
+        </section>
+
+        <!-- News Ticker -->
+        <section class="news-section">
+            <div class="news-header">
+                <i class="fas fa-bullhorn"></i>
+                <span>ประกาศข่าวสาร</span>
+            </div>
+            <div class="news-ticker" id="newsTicker">
+                <!-- News loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- Department Filter -->
+        <section class="filter-section">
+            <div class="filter-scroll" id="deptFilter">
+                <button class="filter-btn active" data-dept="all">ทั้งหมด</button>
+                <!-- Departments loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- Grid Menu -->
+        <section class="menu-section">
+            <div class="menu-grid" id="menuGrid">
+                <!-- Menu items loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 Navigation System. All rights reserved.</p>
+        </footer>
     </div>
-    <button onclick="location.reload()" class="text-gray-400 hover:text-indigo-600">
-      <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-    </button>
-  </header>
 
-  <!-- Banner Slider -->
-  <div class="swiper mySwiper h-48 w-full mt-2">
-    <div class="swiper-wrapper" id="banner-list">
-      <div class="swiper-slide bg-gray-200 animate-pulse"></div>
-    </div>
-    <div class="swiper-pagination"></div>
-  </div>
-
-  <!-- News Ticker -->
-  <div class="bg-indigo-900 text-white py-2 overflow-hidden flex items-center">
-    <div class="bg-indigo-600 px-3 z-10 text-xs font-bold italic shadow-lg">NEWS</div>
-    <div class="marquee text-sm" id="news-list">กำลังโหลดข่าวสารล่าสุด...</div>
-  </div>
-
-  <!-- Department Filter -->
-  <div class="flex gap-2 p-4 overflow-x-auto no-scrollbar" id="dept-filter">
-    <button onclick="filterMenu('all')" class="dept-btn active bg-indigo-600 text-white px-4 py-1.5 rounded-full text-sm shrink-0">ทั้งหมด</button>
-    <!-- Dept buttons will be here -->
-  </div>
-
-  <!-- Menu Grid -->
-  <div class="px-4 pb-20">
-    <div class="grid grid-cols-3 gap-4" id="menu-grid">
-      <!-- Skeleton Loading -->
-      <div class="aspect-square bg-gray-100 rounded-2xl animate-pulse"></div>
-      <div class="aspect-square bg-gray-100 rounded-2xl animate-pulse"></div>
-      <div class="aspect-square bg-gray-100 rounded-2xl animate-pulse"></div>
-    </div>
-  </div>
-
-  <!-- Bottom Nav (UI Only) -->
-  <div class="fixed bottom-0 max-w-md w-full bg-white/80 backdrop-blur-md border-t flex justify-around py-3">
-    <div class="text-indigo-600 flex flex-col items-center"><i data-lucide="home" class="w-6 h-6"></i><span class="text-[10px]">หน้าแรก</span></div>
-    <div class="text-gray-400 flex flex-col items-center"><i data-lucide="message-square" class="w-6 h-6"></i><span class="text-[10px]">แชท</span></div>
-    <div class="text-gray-400 flex flex-col items-center" onclick="window.location.href+='?page=admin'"><i data-lucide="user" class="w-6 h-6"></i><span class="text-[10px]">แอดมิน</span></div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script>
-    let allMenus = [];
-
-    async function loadData() {
-      // สำหรับเรียกผ่าน Google Apps Script โดยตรง
-      google.script.run.withSuccessHandler(data => {
-        renderBanners(data.banners);
-        renderNews(data.news);
-        allMenus = data.menu;
-        renderDepts(allMenus);
-        renderMenu('all');
-        lucide.createIcons();
-      }).getAllData();
-    }
-
-    function renderBanners(banners) {
-      const container = document.getElementById('banner-list');
-      container.innerHTML = banners.map(b => `
-        <div class="swiper-slide px-4">
-          <a href="${b.linkUrl}" class="block h-full w-full">
-            <img src="${b.imageUrl}" class="w-full h-full object-cover rounded-2xl shadow-md" />
-          </a>
-        </div>
-      `).join('');
-      new Swiper(".mySwiper", { pagination: { el: ".swiper-pagination" }, autoplay: true, loop: true });
-    }
-
-    function renderNews(news) {
-      document.getElementById('news-list').innerText = news.map(n => n.message).join(' | ');
-    }
-
-    function renderDepts(menus) {
-      const depts = ['all', ...new Set(menus.map(m => m.dept))];
-      const container = document.getElementById('dept-filter');
-      container.innerHTML = depts.map(d => `
-        <button onclick="filterMenu('${d}')" class="dept-btn ${d === 'all' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500'} px-4 py-1.5 rounded-full text-sm shrink-0 shadow-sm border border-gray-100 transition-all">
-          ${d === 'all' ? 'ทั้งหมด' : d}
-        </button>
-      `).join('');
-    }
-
-    function renderMenu(dept) {
-      const container = document.getElementById('menu-grid');
-      const filtered = dept === 'all' ? allMenus : allMenus.filter(m => m.dept === dept);
-      
-      container.innerHTML = filtered.map(m => `
-        <a href="${m.url}" class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm border border-gray-50 active:scale-95 transition-transform">
-          <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-2">
-            <i data-lucide="${m.icon || 'external-link'}"></i>
-          </div>
-          <span class="text-[11px] font-medium text-gray-700 text-center line-clamp-1">${m.title}</span>
-        </a>
-      `).join('');
-      lucide.createIcons();
-
-      // Update UI buttons
-      document.querySelectorAll('.dept-btn').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white');
-        btn.classList.add('bg-white', 'text-gray-500');
-        if(btn.innerText === (dept === 'all' ? 'ทั้งหมด' : dept)) {
-          btn.classList.add('bg-indigo-600', 'text-white');
-        }
-      });
-    }
-
-    window.onload = loadData;
-  </script>
+    <script src="app.js"></script>
 </body>
 </html>
