@@ -1,3 +1,150 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Attendance Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; }
+    .hidden { display: none; }
+    /* ปรับ Scrollbar ให้สวยงาม */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+  </style>
+</head>
+<body class="p-4 md:p-8 text-gray-800">
+
+  <div id="loginSection" class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 mt-10 border border-gray-100">
+    <div class="text-center mb-6">
+      <div class="inline-block bg-blue-100 p-3 rounded-full mb-3">
+        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.071 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-800">ลงชื่อเข้าใช้งาน</h2>
+      <p class="text-sm text-gray-500">ระบบเช็คชื่อกิจกรรมด้วย Dynamic QR Code</p>
+    </div>
+    <input type="text" id="loginId" placeholder="รหัสผู้ใช้งาน (UserID)" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+    <input type="password" id="loginPin" placeholder="รหัส PIN" class="w-full p-3 border border-gray-300 rounded-lg mb-6 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+    <button onclick="doLogin()" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-bold shadow-md transition duration-200">เข้าสู่ระบบ</button>
+  </div>
+
+  <div id="adminSection" class="hidden max-w-5xl mx-auto mt-6">
+    <div class="bg-white rounded-xl shadow-sm border p-6 mb-6 flex justify-between items-center">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800">🛠️ แดชบอร์ดผู้จัดกิจกรรม</h2>
+        <p class="text-gray-500 text-sm mt-1">ยินดีต้อนรับ, <span id="adminNameDisplay" class="font-semibold text-blue-600"></span></p>
+      </div>
+      <button onclick="logout()" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition">ออกจากระบบ</button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border lg:col-span-1 h-fit">
+        <h3 class="font-bold text-lg border-b pb-2 mb-4 text-indigo-700">✨ สร้างกิจกรรมใหม่</h3>
+        <input type="text" id="eventName" placeholder="ชื่อกิจกรรม" class="w-full p-2.5 border rounded-lg mb-3 bg-gray-50 focus:bg-white">
+        <input type="date" id="eventDate" class="w-full p-2.5 border rounded-lg mb-4 bg-gray-50 focus:bg-white">
+        
+        <div class="mb-2 flex justify-between items-center">
+          <label class="font-bold text-sm text-gray-700">เลือกเป้าหมาย:</label>
+          <select id="deptFilter" onchange="filterUsersForCreate()" class="text-sm border rounded p-1"></select>
+        </div>
+        
+        <div class="flex items-center mb-2 px-1">
+          <input type="checkbox" id="selectAllCreate" onclick="toggleSelectAll('userListCreate', this.checked)" class="mr-2 cursor-pointer">
+          <label for="selectAllCreate" class="text-sm font-bold text-blue-600 cursor-pointer">เลือกทั้งหมดในรายชื่อนี้</label>
+        </div>
+
+        <div id="userListCreate" class="h-48 overflow-y-auto bg-white border rounded-lg p-2 mb-4 text-sm shadow-inner">
+          </div>
+        <button onclick="submitCreateEvent()" class="w-full bg-green-600 text-white p-2.5 rounded-lg hover:bg-green-700 font-bold transition shadow">บันทึกกิจกรรม</button>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-sm border lg:col-span-2">
+        <h3 class="font-bold text-lg border-b pb-2 mb-4 text-indigo-700">📅 กิจกรรมที่กำลังดำเนินการ</h3>
+        <div id="eventList" class="space-y-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="editTargetModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white w-full max-w-md rounded-xl shadow-2xl p-6">
+      <h3 class="text-xl font-bold mb-4 text-gray-800">✏️ แก้ไขผู้เข้าร่วมกิจกรรม</h3>
+      <input type="hidden" id="editEventId">
+      
+      <div class="mb-3 flex justify-between items-center">
+        <select id="deptFilterEdit" onchange="filterUsersForEdit()" class="text-sm border rounded p-1 w-full"></select>
+      </div>
+      
+      <div class="flex items-center mb-2 px-1">
+        <input type="checkbox" id="selectAllEdit" onclick="toggleSelectAll('userListEdit', this.checked)" class="mr-2 cursor-pointer">
+        <label for="selectAllEdit" class="text-sm font-bold text-blue-600 cursor-pointer">เลือกทั้งหมด</label>
+      </div>
+
+      <div id="userListEdit" class="h-64 overflow-y-auto bg-gray-50 border rounded-lg p-2 mb-4 text-sm"></div>
+      
+      <div class="flex space-x-2">
+        <button onclick="saveEditedTargets()" class="w-1/2 bg-blue-600 text-white p-2.5 rounded-lg font-bold hover:bg-blue-700">บันทึก</button>
+        <button onclick="closeEditModal()" class="w-1/2 bg-gray-300 text-gray-800 p-2.5 rounded-lg font-bold hover:bg-gray-400">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="qrDisplaySection" class="hidden max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8 mt-10 text-center border">
+    <div class="flex justify-between items-center mb-6">
+      <button onclick="showSection('adminSection'); clearInterval(qrInterval);" class="text-gray-500 hover:text-gray-800 font-bold flex items-center">
+        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> กลับ
+      </button>
+    </div>
+    <h2 class="text-3xl font-bold mb-3 text-indigo-800" id="displayEventName">ชื่อกิจกรรม</h2>
+    <div class="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-bold mb-6 animate-pulse">
+      ⏳ QR Code จะเปลี่ยนรหัสใหม่ทุกๆ 15 วินาที
+    </div>
+    <div class="bg-gray-50 p-6 rounded-2xl inline-block shadow-inner mb-4">
+      <div id="qrcode" class="flex justify-center"></div>
+    </div>
+    <div id="qrTimer" class="text-gray-400 text-sm font-mono mt-2">กำลังโหลด...</div>
+  </div>
+
+  <div id="reportSection" class="hidden max-w-4xl mx-auto mt-6">
+    <div class="mb-4 flex justify-between items-center">
+      <button onclick="showSection('adminSection')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-300 shadow-sm">&larr; กลับหน้าหลัก</button>
+      <button onclick="exportPDF()" class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-700 shadow flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path></svg> โหลด PDF
+      </button>
+    </div>
+    
+    <div id="pdfContent" class="p-10 bg-white border shadow-sm rounded-xl">
+      <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">รายงานการเข้าร่วมกิจกรรม</h2>
+      <div class="grid grid-cols-2 gap-8">
+        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+          <h3 class="font-bold text-green-700 border-b border-green-200 pb-2 text-lg">✅ เข้าร่วมแล้ว (<span id="countPresent">0</span>)</h3>
+          <ul id="presentList" class="list-disc pl-5 mt-3 text-gray-700 space-y-1"></ul>
+        </div>
+        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+          <h3 class="font-bold text-red-700 border-b border-red-200 pb-2 text-lg">❌ ขาดกิจกรรม (<span id="countAbsent">0</span>)</h3>
+          <ul id="absentList" class="list-disc pl-5 mt-3 text-gray-700 space-y-1"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="userSection" class="hidden max-w-md mx-auto bg-white rounded-xl shadow-lg p-6 mt-10 border text-center">
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
+      <h2 class="text-xl font-bold text-blue-800">👋 <span id="userNameDisplay"></span></h2>
+      <button onclick="logout()" class="text-red-500 font-bold bg-red-50 px-3 py-1 rounded hover:bg-red-100">ออก</button>
+    </div>
+    <h3 class="font-bold mb-4 text-gray-700">📷 สแกน QR Code เพื่อลงชื่อ</h3>
+    <div class="bg-gray-100 p-2 rounded-lg mb-4 min-h-[250px] flex items-center justify-center">
+      <div id="reader" class="rounded overflow-hidden w-full h-full"></div>
+    </div>
+    <button onclick="startScanner()" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-bold shadow transition">เปิดกล้องสแกน</button>
+  </div>
+
 <script>
     // 🔴 นำ URL ของ Web App จาก Google Apps Script มาวางในเครื่องหมายคำพูดด้านล่างนี้
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw15t_gCBT1-deZYcu6fYFFqwGZGvuySfrrfKuNd6Y-RPI1DaDrzo_IzDR7WvRRMvk/exec";
@@ -273,3 +420,5 @@
       html2pdf().set({ margin: 15, filename: 'Attendance_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('pdfContent')).save();
     }
   </script>
+</body>
+</html>
