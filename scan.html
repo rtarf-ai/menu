@@ -1,0 +1,275 @@
+<script>
+    // 🔴 นำ URL ของ Web App จาก Google Apps Script มาวางในเครื่องหมายคำพูดด้านล่างนี้
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw15t_gCBT1-deZYcu6fYFFqwGZGvuySfrrfKuNd6Y-RPI1DaDrzo_IzDR7WvRRMvk/exec";
+
+    // ฟังก์ชันตัวกลางสำหรับคุยกับ Google Apps Script API
+    async function callBackend(action, data = {}) {
+      data.action = action;
+      try {
+        const response = await fetch(GAS_API_URL, {
+          method: 'POST',
+          // ใช้ text/plain เพื่อหลีกเลี่ยงปัญหา CORS Preflight ของเบราว์เซอร์
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(data)
+        });
+        return await response.json();
+      } catch (error) {
+        Swal.close();
+        Swal.fire('ข้อผิดพลาดการเชื่อมต่อ', 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
+        console.error(error);
+        return null;
+      }
+    }
+
+    let currentUser = {};
+    let allUsersList = [];
+    let qrInterval;
+    let html5QrCode;
+    let currentEditTargets = [];
+
+    // Navigation
+    function showSection(id) {
+      document.querySelectorAll('body > div').forEach(div => {
+        if(div.id) div.classList.add('hidden');
+      });
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    // Login & Logout
+    async function doLogin() {
+      const id = document.getElementById('loginId').value;
+      const pin = document.getElementById('loginPin').value;
+      if(!id || !pin) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
+      
+      Swal.showLoading();
+      const res = await callBackend('checkLogin', { userId: id, pin: pin });
+      if(!res) return;
+
+      Swal.close();
+      if (res.success) {
+        currentUser = res;
+        if (res.role === 'Admin') {
+          document.getElementById('adminNameDisplay').innerText = res.name;
+          loadAdminData();
+          showSection('adminSection');
+        } else {
+          document.getElementById('userNameDisplay').innerText = res.name;
+          showSection('userSection');
+        }
+      } else {
+        Swal.fire('ผิดพลาด', res.message, 'error');
+      }
+    }
+
+    function logout() {
+      currentUser = {};
+      if(html5QrCode && html5QrCode.isScanning) { 
+        html5QrCode.stop().catch(err => console.log(err)); 
+      }
+      clearInterval(qrInterval);
+      showSection('loginSection');
+      document.getElementById('loginId').value = '';
+      document.getElementById('loginPin').value = '';
+    }
+
+    // โหลดข้อมูล Dashboard สำหรับ Admin
+    async function loadAdminData() {
+      const users = await callBackend('getAllUsers');
+      if(users) {
+        allUsersList = users;
+        let depts = [...new Set(users.map(u => u.dept))];
+        let deptHtml = '<option value="ALL">ทุกแผนก</option>';
+        depts.forEach(d => deptHtml += `<option value="${d}">${d}</option>`);
+        document.getElementById('deptFilter').innerHTML = deptHtml;
+        document.getElementById('deptFilterEdit').innerHTML = deptHtml;
+        renderUserList(users, 'userListCreate');
+      }
+      refreshEventList();
+    }
+
+    async function refreshEventList() {
+      const events = await callBackend('getActiveEvents');
+      if(!events) return;
+      
+      let html = '';
+      if(events.length === 0) html = '<div class="text-center text-gray-400 py-4">ยังไม่มีกิจกรรม</div>';
+      events.forEach(e => {
+        html += `
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border border-gray-200 rounded-lg bg-white mb-2">
+            <div class="mb-3 md:mb-0">
+              <strong class="text-gray-800 text-lg">${e.name}</strong> 
+              <div class="text-sm text-gray-500 mt-1">📅 ${e.date}</div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="openDynamicQR('${e.id}', '${e.name}')" class="bg-indigo-600 text-white px-3 py-1.5 rounded text-sm hover:bg-indigo-700">โชว์ QR</button>
+              <button onclick="openEditModal('${e.id}')" class="bg-yellow-500 text-white px-3 py-1.5 rounded text-sm hover:bg-yellow-600">แก้คนเข้า</button>
+              <button onclick="viewReport('${e.id}')" class="bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700">ดูผล</button>
+              <button onclick="confirmDeleteEvent('${e.id}')" class="bg-red-500 text-white px-3 py-1.5 rounded text-sm hover:bg-red-600">ลบ</button>
+            </div>
+          </div>`;
+      });
+      document.getElementById('eventList').innerHTML = html;
+    }
+
+    function renderUserList(users, containerId, checkedIds = []) {
+      let html = '';
+      users.forEach(u => {
+        let isChecked = checkedIds.includes(u.id) ? 'checked' : '';
+        html += `
+          <label class="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-50">
+            <input type="checkbox" class="target-user-${containerId} mr-3 w-4 h-4 text-blue-600" value="${u.id}" ${isChecked}>
+            <span class="font-medium text-gray-700 w-16">${u.id}</span>
+            <span class="flex-1">${u.name}</span>
+            <span class="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-full">${u.dept}</span>
+          </label>`;
+      });
+      document.getElementById(containerId).innerHTML = html;
+    }
+
+    function filterUsersForCreate() {
+      let dept = document.getElementById('deptFilter').value;
+      let filtered = dept === 'ALL' ? allUsersList : allUsersList.filter(u => u.dept === dept);
+      renderUserList(filtered, 'userListCreate');
+    }
+
+    function filterUsersForEdit() {
+      let dept = document.getElementById('deptFilterEdit').value;
+      let filtered = dept === 'ALL' ? allUsersList : allUsersList.filter(u => u.dept === dept);
+      const currentChecked = Array.from(document.querySelectorAll('.target-user-userListEdit:checked')).map(cb => cb.value);
+      renderUserList(filtered, 'userListEdit', [...new Set([...currentEditTargets, ...currentChecked])]);
+    }
+
+    function toggleSelectAll(containerId, isChecked) {
+       document.querySelectorAll(`.target-user-${containerId}`).forEach(cb => cb.checked = isChecked);
+    }
+
+    // สร้างและแก้ไขกิจกรรม
+    async function submitCreateEvent() {
+      const name = document.getElementById('eventName').value;
+      const date = document.getElementById('eventDate').value;
+      const targets = Array.from(document.querySelectorAll('.target-user-userListCreate:checked')).map(cb => cb.value);
+      
+      if(!name || !date || targets.length === 0) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบและเลือกคนอย่างน้อย 1 คน', 'warning');
+
+      Swal.showLoading();
+      const res = await callBackend('createEvent', { eventName: name, date: date, targetUserIds: targets });
+      if(res && res.success) {
+        Swal.fire('สำเร็จ', 'บันทึกกิจกรรมเรียบร้อย', 'success');
+        document.getElementById('eventName').value = '';
+        refreshEventList();
+      }
+    }
+
+    async function openEditModal(eventId) {
+      document.getElementById('editEventId').value = eventId;
+      Swal.showLoading();
+      const targetIds = await callBackend('getEventTargets', { eventId: eventId });
+      if(targetIds) {
+        Swal.close();
+        currentEditTargets = targetIds;
+        renderUserList(allUsersList, 'userListEdit', targetIds);
+        document.getElementById('editTargetModal').classList.remove('hidden');
+      }
+    }
+
+    function closeEditModal() { document.getElementById('editTargetModal').classList.add('hidden'); }
+
+    async function saveEditedTargets() {
+      const eventId = document.getElementById('editEventId').value;
+      const newTargets = Array.from(document.querySelectorAll('.target-user-userListEdit:checked')).map(cb => cb.value);
+      
+      if(newTargets.length === 0) return Swal.fire('แจ้งเตือน', 'ต้องมีคนเข้าอย่างน้อย 1 คน', 'warning');
+      
+      Swal.showLoading();
+      const res = await callBackend('updateEventTargets', { eventId: eventId, newTargetIds: newTargets });
+      if(res && res.success) {
+        Swal.fire('สำเร็จ', 'อัปเดตรายชื่อเป้าหมายเรียบร้อย', 'success');
+        closeEditModal();
+      }
+    }
+
+    function confirmDeleteEvent(eventId) {
+      Swal.fire({
+        title: 'ยืนยันการลบ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          Swal.showLoading();
+          await callBackend('deleteEvent', { eventId: eventId });
+          Swal.fire('ลบสำเร็จ', '', 'success');
+          refreshEventList();
+        }
+      });
+    }
+
+    // Dynamic QR Generator
+    let qrcodeObj = null;
+    function openDynamicQR(eventId, eventName) {
+      document.getElementById('displayEventName').innerText = eventName;
+      showSection('qrDisplaySection');
+      if(qrcodeObj) qrcodeObj.clear();
+      document.getElementById('qrcode').innerHTML = "";
+      qrcodeObj = new QRCode(document.getElementById("qrcode"), { width: 280, height: 280, colorDark : "#1e3a8a", colorLight : "#ffffff" });
+
+      function generateNewQR() {
+        qrcodeObj.makeCode(`${eventId}|${new Date().getTime()}`);
+        document.getElementById('qrTimer').innerText = `อัปเดตล่าสุด: ${new Date().toLocaleTimeString()}`;
+      }
+      generateNewQR();
+      clearInterval(qrInterval);
+      qrInterval = setInterval(generateNewQR, 15000); 
+    }
+
+    // ================= USER SCANNER =================
+    function startScanner() {
+      document.getElementById('reader').innerHTML = '<div class="py-10 text-center text-blue-600 font-bold animate-pulse">กำลังเชื่อมต่อกล้อง...</div>';
+      if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+
+      Html5Qrcode.getCameras().then(devices => {
+        if (devices && devices.length) {
+          let cameraId = devices[devices.length - 1].id; 
+          for (let i = 0; i < devices.length; i++) {
+            if (devices[i].label.toLowerCase().includes('back') || devices[i].label.toLowerCase().includes('rear')) cameraId = devices[i].id;
+          }
+          html5QrCode.start(cameraId, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess, () => {}).catch(err => {
+            Swal.fire('ข้อผิดพลาดกล้อง', err.toString(), 'error');
+            document.getElementById('reader').innerHTML = '';
+          });
+        }
+      }).catch(err => {
+        Swal.fire('ถูกบล็อกกล้อง', 'เบราว์เซอร์ไม่อนุญาตให้ใช้กล้อง', 'error');
+        document.getElementById('reader').innerHTML = '';
+      });
+    }
+
+    async function onScanSuccess(decodedText, decodedResult) {
+      if (html5QrCode.getState() === 2) html5QrCode.pause(); 
+      Swal.showLoading();
+      
+      const res = await callBackend('processQRScan', { qrData: decodedText, userId: currentUser.userId });
+      if(res) {
+        if(res.success) {
+          Swal.fire({ icon: 'success', title: 'เช็คชื่อสำเร็จ!', text: res.message, timer: 2000, showConfirmButton: false }).then(() => { if(html5QrCode.getState()===3) html5QrCode.resume(); });
+        } else {
+          Swal.fire('ผิดพลาด', res.message, 'error').then(() => { if(html5QrCode.getState()===3) html5QrCode.resume(); });
+        }
+      }
+    }
+
+    // ================= REPORT SECTION =================
+    async function viewReport(eventId) {
+      Swal.showLoading();
+      const report = await callBackend('getEventReport', { eventId: eventId });
+      if(report) {
+        Swal.close();
+        document.getElementById('countPresent').innerText = report.present.length;
+        document.getElementById('countAbsent').innerText = report.absent.length;
+        document.getElementById('presentList').innerHTML = report.present.map(u => `<li>${u.id} - ${u.name}</li>`).join('') || '<li class="text-gray-400">- ไม่มี -</li>';
+        document.getElementById('absentList').innerHTML = report.absent.map(u => `<li>${u.id} - ${u.name}</li>`).join('') || '<li class="text-gray-400">- ไม่มี -</li>';
+        showSection('reportSection');
+      }
+    }
+
+    function exportPDF() {
+      html2pdf().set({ margin: 15, filename: 'Attendance_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('pdfContent')).save();
+    }
+  </script>
