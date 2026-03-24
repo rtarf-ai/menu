@@ -383,6 +383,12 @@
         }
 
         init();
+
+                if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/menu/sw.js')
+                .then(reg => console.log('Service Worker registered successfully'))
+                .catch(err => console.log('Service Worker registration failed: ', err));
+        }
     </script>
 </body>
 </html>
