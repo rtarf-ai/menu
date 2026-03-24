@@ -1,18 +1,31 @@
+/* style.css - Updated version for smaller banner */
 body { 
     background-color: #f8fafc; 
 }
 
+/* 🟢 ปรับแก้ส่วนนี้ เพื่อลดขนาดภาพแบนเนอร์ 🟢 */
 .swiper-slide img { 
     width: 100%; 
-    height: 200px; 
+    /* 🔽 ลดความสูงบนมือถือลงเหลือ 160px (จากเดิม 200px) 🔽 */
+    height: 160px; 
     object-fit: cover; 
     border-radius: 1rem; 
 }
 
 @media (min-width: 768px) { 
     .swiper-slide img { 
-        height: 350px; 
+        /* 🔽 ลดความสูงบนคอมพิวเตอร์ลงเหลือ 260px (จากเดิม 350px) 🔽 */
+        height: 260px; 
     } 
+}
+/* ------------------------------------------ */
+
+/* นำ shadow และ border ออกจาก container หลักของ Swiper 
+   เพื่อให้ภาพดูไม่ลอยเกินไปเมื่อขนาดเล็กลง */
+.swiper.mySwiper {
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
 }
 
 .no-scrollbar::-webkit-scrollbar { 
