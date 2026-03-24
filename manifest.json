@@ -1,0 +1,22 @@
+{
+  "name": "MyMDU.25",
+  "short_name": "MyMDU.25",
+  "description": "แอปพลิเคชันของ นพค.25",
+  "start_url": "/menu/index.html",
+  "display": "standalone",
+  "background_color": "#01142e",
+  "theme_color": "#01142e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/menu/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/menu/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

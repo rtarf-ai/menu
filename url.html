@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTARF AI Menu</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- ลิงก์ไปยัง Manifest -->
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+    <!-- ======== ส่วนที่ 1: หน้าเมนูหลัก ======== -->
+    <main id="main-menu" class="page">
+        <h1>RTARF AI Menu</h1>
+        <div class="menu-grid">
+            <!-- 
+                สำคัญ: เปลี่ยน <a> ธรรมดาเป็น <button> 
+                และใส่ URL ของเว็บแอปใน data-url 
+            -->
+            <button class="menu-item" data-url="https://script.google.com/macros/s/AKfycbzvKqQI7AIm7IbNWJqlAo-APlql4V5G3DExnD0aI3LWar2vUmKtRyBtbjYDznO3xIE/exec" data-title="แอปที่ 1">
+                เปิดแอปที่ 1
+            </button>
+            <button class="menu-item" data-url="YOUR_OTHER_APP_URL_HERE" data-title="แอปที่ 2">
+                เปิดแอปที่ 2
+            </button>
+            <!-- เพิ่มปุ่มอื่นๆ ตามต้องการ -->
+        </div>
+    </main>
+
+    <!-- ======== ส่วนที่ 2: หน้าแสดงเว็บแอปภายนอก (ซ่อนไว้) ======== -->
+    <div id="app-viewer" class="page hidden">
+        <header class="app-header">
+            <button id="back-button" class="header-button">&lt; กลับไปเมนู</button>
+            <h2 id="app-title" class="header-title"></h2>
+        </header>
+        <iframe id="app-iframe" src="about:blank"></iframe>
+    </div>
+
+    <!-- ลิงก์ไปยัง JavaScript และลงทะเบียน Service Worker -->
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/menu/sw.js')
+                .then(reg => console.log('Service Worker registered successfully'))
+                .catch(err => console.log('Service Worker registration failed: ', err));
+        }
+    </script>
+
+</body>
+</html>
