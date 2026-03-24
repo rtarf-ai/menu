@@ -1,6 +1,6 @@
 const App = {
     // ==========================================
-    // ตั้งค่าตัวแปรระบบ
+    // ตั้งค่า URL ของ Web App
     // ==========================================
     config: {
         scriptUrl: 'https://script.google.com/macros/s/AKfycbyb1fm6bZqzRBBKPbVYWPa0HVxtxyO_fa7X60eb7sqvtDG06rF7pGhQiMlh6QPg-u8/exec'
@@ -15,22 +15,23 @@ const App = {
         adminTab: 'menus'
     },
 
-    // ==========================================
-    // การเข้าถึง DOM
-    // ==========================================
-    elements: {
-        app: document.getElementById('app'),
-        modal: document.getElementById('news-modal'),
-        modalContent: document.getElementById('news-modal-content'),
-        modalTitle: document.getElementById('modal-title'),
-        modalDate: document.getElementById('modal-date'),
-        modalBody: document.getElementById('modal-body')
-    },
+    // เก็บตัวแปร DOM เพื่อใช้งาน
+    elements: {},
 
     // ==========================================
     // เริ่มต้นแอปพลิเคชัน
     // ==========================================
     async init() {
+        // ย้ายการผูก DOM มาไว้ใน init() เพื่อให้แน่ใจว่าโหลด HTML เสร็จแล้ว
+        this.elements = {
+            app: document.getElementById('app'),
+            modal: document.getElementById('news-modal'),
+            modalContent: document.getElementById('news-modal-content'),
+            modalTitle: document.getElementById('modal-title'),
+            modalDate: document.getElementById('modal-date'),
+            modalBody: document.getElementById('modal-body')
+        };
+
         this.registerServiceWorker();
         this.handleRouting();
 
@@ -57,7 +58,7 @@ const App = {
             history.pushState(null, '', '?page=admin');
             this.checkAdminAuth();
         } else {
-            history.pushState(null, '', window.location.pathname); // ลบ query string
+            history.pushState(null, '', window.location.pathname);
             this.loadPublicApp();
         }
     },
@@ -73,7 +74,9 @@ const App = {
                 this.state.data = result.data;
             }
         } catch (error) {
-            this.elements.app.innerHTML = '<p class="text-center text-red-500 mt-10"><i class="fas fa-exclamation-triangle"></i> เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+            if (this.elements.app) {
+                this.elements.app.innerHTML = '<p class="text-center text-red-500 mt-10"><i class="fas fa-exclamation-triangle"></i> เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูล</p>';
+            }
         }
     },
 
@@ -81,12 +84,16 @@ const App = {
     // UI: หน้าผู้ใช้งานทั่วไป
     // ==========================================
     async loadPublicApp() {
-        this.elements.app.innerHTML = this.getLoadingHTML('กำลังโหลดข้อมูลองค์กร...');
+        if (this.elements.app) {
+            this.elements.app.innerHTML = this.getLoadingHTML('กำลังโหลดข้อมูลองค์กร...');
+        }
         await this.fetchApiData();
         this.renderPublicApp();
     },
 
     renderPublicApp() {
+        if (!this.elements.app) return;
+
         const { banners, news, menus, departments } = this.state.data;
         const currentDept = this.state.currentDept;
         const filteredMenus = currentDept === 'All' ? menus : menus.filter(m => m.department === currentDept);
@@ -106,7 +113,7 @@ const App = {
             <main class="px-4 animate-scale-up">
                 <div class="swiper mySwiper mb-8 shadow-xl rounded-2xl border border-slate-100">
                     <div class="swiper-wrapper">
-                        ${banners.map(b => `<div class="swiper-slide cursor-pointer" onclick="window.open('${b.link_url}', '_blank')"><img src="${b.image_url}" alt="Banner"></div>`).join('')}
+                        ${banners.map(b => `<div class="swiper-slide cursor-pointer" onclick="window.open('${b.link_url}', '_blank')"><img src="${b.image_url}" alt="Banner" onerror="this.src='https://placehold.co/600x400?text=Image+Not+Found'"></div>`).join('')}
                     </div>
                     <div class="swiper-pagination"></div>
                 </div>
@@ -152,13 +159,15 @@ const App = {
         
         this.elements.app.innerHTML = html;
         
-        // กำหนดค่า Swiper หลังจาก Render HTML เสร็จ
-        new Swiper(".mySwiper", { 
-            pagination: { el: ".swiper-pagination", dynamicBullets: true }, 
-            autoplay: { delay: 3500, disableOnInteraction: false }, 
-            loop: true, 
-            effect: "fade" 
-        });
+        // ตรวจสอบก่อนเรียกใช้งาน Swiper
+        if (typeof Swiper !== 'undefined') {
+            new Swiper(".mySwiper", { 
+                pagination: { el: ".swiper-pagination", dynamicBullets: true }, 
+                autoplay: { delay: 3500, disableOnInteraction: false }, 
+                loop: true, 
+                effect: "fade" 
+            });
+        }
     },
 
     generateMenuHTML(menus) {
@@ -183,7 +192,7 @@ const App = {
     // ==========================================
     openNewsModal(newsId) {
         const newsItem = this.state.data.news.find(n => n.id === newsId);
-        if(!newsItem) return;
+        if(!newsItem || !this.elements.modal) return;
 
         this.elements.modalTitle.innerText = newsItem.title;
         this.elements.modalDate.innerHTML = `<i class="far fa-clock mr-1"></i> ${newsItem.date}`;
@@ -197,6 +206,7 @@ const App = {
     },
 
     closeNewsModal() {
+        if (!this.elements.modal) return;
         this.elements.modal.classList.add('opacity-0');
         this.elements.modalContent.classList.add('scale-95');
         
@@ -213,6 +223,7 @@ const App = {
     },
 
     renderLogin() {
+        if (!this.elements.app) return;
         this.elements.app.innerHTML = `
             <div class="flex flex-col items-center justify-center min-h-screen px-4 bg-slate-50 animate-fade-in">
                 <div class="w-full max-w-sm bg-white p-8 rounded-[2rem] shadow-2xl border border-slate-100">
@@ -269,12 +280,16 @@ const App = {
     },
 
     async loadAdminDashboard() {
-        this.elements.app.innerHTML = this.getLoadingHTML('กำลังโหลดแผงควบคุม...');
+        if (this.elements.app) {
+            this.elements.app.innerHTML = this.getLoadingHTML('กำลังโหลดแผงควบคุม...');
+        }
         await this.fetchApiData();
         this.renderAdminDashboard();
     },
 
     renderAdminDashboard() {
+        if (!this.elements.app) return;
+        
         let contentHTML = '';
         if (this.state.adminTab === 'menus') contentHTML = this.getMenusTabHTML();
         else if (this.state.adminTab === 'banners') contentHTML = this.getBannersTabHTML();
@@ -349,7 +364,7 @@ const App = {
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse min-w-[500px]">
                         <thead><tr class="bg-slate-50 text-xs text-slate-500 uppercase"><th class="py-3 px-4 w-32 rounded-tl-lg">รูปภาพ</th><th class="py-3 px-4">ลิงก์ปลายทาง</th><th class="py-3 px-4 text-right rounded-tr-lg">จัดการ</th></tr></thead>
-                        <tbody>${this.state.data.banners.map(b => `<tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="py-3 px-4"><img src="${b.image_url}" class="w-24 h-12 object-cover rounded-md border shadow-sm"></td><td class="py-3 px-4 text-xs text-blue-500 truncate max-w-[200px]"><a href="${b.link_url}" target="_blank" class="hover:underline">${b.link_url}</a></td><td class="py-3 px-4 text-right"><button onclick="App.deleteAction('deleteBanner', '${b.id}', 'แบนเนอร์นี้')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50 cursor-pointer"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}</tbody>
+                        <tbody>${this.state.data.banners.map(b => `<tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="py-3 px-4"><img src="${b.image_url}" class="w-24 h-12 object-cover rounded-md border shadow-sm" onerror="this.src='https://placehold.co/600x400?text=Error'"></td><td class="py-3 px-4 text-xs text-blue-500 truncate max-w-[200px]"><a href="${b.link_url}" target="_blank" class="hover:underline">${b.link_url}</a></td><td class="py-3 px-4 text-right"><button onclick="App.deleteAction('deleteBanner', '${b.id}', 'แบนเนอร์นี้')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50 cursor-pointer"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}</tbody>
                     </table>
                 </div>
             </div>`;
@@ -395,7 +410,7 @@ const App = {
             const result = await response.json();
             
             if (result.status === 'success') {
-                await this.loadAdminDashboard(); // โหลดข้อมูลใหม่หลังจากบันทึก
+                await this.loadAdminDashboard();
             } else { 
                 alert('ข้อผิดพลาด: ' + result.message); 
                 btn.innerHTML = originalText; 
@@ -415,7 +430,7 @@ const App = {
             const result = await response.json();
             
             if (result.status === 'success') {
-                this.loadAdminDashboard(); // โหลดข้อมูลใหม่หลังจากลบ
+                this.loadAdminDashboard();
             } else {
                 alert('ข้อผิดพลาด: ' + result.message);
             }
@@ -446,5 +461,7 @@ const App = {
     }
 };
 
-// เริ่มต้นการทำงานเมื่อ DOM โหลดเสร็จ
-document.addEventListener('DOMContentLoaded', () => App.init());
+// ใช้ DOMContentLoaded เพื่อรับประกันว่า HTML ถูกวาดเสร็จแล้วถึงค่อยเริ่มทำงาน
+document.addEventListener('DOMContentLoaded', () => {
+    App.init();
+});
