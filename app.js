@@ -27,12 +27,17 @@ const App = {
             modalContent: document.getElementById('news-modal-content'),
             modalTitle: document.getElementById('modal-title'),
             modalDate: document.getElementById('modal-date'),
-            modalBody: document.getElementById('modal-body')
+            modalBody: document.getElementById('modal-body'),
+            // เพิ่มการจับตัวแปร In-App Viewer
+            viewer: document.getElementById('in-app-viewer'),
+            viewerFrame: document.getElementById('viewer-frame'),
+            viewerTitle: document.getElementById('viewer-title')
         };
 
         this.registerServiceWorker();
         this.handleRouting();
 
+        // ตรวจจับการกดปุ่มย้อนกลับของเบราว์เซอร์
         window.addEventListener('popstate', () => this.handleRouting());
     },
 
@@ -166,21 +171,50 @@ const App = {
         }
     },
 
+    // 🟢 เปลี่ยนจากเปิดหน้าต่างใหม่ เป็นเปิดในแอป (In-App)
     generateMenuHTML(menus) {
         if (menus.length === 0) return `<div class="col-span-3 md:col-span-4 text-center py-8 text-slate-400 text-sm"><i class="fas fa-folder-open text-2xl mb-2"></i><br>ไม่มีเมนูในหมวดหมู่นี้</div>`;
         return menus.map(m => `
-            <a href="${m.link_url}" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 group">
+            <div onclick="App.openInApp('${m.link_url}', '${m.name}')" class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 group cursor-pointer">
                 <div class="w-14 h-14 bg-blue-50 text-primary rounded-2xl flex items-center justify-center text-2xl mb-3 group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm">
                     <i class="${m.icon || 'fas fa-link'}"></i>
                 </div>
                 <span class="text-xs text-center font-medium text-slate-700 line-clamp-2">${m.name}</span>
-            </a>
+            </div>
         `).join('');
     },
 
     filterMenus(dept) { 
         this.state.currentDept = dept; 
         this.renderPublicApp(); 
+    },
+
+    // ==========================================
+    // ระบบ In-App Browser (เปิดเว็บซ้อนในแอป)
+    // ==========================================
+    openInApp(url, title) {
+        if (!this.elements.viewer) return;
+        
+        this.elements.viewerTitle.innerText = title;
+        this.elements.viewer.classList.remove('hidden');
+        
+        // หน่วงเวลาเล็กน้อยเพื่อให้ Animation ทำงาน
+        setTimeout(() => {
+            this.elements.viewer.classList.remove('translate-x-full');
+            this.elements.viewerFrame.src = url; // โหลดเว็บปลายทาง
+        }, 10);
+    },
+
+    closeInApp() {
+        if (!this.elements.viewer) return;
+        
+        this.elements.viewer.classList.add('translate-x-full');
+        
+        // รอให้ Animation จบแล้วค่อยซ่อนและเคลียร์เนื้อหาทิ้ง
+        setTimeout(() => {
+            this.elements.viewer.classList.add('hidden');
+            this.elements.viewerFrame.src = ''; 
+        }, 300);
     },
 
     // ==========================================
@@ -457,6 +491,9 @@ const App = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+// 🟢 โหลดแอปทันทีเมื่อโครงสร้าง HTML ถูกอ่านเสร็จสมบูรณ์
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => App.init());
+} else {
     App.init();
-});
+}
