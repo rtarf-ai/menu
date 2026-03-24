@@ -15,14 +15,12 @@ const App = {
         adminTab: 'menus'
     },
 
-    // เก็บตัวแปร DOM เพื่อใช้งาน
     elements: {},
 
     // ==========================================
     // เริ่มต้นแอปพลิเคชัน
     // ==========================================
     async init() {
-        // ย้ายการผูก DOM มาไว้ใน init() เพื่อให้แน่ใจว่าโหลด HTML เสร็จแล้ว
         this.elements = {
             app: document.getElementById('app'),
             modal: document.getElementById('news-modal'),
@@ -35,7 +33,6 @@ const App = {
         this.registerServiceWorker();
         this.handleRouting();
 
-        // ตรวจจับการกดปุ่ม Back/Forward ของเบราว์เซอร์
         window.addEventListener('popstate', () => this.handleRouting());
     },
 
@@ -159,7 +156,6 @@ const App = {
         
         this.elements.app.innerHTML = html;
         
-        // ตรวจสอบก่อนเรียกใช้งาน Swiper
         if (typeof Swiper !== 'undefined') {
             new Swiper(".mySwiper", { 
                 pagination: { el: ".swiper-pagination", dynamicBullets: true }, 
@@ -461,7 +457,6 @@ const App = {
     }
 };
 
-// ใช้ DOMContentLoaded เพื่อรับประกันว่า HTML ถูกวาดเสร็จแล้วถึงค่อยเริ่มทำงาน
 document.addEventListener('DOMContentLoaded', () => {
     App.init();
 });
