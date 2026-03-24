@@ -28,7 +28,6 @@ const App = {
             modalTitle: document.getElementById('modal-title'),
             modalDate: document.getElementById('modal-date'),
             modalBody: document.getElementById('modal-body'),
-            // เพิ่มการจับตัวแปร In-App Viewer
             viewer: document.getElementById('in-app-viewer'),
             viewerFrame: document.getElementById('viewer-frame'),
             viewerTitle: document.getElementById('viewer-title')
@@ -171,7 +170,6 @@ const App = {
         }
     },
 
-    // 🟢 เปลี่ยนจากเปิดหน้าต่างใหม่ เป็นเปิดในแอป (In-App)
     generateMenuHTML(menus) {
         if (menus.length === 0) return `<div class="col-span-3 md:col-span-4 text-center py-8 text-slate-400 text-sm"><i class="fas fa-folder-open text-2xl mb-2"></i><br>ไม่มีเมนูในหมวดหมู่นี้</div>`;
         return menus.map(m => `
@@ -197,11 +195,11 @@ const App = {
         
         this.elements.viewerTitle.innerText = title;
         this.elements.viewer.classList.remove('hidden');
+        this.elements.viewer.classList.add('flex'); // บังคับให้แสดงผลเต็มพื้นที่
         
-        // หน่วงเวลาเล็กน้อยเพื่อให้ Animation ทำงาน
         setTimeout(() => {
             this.elements.viewer.classList.remove('translate-x-full');
-            this.elements.viewerFrame.src = url; // โหลดเว็บปลายทาง
+            this.elements.viewerFrame.src = url; 
         }, 10);
     },
 
@@ -210,9 +208,9 @@ const App = {
         
         this.elements.viewer.classList.add('translate-x-full');
         
-        // รอให้ Animation จบแล้วค่อยซ่อนและเคลียร์เนื้อหาทิ้ง
         setTimeout(() => {
             this.elements.viewer.classList.add('hidden');
+            this.elements.viewer.classList.remove('flex'); // ล้างค่าออกเมื่อซ่อน
             this.elements.viewerFrame.src = ''; 
         }, 300);
     },
@@ -491,7 +489,7 @@ const App = {
     }
 };
 
-// 🟢 โหลดแอปทันทีเมื่อโครงสร้าง HTML ถูกอ่านเสร็จสมบูรณ์
+// เริ่มโหลดแอป
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => App.init());
 } else {
