@@ -35,12 +35,18 @@
   </div>
 
   <div id="adminSection" class="hidden max-w-5xl mx-auto mt-6">
-    <div class="bg-white rounded-xl shadow-sm border p-6 mb-6 flex justify-between items-center">
+    <div class="bg-white rounded-xl shadow-sm border p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
       <div>
         <h2 class="text-2xl font-bold text-gray-800">🛠️ แดชบอร์ดผู้จัดกิจกรรม</h2>
         <p class="text-gray-500 text-sm mt-1">ยินดีต้อนรับ, <span id="adminNameDisplay" class="font-semibold text-blue-600"></span></p>
       </div>
-      <button onclick="logout()" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition">ออกจากระบบ</button>
+      <div class="flex space-x-2">
+        <button onclick="goToScannerFromAdmin()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow flex items-center">
+          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          ลงชื่อตัวเอง
+        </button>
+        <button onclick="logout()" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition">ออกจากระบบ</button>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -142,7 +148,10 @@
           <span id="userStatusDisplay" class="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700">สถานะ</span>
         </div>
       </div>
-      <button onclick="logout()" class="text-red-500 font-bold bg-red-50 px-3 py-1 rounded hover:bg-red-100">ออก</button>
+      <div class="flex space-x-2">
+        <button id="btnBackToAdmin" onclick="showSection('adminSection'); if(html5QrCode && html5QrCode.isScanning) { html5QrCode.stop().catch(e=>console.log(e)); }" class="hidden bg-gray-200 text-gray-700 font-bold px-3 py-1 rounded hover:bg-gray-300">กลับแดชบอร์ด</button>
+        <button onclick="logout()" class="text-red-500 font-bold bg-red-50 px-3 py-1 rounded hover:bg-red-100">ออก</button>
+      </div>
     </div>
     <h3 class="font-bold mb-4 text-gray-700">📷 สแกน QR Code เพื่อลงชื่อ</h3>
     <div class="bg-gray-100 p-2 rounded-lg mb-4 min-h-[250px] flex items-center justify-center">
@@ -201,6 +210,7 @@
       Swal.close();
       if (res.success) {
         currentUser = res;
+        if(document.getElementById('btnBackToAdmin')) document.getElementById('btnBackToAdmin').classList.add('hidden');
         
         // นำข้อมูล Avatar และ Status ไปใส่ในหน้าจอ User
         document.getElementById('userNameDisplay').innerText = res.name;
@@ -431,6 +441,19 @@
     function exportPDF() {
       html2pdf().set({ margin: 15, filename: 'Attendance_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('pdfContent')).save();
     }
+
+function goToScannerFromAdmin() {
+      // โหลดข้อมูลตัวเองมาแสดงที่หน้าสแกน
+      document.getElementById('userNameDisplay').innerText = currentUser.name;
+      if(document.getElementById('userAvatarDisplay')) document.getElementById('userAvatarDisplay').src = currentUser.avatar;
+      if(document.getElementById('userStatusDisplay')) document.getElementById('userStatusDisplay').innerText = currentUser.status || 'Active';
+      
+      // เปิดให้เห็นปุ่ม "กลับแดชบอร์ด"
+      document.getElementById('btnBackToAdmin').classList.remove('hidden');
+      
+      showSection('userSection');
+    }
+  
   </script>
 </body>
 </html>
