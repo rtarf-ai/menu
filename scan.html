@@ -645,7 +645,7 @@
     }
 
     // สร้างและแก้ไขกิจกรรม
-    async function submitCreateEvent() {
+async function submitCreateEvent() {
       const name = document.getElementById('eventName').value;
       const date = document.getElementById('eventDate').value;
       const targets = Array.from(document.querySelectorAll('.target-user-userListCreate:checked')).map(cb => cb.value);
@@ -656,6 +656,8 @@
 
       Swal.showLoading();
       const res = await callBackend('createEvent', { eventName: name, date: date, targetUserIds: targets });
+      
+      // ✅ เพิ่มการดักจับเงื่อนไขให้ครบถ้วน
       if(res && res.success) {
         Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'สร้างกิจกรรมใหม่เรียบร้อยแล้ว', confirmButtonColor: '#3b82f6' });
         document.getElementById('eventName').value = '';
@@ -663,6 +665,10 @@
         document.querySelectorAll('.target-user-userListCreate').forEach(cb => cb.checked = false);
         document.getElementById('selectAllCreate').checked = false;
         refreshEventList();
+      } else {
+        // 🔴 ถ้าหลังบ้านส่ง Error กลับมา ให้ปิดตัวโหลดและโชว์สาเหตุ
+        let errorMsg = res ? res.message : 'ไม่สามารถติดต่อ Google Apps Script ได้';
+        Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: errorMsg, confirmButtonColor: '#ef4444' });
       }
     }
 
