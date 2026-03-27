@@ -118,7 +118,12 @@ const App = {
             <main class="px-5 animate-scale-up">
                 <div class="swiper mySwiper mb-8 shadow-soft rounded-[1.5rem] overflow-hidden border border-white bg-white">
                     <div class="swiper-wrapper">
-                        ${banners.map(b => `<div class="swiper-slide cursor-pointer active:scale-[0.98] transition-transform" onclick="window.open('${b.link_url}', '_blank')"><img src="${b.image_url}" alt="Banner" class="w-full h-48 md:h-64 object-cover" onerror="this.src='https://placehold.co/600x400?text=Image+Not+Found'"></div>`).join('')}
+                        ${banners.map(b => `
+                            <div class="swiper-slide cursor-pointer active:scale-[0.98] transition-transform" 
+                                 onclick="App.openInApp('${b.link_url}', 'รายละเอียดแบนเนอร์')">
+                                <img src="${b.image_url}" alt="Banner" class="w-full h-48 md:h-64 object-cover" onerror="this.src='https://placehold.co/600x400?text=Image+Not+Found'">
+                            </div>
+                        `).join('')}
                     </div>
                     <div class="swiper-pagination"></div>
                 </div>
@@ -210,28 +215,45 @@ const App = {
     // ==========================================
     // ระบบ In-App Browser (เปิดเว็บซ้อนในแอป)
     // ==========================================
-    openInApp(url, title) {
+openInApp(url, title) {
         if (!this.elements.viewer) return;
         
-        this.elements.viewerTitle.innerText = title;
+        // 1. ตั้งค่า Title และเปลี่ยนสถานะให้พร้อมแสดงผล
+        this.elements.viewerTitle.innerText = title || 'รายละเอียด';
         this.elements.viewer.classList.remove('hidden');
         this.elements.viewer.classList.add('flex'); // บังคับให้แสดงผลเต็มพื้นที่
         
-        setTimeout(() => {
+        // 2. ล็อกหน้าจอหลักไม่ให้เลื่อนได้ (Body Scroll Lock) แบบแอปมือถือ
+        document.body.style.overflow = 'hidden';
+
+        // 3. ใช้ requestAnimationFrame เพื่อให้การสไลด์เข้าลื่นไหลที่สุด (60fps)
+        requestAnimationFrame(() => {
             this.elements.viewer.classList.remove('translate-x-full');
+        });
+        
+        // 4. โหลด URL ใส่ iframe (หน่วงเวลาเล็กน้อยเพื่อให้ Animation สไลด์เข้าทำงานเสร็จก่อน ป้องกันจอกระตุก)
+        setTimeout(() => {
             this.elements.viewerFrame.src = url; 
-        }, 10);
+        }, 250);
     },
 
     closeInApp() {
         if (!this.elements.viewer) return;
         
+        // 1. เริ่ม Animation สไลด์ออก
         this.elements.viewer.classList.add('translate-x-full');
         
+        // 2. ปลดล็อกหน้าจอหลักให้กลับมาเลื่อนได้ปกติ
+        document.body.style.overflow = '';
+        
+        // 3. รอให้ Animation จบ (300ms) แล้วค่อยซ่อน DOM และเคลียร์ค่า
         setTimeout(() => {
             this.elements.viewer.classList.add('hidden');
-            this.elements.viewer.classList.remove('flex'); // ล้างค่าออกเมื่อซ่อน
-            this.elements.viewerFrame.src = ''; 
+            this.elements.viewer.classList.remove('flex');
+            
+            // เคลียร์ iframe กลับเป็นหน้าว่าง เพื่อคืนหน่วยความจำให้มือถือ
+            this.elements.viewerFrame.src = 'about:blank'; 
+            this.elements.viewerTitle.innerText = 'กำลังโหลด...';
         }, 300);
     },
 
