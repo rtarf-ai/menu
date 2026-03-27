@@ -92,6 +92,9 @@ const App = {
         this.renderPublicApp();
     },
 
+    // ==========================================
+    // UI: หน้าผู้ใช้งานทั่วไป (ปรับปรุงดีไซน์พรีเมียม)
+    // ==========================================
     renderPublicApp() {
         if (!this.elements.app) return;
 
@@ -100,44 +103,45 @@ const App = {
         const filteredMenus = currentDept === 'All' ? menus : menus.filter(m => m.department === currentDept);
 
         let html = `
-            <header class="bg-primary text-white p-5 rounded-b-3xl shadow-lg mb-6 flex justify-between items-center relative overflow-hidden animate-fade-in">
+            <header class="bg-gradient-to-br from-primary via-blue-800 to-blue-900 text-white p-6 rounded-b-[2rem] shadow-soft mb-6 flex justify-between items-center relative overflow-hidden animate-fade-in pt-[calc(env(safe-area-inset-top)+1.5rem)]">
                 <div class="relative z-10">
-                    <h1 class="text-2xl font-bold tracking-wide">MyMDU.25</h1>
-                    <p class="text-sm text-secondary font-medium">นพค.25 สนภ.2 นทพ.</p>
+                    <h1 class="text-2xl font-bold tracking-tight">MyMDU<span class="text-accent">.25</span></h1>
+                    <p class="text-xs text-blue-200 font-medium mt-0.5 tracking-wide uppercase">นพค.25 สนภ.2 นทพ.</p>
                 </div>
-                <button onclick="App.navigate('admin')" class="relative z-10 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition cursor-pointer">
-                    <i class="fas fa-user-shield text-xl"></i>
+                <button onclick="App.navigate('admin')" class="relative z-10 w-11 h-11 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/20 active:scale-95 transition-all cursor-pointer border border-white/10 shadow-sm">
+                    <i class="fas fa-user-shield text-lg"></i>
                 </button>
-                <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                <div class="absolute right-20 -bottom-10 w-32 h-32 bg-accent/20 rounded-full blur-2xl"></div>
             </header>
 
-            <main class="px-4 animate-scale-up">
-                <div class="swiper mySwiper mb-8 shadow-xl rounded-2xl border border-slate-100">
+            <main class="px-5 animate-scale-up">
+                <div class="swiper mySwiper mb-8 shadow-soft rounded-[1.5rem] overflow-hidden border border-white bg-white">
                     <div class="swiper-wrapper">
-                        ${banners.map(b => `<div class="swiper-slide cursor-pointer" onclick="window.open('${b.link_url}', '_blank')"><img src="${b.image_url}" alt="Banner" onerror="this.src='https://placehold.co/600x400?text=Image+Not+Found'"></div>`).join('')}
+                        ${banners.map(b => `<div class="swiper-slide cursor-pointer active:scale-[0.98] transition-transform" onclick="window.open('${b.link_url}', '_blank')"><img src="${b.image_url}" alt="Banner" class="w-full h-48 md:h-64 object-cover" onerror="this.src='https://placehold.co/600x400?text=Image+Not+Found'"></div>`).join('')}
                     </div>
                     <div class="swiper-pagination"></div>
                 </div>
 
                 <div class="mb-8">
                     <div class="flex items-center justify-between mb-4 px-1">
-                        <h2 class="text-lg font-bold text-slate-800"><i class="fas fa-newspaper text-primary mr-2"></i>ข่าวประกาศ!</h2>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                            <span class="w-8 h-8 rounded-lg bg-blue-50 text-primary flex items-center justify-center mr-2 shadow-sm"><i class="fas fa-newspaper text-sm"></i></span>
+                            ข่าวประกาศ
+                        </h2>
                     </div>
                     <div class="flex flex-col gap-3">
                         ${news.map(n => `
-                            <div onclick="App.openNewsModal('${n.id}')" class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-200 transition-all flex items-start gap-4 cursor-pointer group">
-                                <div class="w-12 h-12 bg-blue-50 text-primary rounded-xl flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                                    <i class="fas fa-bullhorn text-xl"></i>
+                            <div onclick="App.openNewsModal('${n.id}')" class="bg-white p-4 rounded-[1.25rem] shadow-[0_2px_10px_rgba(0,0,0,0.03)] border border-slate-100/80 hover:shadow-soft active:scale-[0.98] transition-all flex items-start gap-4 cursor-pointer">
+                                <div class="w-12 h-12 bg-gradient-to-br from-blue-50 to-slate-100 text-primary rounded-2xl flex items-center justify-center shrink-0 border border-white shadow-sm">
+                                    <i class="fas fa-bullhorn text-lg"></i>
                                 </div>
                                 <div class="flex-1 pt-0.5">
                                     <div class="flex items-center gap-2 mb-1.5">
-                                        <span class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide group-hover:bg-blue-100 group-hover:text-primary transition-colors">ประกาศ</span>
-                                        <span class="text-xs text-slate-400 font-medium"><i class="far fa-clock mr-1"></i>${n.date}</span>
+                                        <span class="bg-accent/10 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide">ประกาศ</span>
+                                        <span class="text-[11px] text-slate-400 font-medium"><i class="far fa-clock mr-1"></i>${n.date}</span>
                                     </div>
-                                    <h3 class="font-semibold text-slate-800 text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">${n.title}</h3>
-                                </div>
-                                <div class="text-slate-200 group-hover:text-primary pt-3 transition-colors">
-                                    <i class="fas fa-chevron-right text-sm"></i>
+                                    <h3 class="font-semibold text-slate-700 text-sm leading-snug line-clamp-2">${n.title}</h3>
                                 </div>
                             </div>
                         `).join('')}
@@ -145,14 +149,18 @@ const App = {
                 </div>
 
                 <div class="flex items-center justify-between mb-4 px-1">
-                    <h2 class="text-lg font-bold text-slate-800"><i class="fas fa-th-large text-primary mr-2"></i>ระบบเมนู</h2>
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                        <span class="w-8 h-8 rounded-lg bg-blue-50 text-primary flex items-center justify-center mr-2 shadow-sm"><i class="fas fa-layer-group text-sm"></i></span>
+                        แอปพลิเคชัน
+                    </h2>
                 </div>
-                <div class="flex overflow-x-auto gap-2 mb-6 no-scrollbar pb-2">
-                    <button onclick="App.filterMenus('All')" class="dept-btn shrink-0 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${currentDept === 'All' ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}">ทั้งหมด</button>
-                    ${departments.map(d => `<button onclick="App.filterMenus('${d}')" class="dept-btn shrink-0 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${currentDept === d ? 'bg-primary text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}">${d}</button>`).join('')}
+                
+                <div class="flex overflow-x-auto gap-2.5 mb-5 no-scrollbar pb-2 px-1">
+                    <button onclick="App.filterMenus('All')" class="dept-btn shrink-0 px-5 py-2 rounded-full text-[13px] font-bold transition-all duration-300 active:scale-95 ${currentDept === 'All' ? 'bg-slate-800 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200/80 hover:bg-slate-50'}">ทั้งหมด</button>
+                    ${departments.map(d => `<button onclick="App.filterMenus('${d}')" class="dept-btn shrink-0 px-5 py-2 rounded-full text-[13px] font-bold transition-all duration-300 active:scale-95 ${currentDept === d ? 'bg-slate-800 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200/80 hover:bg-slate-50'}">${d}</button>`).join('')}
                 </div>
 
-                <div id="menu-grid" class="grid grid-cols-3 md:grid-cols-4 gap-4 pb-8">
+                <div id="menu-grid" class="grid grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-6 pb-12 px-1">
                     ${this.generateMenuHTML(filteredMenus)}
                 </div>
             </main>
@@ -163,21 +171,33 @@ const App = {
         if (typeof Swiper !== 'undefined') {
             new Swiper(".mySwiper", { 
                 pagination: { el: ".swiper-pagination", dynamicBullets: true }, 
-                autoplay: { delay: 3500, disableOnInteraction: false }, 
+                autoplay: { delay: 4000, disableOnInteraction: false }, 
                 loop: true, 
-                effect: "fade" 
+                effect: "slide",
+                spaceBetween: 10
             });
         }
     },
 
+    // ==========================================
+    // เรนเดอร์ HTML ของเมนูย่อย (Premium Grid Item)
+    // ==========================================
     generateMenuHTML(menus) {
-        if (menus.length === 0) return `<div class="col-span-3 md:col-span-4 text-center py-8 text-slate-400 text-sm"><i class="fas fa-folder-open text-2xl mb-2"></i><br>ไม่มีเมนูในหมวดหมู่นี้</div>`;
+        if (menus.length === 0) return `
+            <div class="col-span-3 md:col-span-4 flex flex-col items-center justify-center py-10 bg-white/50 rounded-3xl border border-dashed border-slate-200">
+                <div class="w-16 h-16 bg-slate-100 text-slate-300 rounded-full flex items-center justify-center text-3xl mb-3"><i class="fas fa-folder-open"></i></div>
+                <span class="text-slate-400 text-sm font-medium">ไม่มีเมนูในหมวดหมู่นี้</span>
+            </div>`;
+            
         return menus.map(m => `
-            <div onclick="App.openInApp('${m.link_url}', '${m.name}')" class="flex flex-col items-center justify-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 group cursor-pointer">
-                <div class="w-14 h-14 bg-blue-50 text-primary rounded-2xl flex items-center justify-center text-2xl mb-3 group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm">
-                    <i class="${m.icon || 'fas fa-link'}"></i>
+            <div onclick="App.openInApp('${m.link_url}', '${m.name}')" class="flex flex-col items-center group cursor-pointer active:scale-90 active:opacity-80 transition-all duration-200">
+                <div class="relative w-[3.5rem] h-[3.5rem] md:w-[4rem] md:h-[4rem] mb-2.5 shadow-[0_4px_12px_rgba(0,0,0,0.06)] group-hover:shadow-soft rounded-[1.25rem] bg-gradient-to-b from-white to-slate-50 border border-slate-100 flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1">
+                    <div class="absolute inset-2 bg-blue-50/50 rounded-xl transition-colors group-hover:bg-blue-100/50"></div>
+                    <i class="${m.icon || 'fas fa-link'} text-[1.5rem] text-primary relative z-10 drop-shadow-sm transition-transform group-hover:scale-110"></i>
                 </div>
-                <span class="text-xs text-center font-medium text-slate-700 line-clamp-2">${m.name}</span>
+                <span class="text-[11px] md:text-xs text-center font-medium text-slate-600 leading-tight line-clamp-2 px-1 transition-colors group-hover:text-primary">
+                    ${m.name}
+                </span>
             </div>
         `).join('');
     },
