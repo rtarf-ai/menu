@@ -3,116 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ติดตั้ง MyMDU.25</title>
+    <title>ติดตั้ง MyMDU.25 :: แอปพลิเคชั่น นพค.25</title>
+    
     <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MyMDU.25">
+    <link rel="apple-touch-icon" href="https://rtarf-ai.github.io/menu/icon-192.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Sarabun', 'sans-serif'] },
+                    colors: { primary: '#1e3a8a', accent: '#fbbf24' }
+                }
+            }
+        }
+    </script>
+
     <style>
-        body { font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .bg-primary { background-color: #1e3a8a; }
-        .text-primary { color: #1e3a8a; }
-        #offline-status { transition: transform 0.3s ease; transform: translateY(-100%); }
-        #offline-status.show { transform: translateY(0); }
+        body { -webkit-tap-highlight-color: transparent; }
+        .glass-effect { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .slide-up { animation: slideUp 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        #offline-indicator { transition: all 0.3s ease; transform: translateY(-100%); }
+        #offline-indicator.visible { transform: translateY(0); }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-slate-50 text-slate-800 antialiased overflow-hidden">
 
-    <div id="offline-status" class="fixed top-0 left-0 right-0 z-[100] bg-red-600 text-white text-center py-2 text-sm font-medium shadow-lg">
-        <i class="fas fa-wifi-slash mr-2"></i> คุณกำลังใช้งานแบบออฟไลน์
+    <div id="offline-indicator" class="fixed top-0 left-0 right-0 z-[100] bg-red-600 text-white text-center py-2.5 text-sm font-bold shadow-lg">
+        <i class="fas fa-wifi-slash mr-2"></i> ไม่พบการเชื่อมต่ออินเทอร์เน็ต
     </div>
 
-    <div class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
-        <div class="mb-8 relative">
-            <div class="absolute inset-0 bg-blue-600/20 blur-3xl rounded-full"></div>
-            <div class="relative bg-white p-4 rounded-[2.5rem] shadow-2xl">
-                <img src="icon-512.png" alt="MyMDU Logo" class="w-32 h-32 rounded-[2rem]">
-            </div>
-        </div>
-
-        <h1 class="text-2xl font-bold mb-2">MyMDU.25</h1>
-        <p class="text-slate-500 mb-10 leading-relaxed">แอปพลิเคชั่น นพค.25 <br>เพื่อความสะดวกในการเข้าใช้งานผ่านหน้าจอหลัก</p>
-
-        <button id="pwa-install-btn" class="hidden w-full max-w-xs bg-primary hover:bg-blue-900 text-white font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-3">
-            <i class="fas fa-download"></i> ติดตั้งแอปพลิเคชัน
-        </button>
-
-        <div id="ios-prompt" class="hidden text-slate-400 text-sm animate-pulse">
-            <i class="fas fa-info-circle mr-1"></i> เลื่อนลงเพื่อดูวิธีติดตั้งบน iPhone
-        </div>
-    </div>
-
-    <div id="ios-guide" class="fixed inset-0 z-50 hidden flex-col justify-end bg-black/50 backdrop-blur-sm">
-        <div class="bg-white rounded-t-[2.5rem] p-8 pb-12 shadow-2xl">
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-            <h2 class="text-xl font-bold mb-6 text-center">วิธีติดตั้งบน iOS (Safari)</h2>
-            <div class="space-y-5">
-                <div class="flex items-start gap-4">
-                    <div class="w-8 h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center shrink-0 font-bold">1</div>
-                    <p class="text-slate-600">กดปุ่ม <i class="fa-regular fa-square-caret-up text-blue-600 text-lg mx-1"></i> (แชร์) ด้านล่างของ Safari</p>
-                </div>
-                <div class="flex items-start gap-4">
-                    <div class="w-8 h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center shrink-0 font-bold">2</div>
-                    <p class="text-slate-600">เลือกเมนู <span class="font-bold text-slate-900">"เพิ่มลงหน้าจอโฮม"</span> (Add to Home Screen)</p>
+    <main class="min-h-screen flex flex-col items-center justify-center p-8 text-center relative">
+        <div class="w-full max-w-sm">
+            <div class="relative mb-10 inline-block">
+                <div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
+                <div class="relative bg-white p-5 rounded-[2.8rem] shadow-2xl border border-slate-100">
+                    <img src="https://rtarf-ai.github.io/menu/icon-512.png" alt="MyMDU Logo" class="w-32 h-32 rounded-[2.2rem]">
                 </div>
             </div>
+
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">MyMDU.25</h1>
+            <p class="text-lg font-medium text-primary mb-4 italic">แอปพลิเคชั่น นพค.25</p>
+            <p class="text-slate-500 mb-12 leading-relaxed text-sm">ติดตั้งแอปเพื่อรับข้อมูลข่าวสาร ประวัติส่วนตัว และเมนูบริการต่างๆ ได้อย่างรวดเร็วผ่านหน้าจอหลัก</p>
+
+            <button id="android-btn" class="hidden w-full bg-primary hover:bg-blue-900 text-white font-bold py-5 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
+                <i class="fas fa-plus-circle text-xl"></i>
+                ติดตั้งลงบนเครื่องทันที
+            </button>
+
+            <div id="checker" class="flex flex-col items-center gap-3">
+                <div class="w-6 h-6 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                <p class="text-xs text-slate-400 font-medium tracking-wide">กำลังตรวจสอบสถานะอุปกรณ์...</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="ios-sheet" class="fixed inset-0 z-[80] hidden flex-col justify-end bg-black/60 backdrop-blur-sm">
+        <div class="glass-effect rounded-t-[3rem] p-10 pb-16 shadow-2xl slide-up">
+            <div class="w-16 h-1.5 bg-slate-300 rounded-full mx-auto mb-10"></div>
+            <h2 class="text-2xl font-bold mb-8 text-center text-slate-900">ติดตั้งบน iPhone / iPad</h2>
+            
+            <div class="space-y-8 max-w-md mx-auto">
+                <div class="flex items-start gap-5">
+                    <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shrink-0 font-bold shadow-lg">1</div>
+                    <p class="text-slate-700 text-lg pt-1">แตะปุ่ม <span class="bg-white border px-3 py-1.5 rounded-lg shadow-sm mx-1"><i class="fa-regular fa-share-from-square text-blue-600"></i> แชร์</span> ด้านล่างของ Safari</p>
+                </div>
+                <div class="flex items-start gap-5">
+                    <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shrink-0 font-bold shadow-lg">2</div>
+                    <p class="text-slate-700 text-lg pt-1">เลื่อนลงแล้วเลือก <span class="font-bold text-slate-950 underline decoration-primary decoration-2 underline-offset-4">"เพิ่มลงหน้าจอโฮม"</span></p>
+                </div>
+            </div>
+            
+            <button onclick="document.getElementById('ios-sheet').style.display='none'" class="mt-12 w-full py-4 text-slate-400 font-medium">ปิดหน้าต่างนี้</button>
         </div>
     </div>
 
-    <div id="line-block" class="fixed inset-0 z-[60] hidden flex-col items-center justify-center bg-white p-10 text-center">
-        <i class="fab fa-line text-green-500 text-6xl mb-6"></i>
-        <h2 class="text-2xl font-bold mb-4">โปรดเปิดในเบราว์เซอร์ปกติ</h2>
-        <p class="text-slate-500 mb-8">เพื่อการติดตั้งแอป โปรดกด <i class="fas fa-ellipsis-h"></i> หรือ <i class="fas fa-compass"></i> และเลือก <strong>"เปิดในเบราว์เซอร์ปกติ"</strong></p>
+    <div id="line-overlay" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center bg-white p-10 text-center">
+        <div class="w-24 h-24 bg-red-50 text-red-600 rounded-full flex items-center justify-center mb-8 animate-bounce">
+            <i class="fas fa-external-link-alt text-4xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold mb-4">เปิดด้วย Safari หรือ Chrome</h2>
+        <p class="text-slate-500 mb-10 leading-relaxed text-lg">เพื่อให้สามารถติดตั้งแอปได้ โปรดแตะจุดสามจุด <span class="font-bold">(...)</span> และเลือก <br><strong>"เปิดในเบราว์เซอร์ปกติ"</strong></p>
+        <div class="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+            <div class="bg-primary h-full w-1/2 animate-[loading_2s_infinite]"></div>
+        </div>
     </div>
 
     <script>
-        // 1. Redirect จาก LINE
+        // --- 1. การจัดการสถานะ Offline/Online ---
+        const offlineIndicator = document.getElementById('offline-indicator');
+        function updateConnectionStatus() {
+            if (navigator.onLine) offlineIndicator.classList.remove('visible');
+            else offlineIndicator.classList.add('visible');
+        }
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // --- 2. การตรวจจับ Browser & Platform ---
         const ua = navigator.userAgent || navigator.vendor || window.opera;
-        if (ua.indexOf('Line') > -1) {
-            if (/Android/i.test(ua)) {
-                window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
-            } else {
-                document.getElementById('line-block').classList.remove('hidden');
-            }
-        }
-
-        // 2. ตรวจสอบสถานะ Online/Offline
-        function updateStatus() {
-            document.getElementById('offline-status').classList.toggle('show', !navigator.onLine);
-        }
-        window.addEventListener('online', updateStatus);
-        window.addEventListener('offline', updateStatus);
-        updateStatus();
-
-        // 3. PWA Logic
-        let deferredPrompt;
+        const isLine = ua.indexOf('Line') > -1;
         const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+        const isAndroid = /Android/i.test(ua);
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-        if (isStandalone) {
-            window.location.href = 'index.html'; // ถ้าติดตั้งแล้วให้ส่งไปหน้าหลักทันที
-        }
+        const androidBtn = document.getElementById('android-btn');
+        const iosSheet = document.getElementById('ios-sheet');
+        const lineOverlay = document.getElementById('line-overlay');
+        const checker = document.getElementById('checker');
 
+        // --- 3. Logic การทำงานหลัก ---
+        window.addEventListener('load', () => {
+            // ก) ถ้าติดตั้งอยู่แล้ว ให้เด้งไปหน้า index.html
+            if (isStandalone) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // ข) จัดการผู้ใช้จากแอป LINE
+            if (isLine) {
+                if (isAndroid) {
+                    window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
+                } else {
+                    lineOverlay.classList.remove('hidden');
+                    checker.classList.add('hidden');
+                }
+                return;
+            }
+
+            // ค) จัดการ iOS (Safari)
+            if (isIOS) {
+                checker.classList.add('hidden');
+                setTimeout(() => {
+                    iosSheet.classList.remove('hidden');
+                    iosSheet.classList.add('flex');
+                }, 1000);
+            }
+        });
+
+        // --- 4. Android Install Prompt ---
+        let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('pwa-install-btn').classList.remove('hidden');
+            checker.classList.add('hidden');
+            androidBtn.classList.remove('hidden');
         });
 
-        document.getElementById('pwa-install-btn').onclick = async () => {
+        androidBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') window.location.href = 'index.html';
+                if (outcome === 'accepted') {
+                    window.location.href = 'index.html';
+                }
                 deferredPrompt = null;
             }
-        };
+        });
 
-        if (isIOS && !isStandalone) {
-            document.getElementById('ios-guide').classList.remove('hidden');
-            document.getElementById('ios-prompt').classList.remove('hidden');
-        }
-
+        // ลงทะเบียน Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
