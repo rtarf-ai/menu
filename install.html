@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ติดตั้ง MyMDU.25</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .bg-primary { background-color: #1e3a8a; }
+        .text-primary { color: #1e3a8a; }
+        #offline-status { transition: transform 0.3s ease; transform: translateY(-100%); }
+        #offline-status.show { transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="offline-status" class="fixed top-0 left-0 right-0 z-[100] bg-red-600 text-white text-center py-2 text-sm font-medium shadow-lg">
+        <i class="fas fa-wifi-slash mr-2"></i> คุณกำลังใช้งานแบบออฟไลน์
+    </div>
+
+    <div class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+        <div class="mb-8 relative">
+            <div class="absolute inset-0 bg-blue-600/20 blur-3xl rounded-full"></div>
+            <div class="relative bg-white p-4 rounded-[2.5rem] shadow-2xl">
+                <img src="icon-512.png" alt="MyMDU Logo" class="w-32 h-32 rounded-[2rem]">
+            </div>
+        </div>
+
+        <h1 class="text-2xl font-bold mb-2">MyMDU.25</h1>
+        <p class="text-slate-500 mb-10 leading-relaxed">แอปพลิเคชั่น นพค.25 <br>เพื่อความสะดวกในการเข้าใช้งานผ่านหน้าจอหลัก</p>
+
+        <button id="pwa-install-btn" class="hidden w-full max-w-xs bg-primary hover:bg-blue-900 text-white font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-3">
+            <i class="fas fa-download"></i> ติดตั้งแอปพลิเคชัน
+        </button>
+
+        <div id="ios-prompt" class="hidden text-slate-400 text-sm animate-pulse">
+            <i class="fas fa-info-circle mr-1"></i> เลื่อนลงเพื่อดูวิธีติดตั้งบน iPhone
+        </div>
+    </div>
+
+    <div id="ios-guide" class="fixed inset-0 z-50 hidden flex-col justify-end bg-black/50 backdrop-blur-sm">
+        <div class="bg-white rounded-t-[2.5rem] p-8 pb-12 shadow-2xl">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+            <h2 class="text-xl font-bold mb-6 text-center">วิธีติดตั้งบน iOS (Safari)</h2>
+            <div class="space-y-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center shrink-0 font-bold">1</div>
+                    <p class="text-slate-600">กดปุ่ม <i class="fa-regular fa-square-caret-up text-blue-600 text-lg mx-1"></i> (แชร์) ด้านล่างของ Safari</p>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center shrink-0 font-bold">2</div>
+                    <p class="text-slate-600">เลือกเมนู <span class="font-bold text-slate-900">"เพิ่มลงหน้าจอโฮม"</span> (Add to Home Screen)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="line-block" class="fixed inset-0 z-[60] hidden flex-col items-center justify-center bg-white p-10 text-center">
+        <i class="fab fa-line text-green-500 text-6xl mb-6"></i>
+        <h2 class="text-2xl font-bold mb-4">โปรดเปิดในเบราว์เซอร์ปกติ</h2>
+        <p class="text-slate-500 mb-8">เพื่อการติดตั้งแอป โปรดกด <i class="fas fa-ellipsis-h"></i> หรือ <i class="fas fa-compass"></i> และเลือก <strong>"เปิดในเบราว์เซอร์ปกติ"</strong></p>
+    </div>
+
+    <script>
+        // 1. Redirect จาก LINE
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        if (ua.indexOf('Line') > -1) {
+            if (/Android/i.test(ua)) {
+                window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
+            } else {
+                document.getElementById('line-block').classList.remove('hidden');
+            }
+        }
+
+        // 2. ตรวจสอบสถานะ Online/Offline
+        function updateStatus() {
+            document.getElementById('offline-status').classList.toggle('show', !navigator.onLine);
+        }
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        updateStatus();
+
+        // 3. PWA Logic
+        let deferredPrompt;
+        const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        if (isStandalone) {
+            window.location.href = 'index.html'; // ถ้าติดตั้งแล้วให้ส่งไปหน้าหลักทันที
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-btn').classList.remove('hidden');
+        });
+
+        document.getElementById('pwa-install-btn').onclick = async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') window.location.href = 'index.html';
+                deferredPrompt = null;
+            }
+        };
+
+        if (isIOS && !isStandalone) {
+            document.getElementById('ios-guide').classList.remove('hidden');
+            document.getElementById('ios-prompt').classList.remove('hidden');
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
