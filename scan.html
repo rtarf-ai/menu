@@ -29,8 +29,8 @@
       <h2 class="text-2xl font-bold text-gray-800">ลงชื่อเข้าใช้งาน</h2>
       <p class="text-sm text-gray-500">ระบบเช็คชื่อกิจกรรมด้วย Dynamic QR Code</p>
     </div>
-    <input type="text" id="loginId" placeholder="รหัสผู้ใช้งาน (UserID)" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-    <input type="password" id="loginPin" placeholder="รหัส PIN" class="w-full p-3 border border-gray-300 rounded-lg mb-6 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+<input type="text" id="loginId" placeholder="รหัสพนักงาน (EmpID)" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+<input type="password" id="loginPin" placeholder="รหัสผ่าน (Password)" class="w-full p-3 border border-gray-300 rounded-lg mb-6 focus:ring-2 focus:ring-blue-500 focus:outline-none">
     <button onclick="doLogin()" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-bold shadow-md transition duration-200">เข้าสู่ระบบ</button>
   </div>
 
@@ -135,7 +135,13 @@
 
   <div id="userSection" class="hidden max-w-md mx-auto bg-white rounded-xl shadow-lg p-6 mt-10 border text-center">
     <div class="flex justify-between items-center mb-6 border-b pb-4">
-      <h2 class="text-xl font-bold text-blue-800">👋 <span id="userNameDisplay"></span></h2>
+      <div class="flex items-center space-x-3 text-left">
+        <img id="userAvatarDisplay" src="" alt="Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200 shadow-sm">
+        <div>
+          <h2 class="text-lg font-bold text-blue-800" id="userNameDisplay">ชื่อ-สกุล</h2>
+          <span id="userStatusDisplay" class="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700">สถานะ</span>
+        </div>
+      </div>
       <button onclick="logout()" class="text-red-500 font-bold bg-red-50 px-3 py-1 rounded hover:bg-red-100">ออก</button>
     </div>
     <h3 class="font-bold mb-4 text-gray-700">📷 สแกน QR Code เพื่อลงชื่อ</h3>
@@ -186,7 +192,7 @@
     async function doLogin() {
       const id = document.getElementById('loginId').value;
       const pin = document.getElementById('loginPin').value;
-      if(!id || !pin) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบ', 'warning');
+      if(!id || !pin) return Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสพนักงานและรหัสผ่าน', 'warning');
       
       Swal.showLoading();
       const res = await callBackend('checkLogin', { userId: id, pin: pin });
@@ -195,12 +201,18 @@
       Swal.close();
       if (res.success) {
         currentUser = res;
+        
+        // นำข้อมูล Avatar และ Status ไปใส่ในหน้าจอ User
+        document.getElementById('userNameDisplay').innerText = res.name;
+        document.getElementById('userAvatarDisplay').src = res.avatar;
+        document.getElementById('userStatusDisplay').innerText = res.status || 'Active';
+
         if (res.role === 'Admin') {
+          // ถ้าเป็น Admin ให้แสดงชื่อด้วย
           document.getElementById('adminNameDisplay').innerText = res.name;
           loadAdminData();
           showSection('adminSection');
         } else {
-          document.getElementById('userNameDisplay').innerText = res.name;
           showSection('userSection');
         }
       } else {
