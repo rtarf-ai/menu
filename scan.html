@@ -2,167 +2,389 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>QR Attendance Pro</title>
+  <title>QR Attendance Pro - Admin Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
+  <script>
+    // ตั้งค่า Tailwind Theme ให้ดูเป็นมืออาชีพมากขึ้น
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f4ff',
+              100: '#e0e9fe',
+              500: '#3b82f6', // Primary Blue
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a', // Dark Blue
+            },
+            slate: {
+              850: '#1e293b',
+            }
+          },
+          borderRadius: {
+            '2xl': '1rem',
+            '3xl': '1.5rem',
+          }
+        }
+      }
+    }
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; }
+    body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; color: #1e293b; }
     .hidden { display: none; }
-    /* ปรับ Scrollbar ให้สวยงาม */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
-    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    /* สไตล์สำหรับ Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    /* Animation เล็กน้อย */
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* ปรับแต่ง SweetAlert ให้เข้ากับ Theme */
+    .swal2-popup { border-radius: 1.5rem !important; font-family: 'Sarabun', sans-serif !important; }
+    .swal2-styled.swal2-confirm { background-color: #3b82f6 !important; border-radius: 0.75rem !important; padding: 0.75rem 1.5rem !important; }
+    .swal2-styled.swal2-cancel { border-radius: 0.75rem !important; }
   </style>
 </head>
-<body class="p-4 md:p-8 text-gray-800">
+<body class="antialiased text-slate-900">
 
-  <div id="loginSection" class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 mt-10 border border-gray-100">
-    <div class="text-center mb-6">
-      <div class="inline-block bg-blue-100 p-3 rounded-full mb-3">
-        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.071 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+  <div id="loginSection" class="min-h-screen flex items-center justify-center p-4 fade-in">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-100 p-10 tablet:p-8">
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center justify-center bg-brand-100 text-brand-600 w-16 h-16 rounded-full mb-5 ring-4 ring-brand-50">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.071 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+        </div>
+        <h2 class="text-3xl font-extrabold text-slate-950 tracking-tight">QR Attendance <span class="text-brand-600">Pro</span></h2>
+        <p class="text-slate-500 mt-2">ระบบเช็คชื่อกิจกรรมระดับองค์กร</p>
       </div>
-      <h2 class="text-2xl font-bold text-gray-800">ลงชื่อเข้าใช้งาน</h2>
-      <p class="text-sm text-gray-500">ระบบเช็คชื่อกิจกรรมด้วย Dynamic QR Code</p>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm font-medium text-slate-700 mb-1.5 block">รหัสพนักงาน (EmpID)</label>
+          <input type="text" id="loginId" placeholder="เช่น U001" class="w-full p-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:outline-none transition">
+        </div>
+        <div>
+          <label class="text-sm font-medium text-slate-700 mb-1.5 block">รหัสผ่าน</label>
+          <input type="password" id="loginPin" placeholder="••••••••" class="w-full p-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:outline-none transition">
+        </div>
+        <button onclick="doLogin()" class="w-full bg-brand-600 text-white p-4 rounded-xl hover:bg-brand-700 font-bold shadow-lg shadow-brand-100 transition duration-150 transform hover:-translate-y-0.5 mt-6">เข้าสู่ระบบ</button>
+      </div>
     </div>
-<input type="text" id="loginId" placeholder="รหัสพนักงาน (EmpID)" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-<input type="password" id="loginPin" placeholder="รหัสผ่าน (Password)" class="w-full p-3 border border-gray-300 rounded-lg mb-6 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-    <button onclick="doLogin()" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-bold shadow-md transition duration-200">เข้าสู่ระบบ</button>
   </div>
 
-  <div id="adminSection" class="hidden max-w-5xl mx-auto mt-6">
-    <div class="bg-white rounded-xl shadow-sm border p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div>
-        <h2 class="text-2xl font-bold text-gray-800">🛠️ แดชบอร์ดผู้จัดกิจกรรม</h2>
-        <p class="text-gray-500 text-sm mt-1">ยินดีต้อนรับ, <span id="adminNameDisplay" class="font-semibold text-blue-600"></span></p>
-      </div>
-      <div class="flex space-x-2">
-        <button onclick="goToScannerFromAdmin()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow flex items-center">
-          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-          ลงชื่อตัวเอง
-        </button>
-        <button onclick="logout()" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-100 transition">ออกจากระบบ</button>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-xl shadow-sm border lg:col-span-1 h-fit">
-        <h3 class="font-bold text-lg border-b pb-2 mb-4 text-indigo-700">✨ สร้างกิจกรรมใหม่</h3>
-        <input type="text" id="eventName" placeholder="ชื่อกิจกรรม" class="w-full p-2.5 border rounded-lg mb-3 bg-gray-50 focus:bg-white">
-        <input type="date" id="eventDate" class="w-full p-2.5 border rounded-lg mb-4 bg-gray-50 focus:bg-white">
-        
-        <div class="mb-2 flex justify-between items-center">
-          <label class="font-bold text-sm text-gray-700">เลือกเป้าหมาย:</label>
-          <select id="deptFilter" onchange="filterUsersForCreate()" class="text-sm border rounded p-1"></select>
+  <div id="adminSection" class="hidden fade-in min-h-screen bg-slate-50">
+    
+    <header class="sticky top-0 z-40 bg-white border-b border-slate-100 shadow-sm px-4 md:px-8 py-4">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <svg class="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h1 class="text-2xl font-extrabold text-slate-950 tracking-tight">แผงควบคุมแอดมิน</h1>
         </div>
         
-        <div class="flex items-center mb-2 px-1">
-          <input type="checkbox" id="selectAllCreate" onclick="toggleSelectAll('userListCreate', this.checked)" class="mr-2 cursor-pointer">
-          <label for="selectAllCreate" class="text-sm font-bold text-blue-600 cursor-pointer">เลือกทั้งหมดในรายชื่อนี้</label>
+        <div class="flex items-center gap-4 bg-slate-100 p-1.5 rounded-full border border-slate-200 shadow-inner">
+            <div class="flex items-center gap-3 pl-3">
+                <img id="adminAvatarDisplay" src="" alt="Admin" class="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md">
+                <div class="hidden md:block pr-2">
+                    <p class="text-sm font-semibold text-slate-900" id="adminNameDisplay">Admin Name</p>
+                    <p class="text-xs text-brand-600 font-medium">ผู้จัดกิจกรรม</p>
+                </div>
+            </div>
+            <div class="flex gap-1.5">
+                <button onclick="goToScannerFromAdmin()" title="ไปหน้าสแกนชื่อตัวเอง" class="bg-white text-slate-700 w-10 h-10 flex items-center justify-center rounded-full hover:bg-brand-50 hover:text-brand-600 transition shadow-sm border border-slate-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </button>
+                <button onclick="logout()" title="ออกจากระบบ" class="bg-red-50 text-red-600 w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-100 transition border border-red-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                </button>
+            </div>
         </div>
+      </div>
+    </header>
 
-        <div id="userListCreate" class="h-48 overflow-y-auto bg-white border rounded-lg p-2 mb-4 text-sm shadow-inner">
+    <main class="p-4 md:p-8 space-y-8">
+      
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-6">
+            <div class="bg-brand-100 text-brand-600 w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-slate-950">จัดการกิจกรรมองค์กรอย่างมืออาชีพ</h2>
+                <p class="text-slate-600 mt-1.5 max-w-xl">คุณสามารถสร้างกิจกรรมใหม่ กำหนดกลุ่มเป้าหมาย เปิดแสดง Dynamic QR Code เพื่อป้องกันการสแกนแทนกัน และดูรายงานผลแบบ Real-time ได้จากที่นี่</p>
+            </div>
+        </div>
+        <div class="bg-brand-900 text-brand-100 p-8 rounded-3xl shadow-lg flex flex-col justify-between relative overflow-hidden">
+            <svg class="absolute -right-10 -bottom-10 w-40 h-40 text-brand-800 opacity-50" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.433A1 1 0 005 6.32a1 1 0 00-1 1c0 1.347.11 2.72.503 3.926.379 1.162 1.16 2.339 2.138 3.162C7.616 15.232 8.81 16 10 16a6 6 0 006-6c0-1.667-.574-3.291-1.1-4.42-.28-.599-.52-1.01-.717-1.32a5.99 5.99 0 00-.788-.921z" clip-rule="evenodd"></path></svg>
+            <p class="font-bold text-lg text-white">กิจกรรมวันนี้</p>
+            <p class="text-5xl font-extrabold tracking-tight text-white mt-2" id="statTodayEvents">--</p>
+            <p class="text-sm text-brand-200 mt-2">กิจกรรมที่กำลัง Active อยู่ในระบบ</p>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="bg-white p-7 rounded-3xl shadow-sm border border-slate-100 lg:col-span-1 h-fit sticky top-28">
+          <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-5">
+            <div class="bg-green-100 text-green-700 w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            </div>
+            <h3 class="font-bold text-lg text-slate-950">✨ สร้างกิจกรรมใหม่</h3>
           </div>
-        <button onclick="submitCreateEvent()" class="w-full bg-green-600 text-white p-2.5 rounded-lg hover:bg-green-700 font-bold transition shadow">บันทึกกิจกรรม</button>
-      </div>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="text-sm font-medium text-slate-700 mb-1 block">ชื่อกิจกรรม</label>
+              <input type="text" id="eventName" placeholder="เช่น Town Hall ประจำเดือน" class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition text-sm">
+            </div>
+            <div>
+              <label class="text-sm font-medium text-slate-700 mb-1 block">วันที่จัดงาน</label>
+              <input type="date" id="eventDate" class="w-full p-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none transition text-sm">
+            </div>
+            
+            <div class="border-t border-slate-100 pt-4">
+              <div class="mb-3 flex justify-between items-center gap-2">
+                <label class="font-bold text-slate-800 text-sm">👥 เลือกกลุ่มเป้าหมาย</label>
+                <select id="deptFilter" onchange="filterUsersForCreate()" class="text-xs border border-slate-200 rounded-lg p-1.5 bg-slate-50 focus:outline-none focus:ring-1 focus:ring-brand-500"></select>
+              </div>
+              
+              <div class="flex items-center mb-3 bg-slate-100 p-2.5 rounded-xl border border-slate-200">
+                <input type="checkbox" id="selectAllCreate" onclick="toggleSelectAll('userListCreate', this.checked)" class="mr-2.5 cursor-pointer w-4 h-4 accent-brand-600 rounded">
+                <label for="selectAllCreate" class="text-sm font-bold text-brand-700 cursor-pointer">เลือกพนักงานทั้งหมดในรายการนี้</label>
+              </div>
 
-      <div class="bg-white p-6 rounded-xl shadow-sm border lg:col-span-2">
-        <h3 class="font-bold text-lg border-b pb-2 mb-4 text-indigo-700">📅 กิจกรรมที่กำลังดำเนินการ</h3>
-        <div id="eventList" class="space-y-3"></div>
-      </div>
-    </div>
+              <div id="userListCreate" class="h-60 overflow-y-auto bg-white border border-slate-200 rounded-xl p-2 text-sm shadow-inner space-y-0.5">
+                <p class="text-center text-slate-400 py-10">กำลังโหลดรายชื่อพนักงาน...</p>
+              </div>
+            </div>
+
+            <button onclick="submitCreateEvent()" class="w-full bg-brand-600 text-white p-3.5 rounded-xl hover:bg-brand-700 font-bold transition shadow-md shadow-brand-100 mt-6 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                บันทึกและสร้างกิจกรรม
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white p-7 rounded-3xl shadow-sm border border-slate-100 lg:col-span-2">
+          <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-5">
+            <div class="bg-brand-100 text-brand-600 w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            </div>
+            <h3 class="font-bold text-lg text-slate-950">📅 กิจกรรมปัจจุบัน</h3>
+          </div>
+          <div id="eventList" class="space-y-4">
+            <p class="text-center text-slate-400 py-10 animate-pulse">กำลังโหลดรายการกิจกรรม...</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="text-center p-8 text-slate-400 text-sm border-t border-slate-100 mt-10">
+        QR Attendance Pro &copy; 2024 - ระบบเช็คชื่อระดับมืออาชีพ
+    </footer>
   </div>
 
-  <div id="editTargetModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white w-full max-w-md rounded-xl shadow-2xl p-6">
-      <h3 class="text-xl font-bold mb-4 text-gray-800">✏️ แก้ไขผู้เข้าร่วมกิจกรรม</h3>
+  <div id="editTargetModal" class="hidden fixed inset-0 bg-slate-950 bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-8 fade-in border border-slate-100">
+      <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-5">
+        <h3 class="text-xl font-bold text-slate-950 flex items-center gap-3">
+            <div class="bg-yellow-100 text-yellow-700 w-10 h-10 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            </div>
+            แก้ไขกลุ่มเป้าหมาย
+        </h3>
+        <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 transition p-1 rounded-full hover:bg-slate-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l18 18"></path></svg>
+        </button>
+      </div>
+      
       <input type="hidden" id="editEventId">
-      
-      <div class="mb-3 flex justify-between items-center">
-        <select id="deptFilterEdit" onchange="filterUsersForEdit()" class="text-sm border rounded p-1 w-full"></select>
+      <div class="mb-4">
+        <select id="deptFilterEdit" onchange="filterUsersForEdit()" class="text-sm border border-slate-200 rounded-xl p-2.5 w-full bg-slate-50 focus:ring-1 focus:ring-brand-500"></select>
       </div>
       
-      <div class="flex items-center mb-2 px-1">
-        <input type="checkbox" id="selectAllEdit" onclick="toggleSelectAll('userListEdit', this.checked)" class="mr-2 cursor-pointer">
-        <label for="selectAllEdit" class="text-sm font-bold text-blue-600 cursor-pointer">เลือกทั้งหมด</label>
+      <div class="flex items-center mb-3 bg-slate-100 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-200 transition cursor-pointer">
+        <input type="checkbox" id="selectAllEdit" onclick="toggleSelectAll('userListEdit', this.checked)" class="mr-2.5 cursor-pointer w-4 h-4 accent-brand-600 rounded">
+        <label for="selectAllEdit" class="text-sm font-bold text-brand-700 cursor-pointer">เลือกพนักงานทั้งหมดในรายการนี้</label>
       </div>
 
-      <div id="userListEdit" class="h-64 overflow-y-auto bg-gray-50 border rounded-lg p-2 mb-4 text-sm"></div>
+      <div id="userListEdit" class="h-80 overflow-y-auto bg-white border border-slate-200 rounded-xl p-2 text-sm shadow-inner space-y-0.5 mb-6"></div>
       
-      <div class="flex space-x-2">
-        <button onclick="saveEditedTargets()" class="w-1/2 bg-blue-600 text-white p-2.5 rounded-lg font-bold hover:bg-blue-700">บันทึก</button>
-        <button onclick="closeEditModal()" class="w-1/2 bg-gray-300 text-gray-800 p-2.5 rounded-lg font-bold hover:bg-gray-400">ยกเลิก</button>
+      <div class="flex space-x-3 pt-2">
+        <button onclick="saveEditedTargets()" class="flex-1 bg-brand-600 text-white p-3 rounded-xl font-bold hover:bg-brand-700 transition shadow">บันทึกการแก้ไข</button>
+        <button onclick="closeEditModal()" class="w-1/3 bg-slate-100 text-slate-700 p-3 rounded-xl font-bold hover:bg-slate-200 transition">ยกเลิก</button>
       </div>
     </div>
   </div>
 
-  <div id="qrDisplaySection" class="hidden max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8 mt-10 text-center border">
-    <div class="flex justify-between items-center mb-6">
-      <button onclick="showSection('adminSection'); clearInterval(qrInterval);" class="text-gray-500 hover:text-gray-800 font-bold flex items-center">
-        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> กลับ
+  <div id="qrFullScreenSection" class="hidden fixed inset-0 bg-white z-[100] p-0 flex flex-col fade-in">
+    <header class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg border-b border-slate-700">
+        <div class="flex items-center gap-3">
+            <div class="inline-flex items-center justify-center bg-brand-600 text-white w-10 h-10 rounded-xl shadow-md">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold text-white tracking-tight">QR Attendance <span class="text-brand-400">Pro</span> - Projector Mode</h1>
+                <p class="text-xs text-brand-200">กรุณาสแกน QR Code นี้ภายในเวลาที่กำหนดเพื่อเช็คชื่อ</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="fullScreenClock" class="font-mono text-xl bg-slate-800 px-4 py-2 rounded-xl text-brand-300 font-bold border border-slate-700 shadow-inner">00:00:00</span>
+            <button onclick="closeFullScreenQR()" class="bg-red-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-700 transition flex items-center gap-2 shadow-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l18 18"></path></svg>
+                ปิดโหมดเต็มจอ
+            </button>
+        </div>
+    </header>
+    
+    <main class="flex-1 flex flex-col items-center justify-center p-8 bg-slate-950 text-center relative overflow-hidden">
+        <svg class="absolute -right-20 -bottom-20 w-80 h-80 text-slate-900 opacity-60" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.433A1 1 0 005 6.32a1 1 0 00-1 1c0 1.347.11 2.72.503 3.926.379 1.162 1.16 2.339 2.138 3.162C7.616 15.232 8.81 16 10 16a6 6 0 006-6c0-1.667-.574-3.291-1.1-4.42-.28-.599-.52-1.01-.717-1.32a5.99 5.99 0 00-.788-.921z" clip-rule="evenodd"></path></svg>
+
+        <div class="relative z-10 space-y-8 bg-white p-16 md:p-20 rounded-[3rem] shadow-2xl border border-slate-100 flex flex-col items-center">
+            <div class="border-b border-slate-100 pb-8 w-full">
+                <p class="text-sm font-semibold text-brand-600 uppercase tracking-widest">ยินดีต้อนรับสู่กิจกรรม</p>
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-3 text-slate-950 mt-1 tracking-tight" id="displayEventNameFull">ชื่อกิจกรรม</h2>
+                <div id="eventDateFull" class="inline-flex items-center gap-2.5 text-xl text-slate-600 bg-slate-100 px-6 py-2 rounded-full border border-slate-200">
+                    <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    วันที่จัดงาน
+                </div>
+            </div>
+
+            <div class="p-6 bg-slate-50 rounded-3xl inline-block shadow-inner border border-slate-200">
+                <div id="qrcodeFull" class="flex justify-center p-2 bg-white rounded-2xl shadow-md border-4 border-white"></div>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100 w-full">
+                <div class="inline-flex items-center justify-center gap-3 bg-red-100 text-red-700 px-8 py-3 rounded-full text-lg font-bold mb-3 shadow-sm animate-pulse border border-red-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    SECURITY CODE: QR Code นี้จะเปลี่ยนรหัสใหม่ทุกๆ 15 วินาที
+                </div>
+                <div id="qrTimerFull" class="text-slate-500 text-sm font-mono mt-3">กำลังเริ่มระบบ...</div>
+            </div>
+        </div>
+    </main>
+  </div>
+
+  <div id="qrDisplaySection" class="hidden max-w-2xl mx-auto bg-white rounded-3xl shadow-lg p-10 mt-10 text-center border border-slate-100 fade-in relative overflow-hidden">
+    <svg class="absolute -right-10 -bottom-10 w-40 h-40 text-slate-100" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.433A1 1 0 005 6.32a1 1 0 00-1 1c0 1.347.11 2.72.503 3.926.379 1.162 1.16 2.339 2.138 3.162C7.616 15.232 8.81 16 10 16a6 6 0 006-6c0-1.667-.574-3.291-1.1-4.42-.28-.599-.52-1.01-.717-1.32a5.99 5.99 0 00-.788-.921z" clip-rule="evenodd"></path></svg>
+
+    <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-6 relative z-10">
+      <button onclick="stopQRAndBack()" class="bg-slate-100 text-slate-700 px-4 py-2 rounded-xl font-bold hover:bg-slate-200 transition flex items-center gap-2 border border-slate-200 shadow-sm">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        กลับแดชบอร์ด
       </button>
+      <div class="text-right">
+        <p class="text-xs text-slate-500">Security Mode (เปลี่ยนทุก 15 วิ)</p>
+        <p class="font-mono text-xl text-brand-900 font-bold" id="qrClock">00:00:00</p>
+      </div>
     </div>
-    <h2 class="text-3xl font-bold mb-3 text-indigo-800" id="displayEventName">ชื่อกิจกรรม</h2>
-    <div class="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-bold mb-6 animate-pulse">
-      ⏳ QR Code จะเปลี่ยนรหัสใหม่ทุกๆ 15 วินาที
+    
+    <div class="relative z-10 space-y-6">
+        <div>
+            <span class="text-xs px-3 py-1 bg-brand-100 text-brand-700 rounded-full font-bold uppercase tracking-widest">โหมดแสดง QR Code</span>
+            <h2 class="text-3xl font-extrabold mt-2 text-slate-950 tracking-tight" id="displayEventName">ชื่อกิจกรรม</h2>
+        </div>
+        
+        <div class="bg-slate-50 p-6 rounded-3xl inline-block shadow-inner border border-slate-200 mb-2">
+          <div id="qrcode" class="flex justify-center p-1 bg-white rounded-2xl shadow-md border-2 border-white"></div>
+        </div>
+        
+        <div id="qrTimer" class="text-red-500 font-bold text-sm bg-red-50 inline-flex items-center gap-2 px-5 py-2 rounded-full border border-red-100 animate-pulse">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Dynamic Code: กำลังโหลด...
+        </div>
     </div>
-    <div class="bg-gray-50 p-6 rounded-2xl inline-block shadow-inner mb-4">
-      <div id="qrcode" class="flex justify-center"></div>
-    </div>
-    <div id="qrTimer" class="text-gray-400 text-sm font-mono mt-2">กำลังโหลด...</div>
   </div>
 
-  <div id="reportSection" class="hidden max-w-4xl mx-auto mt-6">
-    <div class="mb-4 flex justify-between items-center">
-      <button onclick="showSection('adminSection')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-300 shadow-sm">&larr; กลับหน้าหลัก</button>
-      <button onclick="exportPDF()" class="bg-red-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-700 shadow flex items-center">
-        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path></svg> โหลด PDF
+  <div id="reportSection" class="hidden max-w-4xl mx-auto mt-10 p-4 md:p-0 fade-in mb-10">
+    <div class="mb-6 flex justify-between items-center gap-3 bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+      <button onclick="showSection('adminSection')" class="bg-slate-100 text-slate-700 px-5 py-2.5 rounded-xl font-bold hover:bg-slate-200 transition shadow-sm border border-slate-200 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        กลับแดชบอร์ด
+      </button>
+      <button onclick="exportPDF()" class="bg-brand-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-brand-700 shadow-md flex items-center transition gap-2.5">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path></svg>
+        ดาวน์โหลดรายงาน (PDF)
       </button>
     </div>
     
-    <div id="pdfContent" class="p-10 bg-white border shadow-sm rounded-xl">
-      <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">รายงานการเข้าร่วมกิจกรรม</h2>
-      <div class="grid grid-cols-2 gap-8">
-        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
-          <h3 class="font-bold text-green-700 border-b border-green-200 pb-2 text-lg">✅ เข้าร่วมแล้ว (<span id="countPresent">0</span>)</h3>
-          <ul id="presentList" class="list-disc pl-5 mt-3 text-gray-700 space-y-1"></ul>
+    <div id="pdfContent" class="p-10 md:p-16 bg-white border border-slate-100 shadow-lg rounded-[2rem] relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-brand-50 rounded-bl-full opacity-60"></div>
+
+      <div class="text-center mb-12 border-b-2 border-slate-100 pb-10 relative z-10">
+        <h2 class="text-3xl font-extrabold text-slate-950 tracking-tight">รายงานสรุปการเข้าร่วมกิจกรรม</h2>
+        <p class="text-slate-500 mt-2">QR Attendance <span class="text-brand-600">Pro</span> System</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+        <div class="bg-white p-6 rounded-2xl border-2 border-green-100 shadow-sm">
+          <h3 class="font-bold text-green-700 border-b-2 border-green-100 pb-3 text-lg flex items-center gap-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              ✅ ลงชื่อเข้าร่วมงานแล้ว (<span id="countPresent" class="font-extrabold text-xl">0</span> คน)
+          </h3>
+          <ul id="presentList" class="list-none pl-1 mt-5 text-slate-700 space-y-2 text-sm h-96 overflow-y-auto"></ul>
         </div>
-        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
-          <h3 class="font-bold text-red-700 border-b border-red-200 pb-2 text-lg">❌ ขาดกิจกรรม (<span id="countAbsent">0</span>)</h3>
-          <ul id="absentList" class="list-disc pl-5 mt-3 text-gray-700 space-y-1"></ul>
+        <div class="bg-white p-6 rounded-2xl border-2 border-red-100 shadow-sm">
+          <h3 class="font-bold text-red-700 border-b-2 border-red-100 pb-3 text-lg flex items-center gap-3">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              ❌ ยังไม่ได้ลงชื่อ/ขาด (<span id="countAbsent" class="font-extrabold text-xl">0</span> คน)
+          </h3>
+          <ul id="absentList" class="list-none pl-1 mt-5 text-slate-700 space-y-2 text-sm h-96 overflow-y-auto"></ul>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="userSection" class="hidden max-w-md mx-auto bg-white rounded-xl shadow-lg p-6 mt-10 border text-center">
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
+  <div id="userSection" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-50 fade-in">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-slate-100 text-center relative overflow-hidden">
+        
+    <div class="absolute top-0 right-0 w-20 h-20 bg-brand-50 rounded-bl-full opacity-70"></div>
+
+    <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-5 relative z-10">
       <div class="flex items-center space-x-3 text-left">
-        <img id="userAvatarDisplay" src="" alt="Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-blue-200 shadow-sm">
+        <img id="userAvatarDisplay" src="" alt="Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-brand-100 shadow-md">
         <div>
-          <h2 class="text-lg font-bold text-blue-800" id="userNameDisplay">ชื่อ-สกุล</h2>
-          <span id="userStatusDisplay" class="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700">สถานะ</span>
+          <h2 class="text-lg font-bold text-slate-950" id="userNameDisplay">ชื่อ-สกุล</h2>
+          <span id="userStatusDisplay" class="text-xs px-2.5 py-1 rounded-full font-bold bg-green-100 text-green-700 border border-green-200">Active</span>
         </div>
       </div>
-      <div class="flex space-x-2">
-        <button id="btnBackToAdmin" onclick="showSection('adminSection'); if(html5QrCode && html5QrCode.isScanning) { html5QrCode.stop().catch(e=>console.log(e)); }" class="hidden bg-gray-200 text-gray-700 font-bold px-3 py-1 rounded hover:bg-gray-300">กลับแดชบอร์ด</button>
-        <button onclick="logout()" class="text-red-500 font-bold bg-red-50 px-3 py-1 rounded hover:bg-red-100">ออก</button>
+      <div class="flex space-x-1.5">
+        <button id="btnBackToAdmin" onclick="backToAdminDashboard()" class="hidden bg-slate-100 text-slate-700 font-bold px-3 py-1.5 text-sm rounded-lg hover:bg-slate-200 border border-slate-200">แอดมิน</button>
+        <button onclick="logout()" class="text-red-500 font-bold bg-red-50 px-3 py-1.5 text-sm rounded-lg hover:bg-red-100 border border-red-100">ออก</button>
       </div>
     </div>
-    <h3 class="font-bold mb-4 text-gray-700">📷 สแกน QR Code เพื่อลงชื่อ</h3>
-    <div class="bg-gray-100 p-2 rounded-lg mb-4 min-h-[250px] flex items-center justify-center">
-      <div id="reader" class="rounded overflow-hidden w-full h-full"></div>
+    
+    <div class="space-y-6 relative z-10">
+        <div class="bg-brand-50 text-brand-700 p-4 rounded-2xl border border-brand-100 inline-block shadow-inner">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h.01M16 20h2m-2 0h-2m2 0v-2m0 2v2m0-10V7a4 4 0 00-8 0v3M6 7h.01M6 14h.01M14 14h.01M14 20h.01M18 14h.01M6 20h.01M6 14v1m0-1v1m0 0v1m12-1v1m0-1v1m0 0v1m-2-1v1m0-1v1m0 0v1m-10-1v1m0-1v1m0 0v1m-1 7h18M6 7a10 10 0 11-1 10M6 7v1m12-1v1m-6-1v1m0-1v1m0 0v1m-10-1v1m0-1v1m0 0v1m10-1v1m0-1v1m0 0v1m9-7v1m-1-1v1"></path></svg>
+        </div>
+        
+        <div>
+            <h3 class="text-xl font-bold text-slate-900">📷 สแกน QR Code เพื่อลงชื่อ</h3>
+            <p class="text-slate-500 mt-1">กรุณากดปุ่มเปิดกล้องและอนุญาตสิทธิ์เพื่อสแกน</p>
+        </div>
+        
+        <div class="bg-slate-100 p-3 rounded-2xl mb-4 min-h-[250px] flex items-center justify-center shadow-inner border border-slate-200">
+          <div id="reader" class="rounded-xl overflow-hidden w-full h-full shadow-md"></div>
+        </div>
+        
+        <button onclick="startScanner()" class="w-full bg-brand-600 text-white p-4 rounded-xl hover:bg-brand-700 font-bold shadow-lg shadow-brand-100 transition flex items-center justify-center gap-2.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            เปิดกล้องและเริ่มสแกน
+        </button>
     </div>
-    <button onclick="startScanner()" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-bold shadow transition">เปิดกล้องสแกน</button>
+    </div>
   </div>
 
-<script>
+  <script>
     // 🔴 นำ URL ของ Web App จาก Google Apps Script มาวางในเครื่องหมายคำพูดด้านล่างนี้
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw15t_gCBT1-deZYcu6fYFFqwGZGvuySfrrfKuNd6Y-RPI1DaDrzo_IzDR7WvRRMvk/exec";
+    // const GAS_API_URL = "https://script.google.com/macros/s/ใส่_URL_ของคุณตรงนี้/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyi85r-R8uWwH8XFj7rB8rN-5i9oP9X9wN9w/exec"; // ตัวอย่าง URL (กรุณาเปลี่ยนเป็นของคุณ)
 
     // ฟังก์ชันตัวกลางสำหรับคุยกับ Google Apps Script API
     async function callBackend(action, data = {}) {
@@ -170,15 +392,22 @@
       try {
         const response = await fetch(GAS_API_URL, {
           method: 'POST',
-          // ใช้ text/plain เพื่อหลีกเลี่ยงปัญหา CORS Preflight ของเบราว์เซอร์
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(data)
         });
-        return await response.json();
+        const resText = await response.text();
+        return JSON.parse(resText);
       } catch (error) {
-        Swal.close();
-        Swal.fire('ข้อผิดพลาดการเชื่อมต่อ', 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
-        console.error(error);
+        // Swal.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'ข้อผิดพลาดการเชื่อมต่อ',
+          text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ฐานข้อมูลได้ กรุณาตรวจสอบ URL ในโค้ด Index.html หรือสิทธิ์การ Deploy ใน Apps Script',
+          confirmButtonColor: '#3b82f6',
+          confirmButtonText: 'รับทราบ',
+          allowOutsideClick: false
+        });
+        console.error("API Error Details:", error);
         return null;
       }
     }
@@ -188,20 +417,57 @@
     let qrInterval;
     let html5QrCode;
     let currentEditTargets = [];
+    let currentEventForQR = {}; // **เก็บ Event ปัจจุบันที่เปิด QR**
+    let clockInterval; // **Interval สำหรับนาฬิกาหน้าเต็มจอ**
+
+    // ดักจับการเปิดลิงก์ผ่านแอป LINE (ป้องกันการบล็อกกล้อง)
+    if (navigator.userAgent.indexOf("Line") > -1) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'แอป LINE บล็อกการเปิดกล้อง',
+        text: 'กรุณากดที่จุด 3 จุดมุมขวาบน หรือขวาล่าง แล้วเลือก "เปิดในเบราว์เซอร์เริ่มต้น (Chrome/Safari)" เพื่อให้สามารถเปิดกล้องสแกนได้ครับ',
+        confirmButtonText: 'รับทราบ',
+        confirmButtonColor: '#3085d6',
+        allowOutsideClick: false
+      });
+    }
 
     // Navigation
     function showSection(id) {
-      document.querySelectorAll('body > div').forEach(div => {
-        if(div.id) div.classList.add('hidden');
-      });
+      // ซ่อนทุกหน้า
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('adminSection').classList.add('hidden');
+      document.getElementById('editTargetModal').classList.add('hidden');
+      document.getElementById('qrDisplaySection').classList.add('hidden');
+      document.getElementById('reportSection').classList.add('hidden');
+      document.getElementById('userSection').classList.add('hidden');
+      document.getElementById('qrFullScreenSection').classList.add('hidden'); // **ซ่อนหน้าเต็มจอ**
+      
+      // หยุด Interval ต่างๆ ถ้ามี
+      clearInterval(clockInterval);
+      
+      // แสดงหน้าที่ต้องการ
       document.getElementById(id).classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    // นาฬิกาดิจิทัล
+    function startClock(displayId) {
+        clearInterval(clockInterval);
+        function update() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('th-TH', { hour12: false });
+            document.getElementById(displayId).innerText = timeStr;
+        }
+        update();
+        clockInterval = setInterval(update, 1000);
     }
 
     // Login & Logout
     async function doLogin() {
       const id = document.getElementById('loginId').value;
       const pin = document.getElementById('loginPin').value;
-      if(!id || !pin) return Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัสพนักงานและรหัสผ่าน', 'warning');
+      if(!id || !pin) return Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูลให้ครบ', confirmButtonColor: '#3b82f6' });
       
       Swal.showLoading();
       const res = await callBackend('checkLogin', { userId: id, pin: pin });
@@ -210,49 +476,75 @@
       Swal.close();
       if (res.success) {
         currentUser = res;
-        if(document.getElementById('btnBackToAdmin')) document.getElementById('btnBackToAdmin').classList.add('hidden');
         
-        // นำข้อมูล Avatar และ Status ไปใส่ในหน้าจอ User
-        document.getElementById('userNameDisplay').innerText = res.name;
-        document.getElementById('userAvatarDisplay').src = res.avatar;
-        document.getElementById('userStatusDisplay').innerText = res.status || 'Active';
+        // ซ่อนปุ่มแอดมินไว้ก่อนเสมอตอน User ธรรมดาเข้า
+        if(document.getElementById('btnBackToAdmin')) document.getElementById('btnBackToAdmin').classList.add('hidden');
 
         if (res.role === 'Admin') {
-          // ถ้าเป็น Admin ให้แสดงชื่อด้วย
+          // อัปเดต UI ส่วน Admin Header
           document.getElementById('adminNameDisplay').innerText = res.name;
+          document.getElementById('adminAvatarDisplay').src = res.avatar;
           loadAdminData();
           showSection('adminSection');
         } else {
+          // อัปเดต UI ส่วน User Header
+          document.getElementById('userNameDisplay').innerText = res.name;
+          document.getElementById('userAvatarDisplay').src = res.avatar;
+          document.getElementById('userStatusDisplay').innerText = res.status || 'Active';
           showSection('userSection');
         }
       } else {
-        Swal.fire('ผิดพลาด', res.message, 'error');
+        Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: res.message, confirmButtonColor: '#3b82f6' });
       }
     }
 
     function logout() {
       currentUser = {};
       if(html5QrCode && html5QrCode.isScanning) { 
-        html5QrCode.stop().catch(err => console.log(err)); 
+        html5QrCode.stop().then(() => { html5QrCode.clear(); }).catch(err => console.log(err)); 
       }
       clearInterval(qrInterval);
+      clearInterval(clockInterval);
       showSection('loginSection');
       document.getElementById('loginId').value = '';
       document.getElementById('loginPin').value = '';
     }
 
+    // Admin: กลับหน้า Dashboard จากหน้าสแกน
+    function backToAdminDashboard() {
+        if(html5QrCode && html5QrCode.isScanning) { 
+            html5QrCode.stop().then(() => { html5QrCode.clear(); }).catch(err => console.log(err)); 
+        }
+        showSection('adminSection');
+    }
+
+    // Admin: ไปหน้าสแกน (แวะลงชื่อตัวเอง)
+    function goToScannerFromAdmin() {
+      // โหลดข้อมูลแอดมินเองไปแสดงที่หน้าสแกน
+      document.getElementById('userNameDisplay').innerText = currentUser.name;
+      document.getElementById('userAvatarDisplay').src = currentUser.avatar;
+      document.getElementById('userStatusDisplay').innerText = currentUser.status || 'Active';
+      
+      // เปิดให้เห็นปุ่ม "กลับแผงควบคุม"
+      document.getElementById('btnBackToAdmin').classList.remove('hidden');
+      
+      showSection('userSection');
+    }
+
     // โหลดข้อมูล Dashboard สำหรับ Admin
     async function loadAdminData() {
+      // โหลดพนักงานและตั้งค่า Filter แผนก
       const users = await callBackend('getAllUsers');
       if(users) {
         allUsersList = users;
-        let depts = [...new Set(users.map(u => u.dept))];
+        let depts = [...new Set(users.map(u => u.dept))].filter(Boolean); // ดึงค่าที่ไม่เป็น null/undefined
         let deptHtml = '<option value="ALL">ทุกแผนก</option>';
-        depts.forEach(d => deptHtml += `<option value="${d}">${d}</option>`);
+        depts.sort().forEach(d => deptHtml += `<option value="${d}">${d}</option>`);
         document.getElementById('deptFilter').innerHTML = deptHtml;
         document.getElementById('deptFilterEdit').innerHTML = deptHtml;
         renderUserList(users, 'userListCreate');
       }
+      // โหลดกิจกรรม
       refreshEventList();
     }
 
@@ -260,36 +552,74 @@
       const events = await callBackend('getActiveEvents');
       if(!events) return;
       
+      // แสดงสถิติย่อ
+      document.getElementById('statTodayEvents').innerText = events.length;
+
       let html = '';
-      if(events.length === 0) html = '<div class="text-center text-gray-400 py-4">ยังไม่มีกิจกรรม</div>';
-      events.forEach(e => {
-        html += `
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border border-gray-200 rounded-lg bg-white mb-2">
-            <div class="mb-3 md:mb-0">
-              <strong class="text-gray-800 text-lg">${e.name}</strong> 
-              <div class="text-sm text-gray-500 mt-1">📅 ${e.date}</div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <button onclick="openDynamicQR('${e.id}', '${e.name}')" class="bg-indigo-600 text-white px-3 py-1.5 rounded text-sm hover:bg-indigo-700">โชว์ QR</button>
-              <button onclick="openEditModal('${e.id}')" class="bg-yellow-500 text-white px-3 py-1.5 rounded text-sm hover:bg-yellow-600">แก้คนเข้า</button>
-              <button onclick="viewReport('${e.id}')" class="bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700">ดูผล</button>
-              <button onclick="confirmDeleteEvent('${e.id}')" class="bg-red-500 text-white px-3 py-1.5 rounded text-sm hover:bg-red-600">ลบ</button>
-            </div>
-          </div>`;
-      });
-      document.getElementById('eventList').innerHTML = html;
+      if(events.length === 0) {
+        html = `
+          <div class="text-center text-slate-400 py-16 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
+            <svg class="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <p class="font-bold text-slate-600">ยังไม่มีกิจกรรมในระบบ</p>
+            <p class="text-sm">สร้างกิจกรรมใหม่ได้จากแผงด้านซ้ายครับ</p>
+          </div>
+        `;
+      } else {
+        events.forEach(e => {
+          html += `
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-5 border border-slate-100 rounded-2xl bg-white hover:bg-slate-50 hover:shadow-sm transition gap-4">
+              <div class="flex items-center gap-4 flex-1">
+                <div class="bg-brand-50 text-brand-600 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 border border-brand-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </div>
+                <div>
+                  <strong class="text-slate-950 text-base font-bold">${e.name}</strong> 
+                  <div class="flex items-center gap-2.5 text-xs text-slate-500 mt-1">
+                    <span>📅 ${e.date}</span>
+                    <span class="text-slate-300">|</span>
+                    <span class="text-brand-600 font-medium">🆔 ${e.id}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end border-t border-slate-100 pt-3 md:border-t-0 md:pt-0">
+                <button onclick="openDynamicQR('${e.id}', '${e.name}')" title="แสดง QR โหมดปกติ" class="bg-brand-50 text-brand-700 w-9 h-9 rounded-lg hover:bg-brand-100 transition flex items-center justify-center border border-brand-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h.01M16 20h2m-2 0h-2m2 0v-2m0 2v2m0-10V7a4 4 0 00-8 0v3M6 7h.01M6 14h.01M14 14h.01M14 20h.01M18 14h.01M6 20h.01M6 14v1m0-1v1m0 0v1m12-1v1m0-1v1m0 0v1m-2-1v1m0-1v1m0 0v1m-10-1v1m0-1v1m0 0v1m-1 7h18M6 7a10 10 0 11-1 10M6 7v1m12-1v1m-6-1v1m0-1v1m0 0v1m-10-1v1m0-1v1m0 0v1m10-1v1m0-1v1m0 0v1m9-7v1m-1-1v1"></path></svg>
+                </button>
+                <button onclick="openFullScreenQR('${e.id}', '${e.name}', '${e.date}')" title="แสดง QR เต็มจอ (โหมดโปรเจคเตอร์)" class="bg-brand-900 text-brand-100 w-9 h-9 rounded-lg hover:bg-brand-950 transition flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                </button>
+                <div class="h-9 w-px bg-slate-100 mx-0.5"></div>
+                <button onclick="openEditModal('${e.id}')" title="แก้ไขผู้เข้าร่วม" class="bg-yellow-50 text-yellow-800 w-9 h-9 rounded-lg hover:bg-yellow-100 transition flex items-center justify-center border border-yellow-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </button>
+                <button onclick="viewReport('${e.id}')" title="ดูรายงาน (PDF)" class="bg-green-50 text-green-700 w-9 h-9 rounded-lg hover:bg-green-100 transition flex items-center justify-center border border-green-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m3.243 3.243a8 8 0 1111.314 0z"></path></svg>
+                </button>
+                <button onclick="confirmDeleteEvent('${e.id}')" title="ลบกิจกรรม" class="bg-red-50 text-red-600 w-9 h-9 rounded-lg hover:bg-red-100 transition flex items-center justify-center border border-red-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </div>
+            </div>`;
+        });
+        document.getElementById('eventList').innerHTML = html;
+      }
     }
 
+    // UX: วาด Checkbox พนักงานและ Filter แผนก
     function renderUserList(users, containerId, checkedIds = []) {
+      if(!users || users.length === 0) {
+        document.getElementById(containerId).innerHTML = '<p class="text-center text-slate-400 py-10 text-xs">ไม่พบรายชื่อพนักงานในแผนกนี้</p>';
+        return;
+      }
       let html = '';
       users.forEach(u => {
         let isChecked = checkedIds.includes(u.id) ? 'checked' : '';
         html += `
-          <label class="flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-50">
-            <input type="checkbox" class="target-user-${containerId} mr-3 w-4 h-4 text-blue-600" value="${u.id}" ${isChecked}>
-            <span class="font-medium text-gray-700 w-16">${u.id}</span>
-            <span class="flex-1">${u.name}</span>
-            <span class="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-full">${u.dept}</span>
+          <label class="flex items-center p-2.5 hover:bg-slate-50 cursor-pointer border-b border-slate-100 transition text-slate-700">
+            <input type="checkbox" class="target-user-${containerId} mr-3.5 w-4 h-4 text-brand-600 accent-brand-600 rounded cursor-pointer border-slate-300" value="${u.id}" ${isChecked}>
+            <span class="font-bold text-slate-900 w-16 text-xs bg-slate-100 px-2 py-1 rounded border border-slate-200">${u.id}</span>
+            <span class="flex-1 ml-3 truncate font-medium">${u.name}</span>
+            <span class="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 ml-2 truncate max-w-[80px]">${u.dept || '-'}</span>
           </label>`;
       });
       document.getElementById(containerId).innerHTML = html;
@@ -299,6 +629,7 @@
       let dept = document.getElementById('deptFilter').value;
       let filtered = dept === 'ALL' ? allUsersList : allUsersList.filter(u => u.dept === dept);
       renderUserList(filtered, 'userListCreate');
+      document.getElementById('selectAllCreate').checked = false;
     }
 
     function filterUsersForEdit() {
@@ -306,6 +637,7 @@
       let filtered = dept === 'ALL' ? allUsersList : allUsersList.filter(u => u.dept === dept);
       const currentChecked = Array.from(document.querySelectorAll('.target-user-userListEdit:checked')).map(cb => cb.value);
       renderUserList(filtered, 'userListEdit', [...new Set([...currentEditTargets, ...currentChecked])]);
+      document.getElementById('selectAllEdit').checked = false;
     }
 
     function toggleSelectAll(containerId, isChecked) {
@@ -318,13 +650,18 @@
       const date = document.getElementById('eventDate').value;
       const targets = Array.from(document.querySelectorAll('.target-user-userListCreate:checked')).map(cb => cb.value);
       
-      if(!name || !date || targets.length === 0) return Swal.fire('แจ้งเตือน', 'กรอกข้อมูลให้ครบและเลือกคนอย่างน้อย 1 คน', 'warning');
+      if(!name || !date || targets.length === 0) {
+        return Swal.fire({ icon: 'warning', title: 'กรุณากรอกข้อมูลและเลือกคนอย่างน้อย 1 คน', confirmButtonColor: '#3b82f6' });
+      }
 
       Swal.showLoading();
       const res = await callBackend('createEvent', { eventName: name, date: date, targetUserIds: targets });
       if(res && res.success) {
-        Swal.fire('สำเร็จ', 'บันทึกกิจกรรมเรียบร้อย', 'success');
+        Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'สร้างกิจกรรมใหม่เรียบร้อยแล้ว', confirmButtonColor: '#3b82f6' });
         document.getElementById('eventName').value = '';
+        document.getElementById('eventDate').value = '';
+        document.querySelectorAll('.target-user-userListCreate').forEach(cb => cb.checked = false);
+        document.getElementById('selectAllCreate').checked = false;
         refreshEventList();
       }
     }
@@ -347,51 +684,109 @@
       const eventId = document.getElementById('editEventId').value;
       const newTargets = Array.from(document.querySelectorAll('.target-user-userListEdit:checked')).map(cb => cb.value);
       
-      if(newTargets.length === 0) return Swal.fire('แจ้งเตือน', 'ต้องมีคนเข้าอย่างน้อย 1 คน', 'warning');
+      if(newTargets.length === 0) {
+        return Swal.fire({ icon: 'warning', title: 'ต้องมีคนเข้าอย่างน้อย 1 คน', confirmButtonColor: '#3b82f6' });
+      }
       
       Swal.showLoading();
       const res = await callBackend('updateEventTargets', { eventId: eventId, newTargetIds: newTargets });
       if(res && res.success) {
-        Swal.fire('สำเร็จ', 'อัปเดตรายชื่อเป้าหมายเรียบร้อย', 'success');
+        Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'อัปเดตรายชื่อกลุ่มเป้าหมายเรียบร้อยแล้ว', confirmButtonColor: '#3b82f6' });
         closeEditModal();
       }
     }
 
     function confirmDeleteEvent(eventId) {
       Swal.fire({
-        title: 'ยืนยันการลบ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบเลย!'
+        title: 'ยืนยันการลบกิจกรรม?',
+        text: "คุณต้องการลบกิจกรรมนี้ออกจากหน้าจอหลักใช่หรือไม่ (ข้อมูลประวัติการเช็คชื่อยังคงอยู่)",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'ใช่, ลบเลย!',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true
       }).then(async (result) => {
         if (result.isConfirmed) {
           Swal.showLoading();
-          await callBackend('deleteEvent', { eventId: eventId });
-          Swal.fire('ลบสำเร็จ', '', 'success');
-          refreshEventList();
+          const res = await callBackend('deleteEvent', { eventId: eventId });
+          if(res && res.success) {
+             Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', text: 'กิจกรรมถูกซ่อนเรียบร้อยแล้ว', confirmButtonColor: '#3b82f6' });
+             refreshEventList();
+          }
         }
       });
     }
 
-    // Dynamic QR Generator
+    // Common QR Logic
+    function initializeQRGenerator(eventId, qrcodeContainerId) {
+        document.getElementById(qrcodeContainerId).innerHTML = ""; // Clear existing
+        qrcodeObj = new QRCode(document.getElementById(qrcodeContainerId), { 
+            width: 250, height: 250, colorDark : "#1e3a8a", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H 
+        });
+
+        const fullScreenMode = (qrcodeContainerId === 'qrcodeFull');
+        const timerId = fullScreenMode ? 'qrTimerFull' : 'qrTimer';
+
+        function generateNewQR() {
+            const timestamp = new Date().getTime();
+            qrcodeObj.makeCode(`${eventId}|${timestamp}`);
+            const timeStr = new Date().toLocaleTimeString('th-TH');
+            document.getElementById(timerId).innerText = `อัปเดตล่าสุด: ${timeStr} | ความปลอดภัย: High`;
+            if(!fullScreenMode) {
+                document.getElementById('qrClock').innerText = timeStr;
+            }
+        }
+
+        generateNewQR();
+        clearInterval(qrInterval);
+        qrInterval = setInterval(generateNewQR, 15000); // 15 วินาที
+    }
+
+    function stopQRAndBack() {
+        clearInterval(qrInterval);
+        showSection('adminSection');
+    }
+
+    // Dynamic QR Generator (โหมดปกติ)
     let qrcodeObj = null;
     function openDynamicQR(eventId, eventName) {
       document.getElementById('displayEventName').innerText = eventName;
       showSection('qrDisplaySection');
-      if(qrcodeObj) qrcodeObj.clear();
-      document.getElementById('qrcode').innerHTML = "";
-      qrcodeObj = new QRCode(document.getElementById("qrcode"), { width: 280, height: 280, colorDark : "#1e3a8a", colorLight : "#ffffff" });
-
-      function generateNewQR() {
-        qrcodeObj.makeCode(`${eventId}|${new Date().getTime()}`);
-        document.getElementById('qrTimer').innerText = `อัปเดตล่าสุด: ${new Date().toLocaleTimeString()}`;
-      }
-      generateNewQR();
-      clearInterval(qrInterval);
-      qrInterval = setInterval(generateNewQR, 15000); 
+      initializeQRGenerator(eventId, 'qrcode');
     }
 
-    // ================= USER SCANNER =================
+    // **Dynamic QR Generator เต็มจอ (โหมดโปรเจคเตอร์) - เพิ่มใหม่**
+    let qrcodeObjFull = null;
+    function openFullScreenQR(eventId, eventName, eventDate) {
+        document.getElementById('displayEventNameFull').innerText = eventName;
+        document.getElementById('eventDateFull').innerHTML = `
+            <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            ${eventDate}
+        `;
+        showSection('qrFullScreenSection');
+        initializeQRGenerator(eventId, 'qrcodeFull');
+        startClock('fullScreenClock'); // เริ่มนาฬิกามุมขวาบน
+    }
+
+    function closeFullScreenQR() {
+        clearInterval(qrInterval);
+        clearInterval(clockInterval);
+        showSection('adminSection');
+    }
+
+    // ================= USER SCANNER (ระบบกล้องแบบใหม่) =================
     function startScanner() {
-      document.getElementById('reader').innerHTML = '<div class="py-10 text-center text-blue-600 font-bold animate-pulse">กำลังเชื่อมต่อกล้อง...</div>';
-      if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+      document.getElementById('reader').innerHTML = `
+        <div class="py-16 text-center text-brand-600 font-bold animate-pulse flex flex-col items-center gap-4 bg-white rounded-xl">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            กำลังเชื่อมต่อกล้อง...
+        </div>`;
+
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("reader");
+      }
 
       Html5Qrcode.getCameras().then(devices => {
         if (devices && devices.length) {
@@ -400,12 +795,12 @@
             if (devices[i].label.toLowerCase().includes('back') || devices[i].label.toLowerCase().includes('rear')) cameraId = devices[i].id;
           }
           html5QrCode.start(cameraId, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess, () => {}).catch(err => {
-            Swal.fire('ข้อผิดพลาดกล้อง', err.toString(), 'error');
+            Swal.fire({ icon: 'error', title: 'ข้อผิดพลาดกล้อง', text: 'ไม่สามารถเปิดกล้องได้: ' + err, confirmButtonColor: '#ef4444' });
             document.getElementById('reader').innerHTML = '';
           });
         }
       }).catch(err => {
-        Swal.fire('ถูกบล็อกกล้อง', 'เบราว์เซอร์ไม่อนุญาตให้ใช้กล้อง', 'error');
+        Swal.fire({ icon: 'error', title: 'ถูกบล็อกสิทธิ์กล้อง', text: 'เบราว์เซอร์ไม่อนุญาตให้ใช้กล้อง กรุณาอนุญาตสิทธิ์ที่ไอคอนแม่กุญแจมุมซ้ายบนของ URL ครับ', confirmButtonColor: '#ef4444' });
         document.getElementById('reader').innerHTML = '';
       });
     }
@@ -417,14 +812,16 @@
       const res = await callBackend('processQRScan', { qrData: decodedText, userId: currentUser.userId });
       if(res) {
         if(res.success) {
-          Swal.fire({ icon: 'success', title: 'เช็คชื่อสำเร็จ!', text: res.message, timer: 2000, showConfirmButton: false }).then(() => { if(html5QrCode.getState()===3) html5QrCode.resume(); });
+          Swal.fire({ icon: 'success', title: 'เช็คชื่อสำเร็จ!', text: res.message, timer: 2000, showConfirmButton: false })
+            .then(() => { if(html5QrCode.getState()===3) html5QrCode.resume(); });
         } else {
-          Swal.fire('ผิดพลาด', res.message, 'error').then(() => { if(html5QrCode.getState()===3) html5QrCode.resume(); });
+          Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: res.message, confirmButtonColor: '#ef4444' })
+            .then(() => { if(html5QrCode.getState()===3) html5QrCode.resume(); });
         }
       }
     }
 
-    // ================= REPORT SECTION =================
+    // Report
     async function viewReport(eventId) {
       Swal.showLoading();
       const report = await callBackend('getEventReport', { eventId: eventId });
@@ -432,28 +829,33 @@
         Swal.close();
         document.getElementById('countPresent').innerText = report.present.length;
         document.getElementById('countAbsent').innerText = report.absent.length;
-        document.getElementById('presentList').innerHTML = report.present.map(u => `<li>${u.id} - ${u.name}</li>`).join('') || '<li class="text-gray-400">- ไม่มี -</li>';
-        document.getElementById('absentList').innerHTML = report.absent.map(u => `<li>${u.id} - ${u.name}</li>`).join('') || '<li class="text-gray-400">- ไม่มี -</li>';
+        document.getElementById('presentList').innerHTML = report.present.map(u => `
+            <li class="p-2.5 bg-green-50 rounded-xl border border-green-100 flex items-center gap-3 font-medium">
+                <span class="font-mono text-green-700 font-extrabold bg-white px-2.5 py-1 rounded-lg border border-green-100 text-xs">${u.id}</span>
+                <span class="flex-1">${u.name}</span>
+                <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+            </li>
+        `).join('') || '<li class="text-center text-slate-400 py-10">- ยังไม่มีข้อมูล -</li>';
+        document.getElementById('absentList').innerHTML = report.absent.map(u => `
+            <li class="p-2.5 bg-red-50 rounded-xl border border-red-100 flex items-center gap-3 font-medium text-red-950">
+                <span class="font-mono text-red-700 font-extrabold bg-white px-2.5 py-1 rounded-lg border border-red-100 text-xs">${u.id}</span>
+                <span class="flex-1">${u.name}</span>
+                <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path></svg>
+            </li>
+        `).join('') || '<li class="text-center text-slate-400 py-10">- สมบูรณ์ครบทุกคน -</li>';
         showSection('reportSection');
       }
     }
 
     function exportPDF() {
-      html2pdf().set({ margin: 15, filename: 'Attendance_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('pdfContent')).save();
+      html2pdf().set({ 
+        margin: 15, 
+        filename: 'Event_Attendance_Report.pdf', 
+        image: { type: 'jpeg', quality: 0.98 }, 
+        html2canvas: { scale: 2, useCORS: true }, 
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+      }).from(document.getElementById('pdfContent')).save();
     }
-
-function goToScannerFromAdmin() {
-      // โหลดข้อมูลตัวเองมาแสดงที่หน้าสแกน
-      document.getElementById('userNameDisplay').innerText = currentUser.name;
-      if(document.getElementById('userAvatarDisplay')) document.getElementById('userAvatarDisplay').src = currentUser.avatar;
-      if(document.getElementById('userStatusDisplay')) document.getElementById('userStatusDisplay').innerText = currentUser.status || 'Active';
-      
-      // เปิดให้เห็นปุ่ม "กลับแดชบอร์ด"
-      document.getElementById('btnBackToAdmin').classList.remove('hidden');
-      
-      showSection('userSection');
-    }
-  
   </script>
 </body>
 </html>
