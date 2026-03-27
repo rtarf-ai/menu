@@ -4,6 +4,7 @@ const CACHE_NAME = 'mymdu25-cache-v1.0'; // ถ้ามีการแก้โ
 const urlsToCache = [
   '/menu/',
   '/menu/index.html',
+  '/menu/install.html',
   '/menu/style.css',
   '/menu/app.js?v=2',
   '/menu/manifest.json'
