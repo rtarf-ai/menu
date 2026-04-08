@@ -190,23 +190,7 @@ const App = {
                     </div>
                 ` : ''}
 
-                <!-- Quick Stats -->
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="bg-white p-4 rounded-2xl card-shadow border border-slate-100 flex flex-col items-center text-center animate-fade-in-up" style="animation-delay: 0.1s">
-                        <div class="w-12 h-12 bg-blue-50 text-primary rounded-xl flex items-center justify-center mb-3">
-                            <i class="fas fa-calendar-check text-xl"></i>
-                        </div>
-                        <span class="text-xs font-semibold text-slate-500">ลงชื่อปฏิบัติงาน</span>
-                        <span class="text-sm font-bold text-slate-800">${new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute: '2-digit'})}</span>
-                    </div>
-                    <div class="bg-white p-4 rounded-2xl card-shadow border border-slate-100 flex flex-col items-center text-center animate-fade-in-up" style="animation-delay: 0.2s">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-3">
-                            <i class="fas fa-tasks text-xl"></i>
-                        </div>
-                        <span class="text-xs font-semibold text-slate-500">เมนูทั้งหมด</span>
-                        <span class="text-sm font-bold text-slate-800">${menus.length} รายการ</span>
-                    </div>
-                </div>
+
 
                 <!-- News Section -->
                 ${news.length > 0 ? `
