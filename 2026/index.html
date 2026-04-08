@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MyMDU.25 :: ระบบงาน นพค.25</title>
+    <title>MyMDU.25 :: Premium Navigation System</title>
     
     <meta name="theme-color" content="#1e40af">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -105,13 +105,13 @@
         <!-- Content will be injected here -->
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
+    <!-- Loading Overlay (Fixed Background) -->
+    <div id="loading" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center transition-all duration-300 opacity-100 pointer-events-auto">
         <div class="relative flex flex-col items-center">
             <div class="w-16 h-16 rounded-full border-4 border-slate-100 absolute"></div>
             <div class="w-16 h-16 rounded-full border-4 border-primary border-t-accent animate-spin mb-6"></div>
             <h1 class="text-xl font-bold text-slate-800">MyMDU<span class="text-primary">.25</span></h1>
-            <p class="text-slate-400 text-xs mt-2 animate-pulse">กำลังเตรียมระบบปฏิบัติการ...</p>
+            <p id="loading-text" class="text-slate-400 text-[11px] mt-2 animate-pulse font-medium">กำลังเตรียมระบบปฏิบัติการ...</p>
         </div>
     </div>
 
