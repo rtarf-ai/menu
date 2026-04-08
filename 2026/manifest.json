@@ -1,7 +1,7 @@
 {
   "name": "MyMDU.25 - ระบบปฏิบัติการ",
   "short_name": "MyMDU.25",
-  "description": "ระบบเมนูนำทางแบบพรีเมี่ยมสำหรับสถาบัน นพค.25",
+  "description": "ระบบปฏิบัติงาน นพค.25",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
