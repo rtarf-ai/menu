@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MyMDU.25 :: Premium Navigation System</title>
+    
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MyMDU.25">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --accent: #fbbf24;
+            --surface: #f8fafc;
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: pan-y;
+            background-color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .premium-gradient {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleUp {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        .animate-scale-up {
+            animation: scaleUp 0.3s ease-out;
+        }
+
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { transform: translateY(-4px); color: var(--primary); }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#fbbf24',
+                        dark: '#0f172a',
+                        surface: '#f8fafc'
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="text-slate-800 antialiased pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+
+    <!-- Main App Container -->
+    <div id="app" class="max-w-md mx-auto min-h-[100dvh] relative bg-surface shadow-2xl flex flex-col">
+        <!-- Content will be injected here -->
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="relative flex flex-col items-center">
+            <div class="w-16 h-16 rounded-full border-4 border-slate-100 absolute"></div>
+            <div class="w-16 h-16 rounded-full border-4 border-primary border-t-accent animate-spin mb-6"></div>
+            <h1 class="text-xl font-bold text-slate-800">MyMDU<span class="text-primary">.25</span></h1>
+            <p class="text-slate-400 text-xs mt-2 animate-pulse">กำลังเตรียมระบบปฏิบัติการ...</p>
+        </div>
+    </div>
+
+    <!-- News Modal -->
+    <div id="news-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[70] flex items-center justify-center hidden opacity-0 transition-all duration-300 p-4">
+        <div class="bg-white/95 backdrop-blur-xl p-7 rounded-[1.5rem] shadow-glass w-full max-w-sm md:max-w-md transform scale-95 transition-transform duration-300" id="news-modal-content">
+            <div class="flex items-center gap-4 mb-5">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-50 to-blue-100 text-primary rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-white">
+                    <i class="fas fa-bell text-xl"></i>
+                </div>
+                <div>
+                    <span class="bg-accent/20 text-yellow-700 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide">ประกาศสำคัญ</span>
+                    <p id="modal-date" class="text-xs text-slate-400 font-medium mt-1"></p>
+                </div>
+            </div>
+            <h2 id="modal-title" class="text-xl font-bold text-slate-800 mb-3 leading-snug"></h2>
+            <div id="modal-body" class="text-slate-600 mb-6 text-sm leading-relaxed max-h-[45vh] overflow-y-auto no-scrollbar whitespace-pre-line"></div>
+            
+            <button onclick="App.closeNewsModal()" class="w-full bg-slate-100/80 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-200 active:scale-[0.98] transition-all focus:outline-none border border-slate-200">
+                รับทราบ
+            </button>
+        </div>
+    </div>
+
+    <!-- In-App Viewer -->
+    <div id="in-app-viewer" class="fixed inset-0 z-[110] bg-surface hidden flex-col transition-transform translate-x-full duration-300 ease-out">
+        <div class="bg-white border-b border-slate-100 h-16 flex items-center px-4 shrink-0 pt-[env(safe-area-inset-top)] box-content">
+            <button onclick="App.closeInApp()" class="w-10 h-10 flex items-center justify-center rounded-full active:bg-slate-100 transition-colors focus:outline-none">
+                <i class="fas fa-arrow-left text-slate-600"></i>
+            </button>
+            <h2 id="viewer-title" class="font-bold ml-3 truncate flex-1 text-slate-800">กำลังโหลด...</h2>
+            <button class="w-10 h-10 flex items-center justify-center rounded-full">
+                <i class="fas fa-ellipsis-v text-slate-400"></i>
+            </button>
+        </div>
+        <iframe id="viewer-frame" class="w-full flex-1 border-0 bg-white"></iframe>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="app.js?v=2.0"></script>
+</body>
+</html>
