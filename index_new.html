@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MyMDU.25 :: Premium Navigation</title>
+    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MyMDU.25">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --accent: #fbbf24;
+            --surface: #f8fafc;
+        }
+
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: pan-y;
+            background-color: #0f172a;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .premium-gradient {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { transform: translateY(-4px); color: var(--primary); }
+        
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#fbbf24',
+                        dark: '#0f172a',
+                        surface: '#f8fafc'
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="text-slate-800 antialiased overflow-x-hidden pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+
+    <div id="app" class="max-w-md mx-auto min-h-[100dvh] relative bg-surface shadow-2xl flex flex-col">
+        
+        <!-- Header Section -->
+        <header class="premium-gradient text-white px-6 pt-8 pb-20 rounded-b-[2.5rem] relative overflow-hidden shrink-0">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="absolute top-20 -left-10 w-32 h-32 bg-blue-400/10 rounded-full blur-xl"></div>
+            
+            <div class="relative z-10 flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">MyMDU<span class="text-accent">.25</span></h1>
+                    <p class="text-blue-100 text-xs opacity-80">ระบบปฏิบัติการ นพค.25</p>
+                </div>
+                <div class="flex gap-3">
+                    <button class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md active:scale-90 transition-transform">
+                        <i class="fas fa-bell text-sm"></i>
+                    </button>
+                    <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center shadow-lg border-2 border-white/30">
+                        <i class="fas fa-user text-primary text-sm"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-10">
+                <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl flex items-center px-4 py-3">
+                    <i class="fas fa-search text-white/60 mr-3"></i>
+                    <input type="text" placeholder="ค้นหาบริการหรือข้อมูล..." class="bg-transparent border-none outline-none text-white placeholder:text-white/60 text-sm w-full">
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 px-6 -mt-12 relative z-20 pb-32 overflow-y-auto no-scrollbar">
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-2xl card-shadow border border-slate-100 flex flex-col items-center text-center animate-fade-in-up" style="animation-delay: 0.1s">
+                    <div class="w-12 h-12 bg-blue-50 text-primary rounded-xl flex items-center justify-center mb-3">
+                        <i class="fas fa-calendar-check text-xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-500">ลงชื่อปฏิบัติงาน</span>
+                    <span class="text-sm font-bold text-slate-800">08:30 น.</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl card-shadow border border-slate-100 flex flex-col items-center text-center animate-fade-in-up" style="animation-delay: 0.2s">
+                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-3">
+                        <i class="fas fa-tasks text-xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-500">งานค้างส่ง</span>
+                    <span class="text-sm font-bold text-slate-800">3 รายการ</span>
+                </div>
+            </div>
+
+            <!-- Navigation Grid -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-bold text-slate-800">เมนูหลัก</h2>
+                    <button class="text-xs font-semibold text-primary">ดูทั้งหมด</button>
+                </div>
+                
+                <div id="menu-grid" class="grid grid-cols-3 gap-y-6 gap-x-4">
+                    <!-- Menu Items will be injected here or kept as static if preferred -->
+                    <button onclick="handleMenuClick('https://script.google.com/...', 'ระบบรายงาน')" class="flex flex-col items-center group animate-fade-in-up" style="animation-delay: 0.3s">
+                        <div class="w-16 h-16 bg-white rounded-2xl card-shadow border border-slate-50 flex items-center justify-center mb-2 group-active:scale-95 transition-transform">
+                            <i class="fas fa-file-invoice text-2xl text-blue-600"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-600">รายงาน</span>
+                    </button>
+                    
+                    <button class="flex flex-col items-center group animate-fade-in-up" style="animation-delay: 0.35s">
+                        <div class="w-16 h-16 bg-white rounded-2xl card-shadow border border-slate-50 flex items-center justify-center mb-2 group-active:scale-95 transition-transform">
+                            <i class="fas fa-map-marked-alt text-2xl text-emerald-500"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-600">แผนที่</span>
+                    </button>
+
+                    <button class="flex flex-col items-center group animate-fade-in-up" style="animation-delay: 0.4s">
+                        <div class="w-16 h-16 bg-white rounded-2xl card-shadow border border-slate-50 flex items-center justify-center mb-2 group-active:scale-95 transition-transform">
+                            <i class="fas fa-users text-2xl text-purple-500"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-600">บุคลากร</span>
+                    </button>
+
+                    <button class="flex flex-col items-center group animate-fade-in-up" style="animation-delay: 0.45s">
+                        <div class="w-16 h-16 bg-white rounded-2xl card-shadow border border-slate-50 flex items-center justify-center mb-2 group-active:scale-95 transition-transform">
+                            <i class="fas fa-box-open text-2xl text-orange-500"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-600">พัสดุ</span>
+                    </button>
+
+                    <button class="flex flex-col items-center group animate-fade-in-up" style="animation-delay: 0.5s">
+                        <div class="w-16 h-16 bg-white rounded-2xl card-shadow border border-slate-50 flex items-center justify-center mb-2 group-active:scale-95 transition-transform">
+                            <i class="fas fa-car text-2xl text-red-500"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-600">ยานพาหนะ</span>
+                    </button>
+
+                    <button class="flex flex-col items-center group animate-fade-in-up" style="animation-delay: 0.55s">
+                        <div class="w-16 h-16 bg-white rounded-2xl card-shadow border border-slate-50 flex items-center justify-center mb-2 group-active:scale-95 transition-transform">
+                            <i class="fas fa-cog text-2xl text-slate-400"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-600">ตั้งค่า</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- News Section -->
+            <div class="mb-6 animate-fade-in-up" style="animation-delay: 0.6s">
+                <h2 class="font-bold text-slate-800 mb-4">ข่าวสารและประกาศ</h2>
+                <div class="bg-white p-4 rounded-2xl card-shadow border border-slate-100 flex gap-4 items-center active:scale-[0.98] transition-transform">
+                    <div class="w-20 h-20 bg-slate-100 rounded-xl shrink-0 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1454165833767-027ffea9e778?w=200&h=200&fit=crop" alt="news" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <span class="text-[10px] font-bold text-primary uppercase tracking-wider">ประกาศสำคัญ</span>
+                            <span class="text-[9px] text-slate-400">2 ชม. ที่แล้ว</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-800 line-clamp-1">การปรับปรุงระบบฐานข้อมูลประจำปี</h3>
+                        <p class="text-xs text-slate-500 mt-1 line-clamp-2">แจ้งปิดปรับปรุงระบบชั่วคราวเพื่อเพิ่มประสิทธิภาพการทำงาน...</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-6 left-6 right-6 z-[50] max-w-[calc(448px-3rem)] mx-auto">
+            <div class="glass-effect rounded-3xl shadow-2xl px-8 py-4 flex justify-between items-center border border-white/50">
+                <button class="nav-item active flex flex-col items-center transition-all duration-300">
+                    <i class="fas fa-home text-xl mb-1"></i>
+                    <span class="text-[10px] font-bold">หน้าแรก</span>
+                </button>
+                <button class="nav-item flex flex-col items-center text-slate-400 transition-all duration-300">
+                    <i class="fas fa-chart-pie text-xl mb-1"></i>
+                    <span class="text-[10px] font-bold">สถิติ</span>
+                </button>
+                <div class="relative -mt-12">
+                    <button class="w-14 h-14 premium-gradient rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/40 border-4 border-surface active:scale-90 transition-transform">
+                        <i class="fas fa-plus text-xl"></i>
+                    </button>
+                </div>
+                <button class="nav-item flex flex-col items-center text-slate-400 transition-all duration-300">
+                    <i class="fas fa-calendar-alt text-xl mb-1"></i>
+                    <span class="text-[10px] font-bold">ปฏิทิน</span>
+                </button>
+                <button class="nav-item flex flex-col items-center text-slate-400 transition-all duration-300">
+                    <i class="fas fa-user-circle text-xl mb-1"></i>
+                    <span class="text-[10px] font-bold">โปรไฟล์</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Loading Overlay -->
+        <div id="loading" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
+            <div class="relative flex flex-col items-center">
+                <div class="w-16 h-16 rounded-full border-4 border-slate-100 absolute"></div>
+                <div class="w-16 h-16 rounded-full border-4 border-primary border-t-accent animate-spin mb-6"></div>
+                <h1 class="text-xl font-bold text-slate-800">MyMDU<span class="text-primary">.25</span></h1>
+                <p class="text-slate-400 text-xs mt-2 animate-pulse">กำลังโหลดข้อมูล...</p>
+            </div>
+        </div>
+
+        <!-- In-App Viewer -->
+        <div id="in-app-viewer" class="fixed inset-0 z-[110] bg-surface hidden flex-col transition-transform translate-x-full duration-300 ease-out">
+            <div class="bg-white border-b border-slate-100 h-16 flex items-center px-4 shrink-0 pt-[env(safe-area-inset-top)] box-content">
+                <button onclick="closeInApp()" class="w-10 h-10 flex items-center justify-center rounded-full active:bg-slate-100 transition-colors">
+                    <i class="fas fa-arrow-left text-slate-600"></i>
+                </button>
+                <h2 id="viewer-title" class="font-bold ml-3 truncate flex-1 text-slate-800">กำลังโหลด...</h2>
+                <button class="w-10 h-10 flex items-center justify-center rounded-full">
+                    <i class="fas fa-ellipsis-v text-slate-400"></i>
+                </button>
+            </div>
+            <iframe id="viewer-frame" class="w-full flex-1 border-0 bg-white"></iframe>
+        </div>
+
+    </div>
+
+    <script>
+        // App Logic & App Script Integration
+        const loading = document.getElementById('loading');
+        
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                loading.classList.add('opacity-0');
+                setTimeout(() => loading.classList.add('hidden'), 500);
+            }, 1000);
+        });
+
+        function handleMenuClick(url, title) {
+            openInApp(url, title);
+        }
+
+        function openInApp(url, title) {
+            const viewer = document.getElementById('in-app-viewer');
+            const frame = document.getElementById('viewer-frame');
+            const titleEl = document.getElementById('viewer-title');
+            
+            titleEl.innerText = title;
+            frame.src = url;
+            viewer.classList.remove('hidden');
+            setTimeout(() => {
+                viewer.classList.remove('translate-x-full');
+            }, 10);
+        }
+
+        function closeInApp() {
+            const viewer = document.getElementById('in-app-viewer');
+            viewer.classList.add('translate-x-full');
+            setTimeout(() => {
+                viewer.classList.add('hidden');
+                document.getElementById('viewer-frame').src = '';
+            }, 300);
+        }
+
+        // Integration with Google Apps Script (if needed)
+        // function runScript() {
+        //     google.script.run.withSuccessHandler(onSuccess).doSomething();
+        // }
+    </script>
+</body>
+</html>
