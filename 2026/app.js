@@ -330,27 +330,45 @@ const App = {
     openInApp(url, title) {
         if (!this.elements.viewer) return;
         
-        this.elements.viewerTitle.innerText = title || 'รายละเอียด';
+        // 1. ตั้งค่า Title และเตรียมความพร้อม
+        this.elements.viewerTitle.innerText = title || 'กำลังโหลด...';
         this.elements.viewer.classList.remove('hidden');
+        this.elements.viewer.classList.add('flex'); // บังคับให้เป็น flex เพื่อการจัดวางที่ถูกต้อง
+        
+        // 2. ล็อก Scroll ของหน้าหลัก
         document.body.style.overflow = 'hidden';
+        document.body.style.height = '100vh';
 
+        // 3. เริ่ม Animation สไลด์เข้า
         requestAnimationFrame(() => {
             this.elements.viewer.classList.remove('translate-x-full');
         });
         
+        // 4. โหลด URL ใส่ iframe (หน่วงเวลาเล็กน้อยเพื่อให้ Animation ลื่นไหล)
         setTimeout(() => {
-            this.elements.viewerFrame.src = url; 
-        }, 250);
+            this.elements.viewerFrame.src = url;
+            
+            // เมื่อ iframe โหลดเสร็จ ให้เปลี่ยน Title เป็นชื่อจริง (ถ้ามี)
+            this.elements.viewerFrame.onload = () => {
+                if (title) this.elements.viewerTitle.innerText = title;
+            };
+        }, 300);
     },
 
     closeInApp() {
         if (!this.elements.viewer) return;
         
+        // 1. เริ่ม Animation สไลด์ออก
         this.elements.viewer.classList.add('translate-x-full');
-        document.body.style.overflow = '';
         
+        // 2. คืนค่า Scroll ให้หน้าหลัก
+        document.body.style.overflow = '';
+        document.body.style.height = '';
+        
+        // 3. รอให้ Animation จบแล้วค่อยซ่อน
         setTimeout(() => {
             this.elements.viewer.classList.add('hidden');
+            this.elements.viewer.classList.remove('flex');
             this.elements.viewerFrame.src = 'about:blank'; 
             this.elements.viewerTitle.innerText = 'กำลังโหลด...';
         }, 300);
