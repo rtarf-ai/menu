@@ -137,17 +137,24 @@
     </div>
 
     <!-- In-App Viewer -->
-    <div id="in-app-viewer" class="fixed inset-0 z-[110] bg-surface hidden flex-col transition-transform translate-x-full duration-300 ease-out">
-        <div class="bg-white border-b border-slate-100 h-16 flex items-center px-4 shrink-0 pt-[env(safe-area-inset-top)] box-content">
+    <!-- In-App Viewer (Fixed Full Screen) -->
+    <div id="in-app-viewer" class="fixed inset-0 z-[110] bg-white hidden flex-col transition-transform translate-x-full duration-300 ease-out h-[100dvh] w-full overflow-hidden">
+        <!-- Header Bar -->
+        <div class="bg-white border-b border-slate-100 h-14 flex items-center px-4 shrink-0 pt-[env(safe-area-inset-top)] box-content shadow-sm relative z-10">
             <button onclick="App.closeInApp()" class="w-10 h-10 flex items-center justify-center rounded-full active:bg-slate-100 transition-colors focus:outline-none">
                 <i class="fas fa-arrow-left text-slate-600"></i>
             </button>
-            <h2 id="viewer-title" class="font-bold ml-3 truncate flex-1 text-slate-800">กำลังโหลด...</h2>
-            <button class="w-10 h-10 flex items-center justify-center rounded-full">
-                <i class="fas fa-ellipsis-v text-slate-400"></i>
-            </button>
+            <h2 id="viewer-title" class="font-bold ml-3 truncate flex-1 text-slate-800 text-sm">กำลังโหลด...</h2>
+            <div class="flex gap-2">
+                <button onclick="window.open(document.getElementById('viewer-frame').src, '_blank')" class="w-10 h-10 flex items-center justify-center rounded-full active:bg-slate-100 transition-colors">
+                    <i class="fas fa-external-link-alt text-slate-400 text-xs"></i>
+                </button>
+            </div>
         </div>
-        <iframe id="viewer-frame" class="w-full flex-1 border-0 bg-white"></iframe>
+        <!-- Iframe Container (Force Full Height) -->
+        <div class="flex-1 w-full h-full relative overflow-hidden bg-white">
+            <iframe id="viewer-frame" class="absolute inset-0 w-full h-full border-0 m-0 p-0" allowfullscreen></iframe>
+        </div>
     </div>
 
     <!-- Scripts -->
