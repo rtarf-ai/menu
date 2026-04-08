@@ -472,22 +472,53 @@ const App = {
         else if (this.state.adminTab === 'news') contentHTML = this.getNewsTabHTML();
 
         this.elements.app.innerHTML = `
-            <div class="p-4 md:p-6 pb-20 max-w-5xl mx-auto animate-fade-in">
-                <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                    <h2 class="text-xl font-bold text-primary flex items-center"><i class="fas fa-cogs mr-2 bg-blue-50 p-2 rounded-lg"></i> แผงควบคุมระบบ</h2>
-                    <button onclick="App.logout()" class="text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition text-sm font-bold cursor-pointer"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+            <div class="min-h-screen bg-slate-50 pb-24 animate-fade-in">
+                <!-- Admin Header -->
+                <div class="bg-white border-b border-slate-200 px-4 py-4 sticky top-0 z-30 shadow-sm">
+                    <div class="max-w-5xl mx-auto flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800 leading-none">Admin Panel</h2>
+                                <p class="text-[10px] text-slate-400 font-medium mt-1 uppercase tracking-wider">จัดการระบบ MyMDU.25</p>
+                            </div>
+                        </div>
+                        <button onclick="App.logout()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-500 active:scale-90 transition-all">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="flex bg-white rounded-2xl shadow-sm border border-slate-100 p-1 mb-6 overflow-x-auto no-scrollbar">
-                    <button onclick="App.changeAdminTab('menus')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${this.state.adminTab === 'menus' ? 'bg-blue-50 text-primary shadow-sm' : 'text-slate-500 hover:bg-slate-50'}"><i class="fas fa-th-large mr-1"></i> จัดการเมนู</button>
-                    <button onclick="App.changeAdminTab('banners')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${this.state.adminTab === 'banners' ? 'bg-blue-50 text-primary shadow-sm' : 'text-slate-500 hover:bg-slate-50'}"><i class="fas fa-images mr-1"></i> จัดการแบนเนอร์</button>
-                    <button onclick="App.changeAdminTab('news')" class="flex-1 py-2.5 px-4 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${this.state.adminTab === 'news' ? 'bg-blue-50 text-primary shadow-sm' : 'text-slate-500 hover:bg-slate-50'}"><i class="fas fa-bullhorn mr-1"></i> จัดการข่าวสาร</button>
-                </div>
+                <div class="max-w-5xl mx-auto px-4 pt-6">
+                    <!-- Tab Navigation -->
+                    <div class="flex bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200 mb-6 sticky top-[73px] z-20">
+                        <button onclick="App.changeAdminTab('menus')" class="flex-1 py-3 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center gap-1 ${this.state.adminTab === 'menus' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-50'}">
+                            <i class="fas fa-th-large text-sm"></i>
+                            <span>เมนู</span>
+                        </button>
+                        <button onclick="App.changeAdminTab('banners')" class="flex-1 py-3 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center gap-1 ${this.state.adminTab === 'banners' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-50'}">
+                            <i class="fas fa-images text-sm"></i>
+                            <span>แบนเนอร์</span>
+                        </button>
+                        <button onclick="App.changeAdminTab('news')" class="flex-1 py-3 px-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center gap-1 ${this.state.adminTab === 'news' ? 'bg-primary text-white shadow-md shadow-primary/20' : 'text-slate-400 hover:bg-slate-50'}">
+                            <i class="fas fa-bullhorn text-sm"></i>
+                            <span>ข่าวสาร</span>
+                        </button>
+                    </div>
 
-                <div class="animate-scale-up">${contentHTML}</div>
-                
-                <div class="text-center mt-8">
-                    <button onclick="App.navigate('public')" class="inline-flex items-center justify-center px-6 py-3 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-900 transition shadow-lg cursor-pointer border-0"><i class="fas fa-mobile-alt mr-2"></i> กลับไปดูหน้าแสดงผล</button>
+                    <!-- Content Area -->
+                    <div class="animate-scale-up space-y-6">
+                        ${contentHTML}
+                    </div>
+                    
+                    <!-- Footer Action -->
+                    <div class="mt-12 pb-8 text-center">
+                        <button onclick="App.navigate('public')" class="inline-flex items-center justify-center px-8 py-4 bg-slate-800 text-white rounded-2xl text-sm font-bold hover:bg-slate-900 active:scale-95 transition-all shadow-xl shadow-slate-200 border-0">
+                            <i class="fas fa-eye mr-2"></i> ดูหน้าแสดงผลจริง
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -506,22 +537,80 @@ const App = {
     // --- HTML Templates สำหรับหน้า Admin ---
     getMenusTabHTML() {
         return `
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
-                <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-plus-circle text-accent"></i> เพิ่มเมนูนำทางใหม่</h3>
-                <form onsubmit="App.submitAction(event, 'addMenu')" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">ชื่อเมนู</label><input type="text" name="name" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" required></div>
-                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">แผนก</label><input type="text" name="department" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" required></div>
-                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">ลิงก์ปลายทาง (URL)</label><input type="text" name="link_url" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" required></div>
-                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">ไอคอน (FontAwesome Class)</label><input type="text" name="icon" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" value="fas fa-link"></div>
-                    <div class="md:col-span-2 pt-2"><button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-800 transition shadow-md cursor-pointer"><i class="fas fa-save mr-1"></i> บันทึกเมนู</button></div>
-                </form>
+            <!-- Add Form -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fas fa-plus-circle text-primary"></i> เพิ่มเมนูใหม่
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <form onsubmit="App.submitAction(event, 'addMenu')" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">ชื่อเมนู</label>
+                                <input type="text" name="name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" placeholder="เช่น ระบบลาพักผ่อน" required>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">แผนก / หมวดหมู่</label>
+                                <input type="text" name="department" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" placeholder="เช่น สำนักงาน" required>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">ลิงก์ปลายทาง (URL)</label>
+                                <input type="url" name="link_url" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" placeholder="https://..." required>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">ไอคอน (FontAwesome)</label>
+                                <div class="relative">
+                                    <input type="text" name="icon" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" value="fas fa-link">
+                                    <i class="fas fa-icons absolute left-4 top-3.5 text-slate-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-white py-4 rounded-2xl font-bold hover:bg-blue-800 active:scale-[0.98] transition-all shadow-lg shadow-primary/20 mt-2">
+                            <i class="fas fa-save mr-2"></i> บันทึกข้อมูลเมนู
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-list"></i> รายการเมนูทั้งหมด</h3>
+
+            <!-- List Table -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fas fa-list text-primary"></i> รายการเมนู (${this.state.data.menus.length})
+                    </h3>
+                </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[500px]">
-                        <thead><tr class="bg-slate-50 text-xs text-slate-500 uppercase"><th class="py-3 px-4 rounded-tl-lg">เมนู</th><th class="py-3 px-4">แผนก</th><th class="py-3 px-4 text-right rounded-tr-lg">จัดการ</th></tr></thead>
-                        <tbody>${this.state.data.menus.map(m => `<tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="py-3 px-4"><i class="${m.icon || 'fas fa-link'} text-primary w-6 text-lg"></i> <span class="font-medium text-sm">${this.escapeHtml(m.name)}</span></td><td class="py-3 px-4"><span class="bg-white border border-slate-200 px-2.5 py-1 rounded-md text-xs shadow-sm">${this.escapeHtml(m.department)}</span></td><td class="py-3 px-4 text-right"><button onclick="App.deleteAction('deleteMenu', '${m.id}', '${this.escapeHtml(m.name)}')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50 cursor-pointer"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}</tbody>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[10px] text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                <th class="py-4 px-6 font-bold">ข้อมูลเมนู</th>
+                                <th class="py-4 px-6 font-bold text-right">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            ${this.state.data.menus.map(m => `
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="py-4 px-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 bg-blue-50 text-primary rounded-xl flex items-center justify-center shrink-0">
+                                                <i class="${m.icon || 'fas fa-link'} text-lg"></i>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="font-bold text-slate-700 text-sm truncate">${this.escapeHtml(m.name)}</p>
+                                                <p class="text-[11px] text-slate-400 font-medium mt-0.5">${this.escapeHtml(m.department)}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-6 text-right">
+                                        <button onclick="App.deleteAction('deleteMenu', '${m.id}', '${this.escapeHtml(m.name)}')" class="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white active:scale-90 transition-all">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
                     </table>
                 </div>
             </div>`;
@@ -529,20 +618,66 @@ const App = {
 
     getBannersTabHTML() {
         return `
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
-                <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-plus-circle text-accent"></i> เพิ่มแบนเนอร์ใหม่</h3>
-                <form onsubmit="App.submitAction(event, 'addBanner')" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">ลิงก์รูปภาพ (Image URL)</label><input type="url" name="image_url" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="https://..." required></div>
-                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">ลิงก์ปลายทางเมื่อคลิก</label><input type="url" name="link_url" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="https://..." required></div>
-                    <div class="md:col-span-2 pt-2"><button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-800 transition shadow-md cursor-pointer"><i class="fas fa-save mr-1"></i> บันทึกแบนเนอร์</button></div>
-                </form>
+            <!-- Add Form -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fas fa-plus-circle text-primary"></i> เพิ่มแบนเนอร์ใหม่
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <form onsubmit="App.submitAction(event, 'addBanner')" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">ลิงก์รูปภาพ (Image URL)</label>
+                                <input type="url" name="image_url" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" placeholder="https://..." required>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">ลิงก์ปลายทางเมื่อคลิก</label>
+                                <input type="url" name="link_url" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" placeholder="https://..." required>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-white py-4 rounded-2xl font-bold hover:bg-blue-800 active:scale-[0.98] transition-all shadow-lg shadow-primary/20 mt-2">
+                            <i class="fas fa-save mr-2"></i> บันทึกข้อมูลแบนเนอร์
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-images"></i> รายการแบนเนอร์ทั้งหมด</h3>
+
+            <!-- List Table -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fas fa-images text-primary"></i> รายการแบนเนอร์ (${this.state.data.banners.length})
+                    </h3>
+                </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[500px]">
-                        <thead><tr class="bg-slate-50 text-xs text-slate-500 uppercase"><th class="py-3 px-4 w-32 rounded-tl-lg">รูปภาพ</th><th class="py-3 px-4">ลิงก์ปลายทาง</th><th class="py-3 px-4 text-right rounded-tr-lg">จัดการ</th></tr></thead>
-                        <tbody>${this.state.data.banners.map(b => `<tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="py-3 px-4"><img src="${this.escapeHtml(b.image_url)}" class="w-24 h-12 object-cover rounded-md border shadow-sm" onerror="this.src='https://images.unsplash.com/photo-1454165833767-027ffea9e778?w=200&h=100&fit=crop'"></td><td class="py-3 px-4 text-xs text-blue-500 truncate max-w-[200px]"><a href="${this.escapeHtml(b.link_url)}" target="_blank" class="hover:underline">${this.escapeHtml(b.link_url)}</a></td><td class="py-3 px-4 text-right"><button onclick="App.deleteAction('deleteBanner', '${b.id}', 'แบนเนอร์นี้')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50 cursor-pointer"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}</tbody>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[10px] text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                <th class="py-4 px-6 font-bold">รูปภาพแบนเนอร์</th>
+                                <th class="py-4 px-6 font-bold text-right">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            ${this.state.data.banners.map(b => `
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="py-4 px-6">
+                                        <div class="flex items-center gap-4">
+                                            <img src="${this.escapeHtml(b.image_url)}" class="w-24 h-14 object-cover rounded-xl border border-slate-100 shadow-sm" onerror="this.src='https://images.unsplash.com/photo-1454165833767-027ffea9e778?w=200&h=100&fit=crop'">
+                                            <div class="min-w-0">
+                                                <p class="text-[11px] text-slate-400 font-medium truncate max-w-[150px]">${this.escapeHtml(b.link_url)}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-6 text-right">
+                                        <button onclick="App.deleteAction('deleteBanner', '${b.id}', 'แบนเนอร์นี้')" class="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white active:scale-90 transition-all">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
                     </table>
                 </div>
             </div>`;
@@ -550,21 +685,66 @@ const App = {
 
     getNewsTabHTML() {
         return `
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
-                <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-plus-circle text-accent"></i> เพิ่มประกาศข่าวสาร</h3>
-                <form onsubmit="App.submitAction(event, 'addNews')" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="md:col-span-2"><label class="block text-xs font-semibold text-slate-500 mb-1">หัวข้อข่าว / ประกาศ</label><input type="text" name="title" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" required></div>
-                    <div class="md:col-span-2"><label class="block text-xs font-semibold text-slate-500 mb-1">วันที่ (ข้อความ)</label><input type="text" name="date" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="เช่น 25 มี.ค. 2026" required></div>
-                    <div class="md:col-span-2"><label class="block text-xs font-semibold text-slate-500 mb-1">เนื้อหาข่าว (พิมพ์ยาวๆ ได้เลย)</label><textarea name="body" rows="4" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="เนื้อหาข่าวแบบเต็ม..."></textarea></div>
-                    <div class="md:col-span-2 pt-2"><button type="submit" class="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-800 transition shadow-md cursor-pointer"><i class="fas fa-save mr-1"></i> บันทึกข่าวสาร</button></div>
-                </form>
+            <!-- Add Form -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fas fa-plus-circle text-primary"></i> เพิ่มประกาศใหม่
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <form onsubmit="App.submitAction(event, 'addNews')" class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">หัวข้อข่าว</label>
+                            <input type="text" name="title" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" placeholder="เช่น แจ้งปิดปรับปรุงระบบชั่วคราว" required>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">วันที่แสดง</label>
+                            <input type="text" name="date" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" placeholder="เช่น 25 มี.ค. 2026" required>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">เนื้อหาข่าวสาร</label>
+                            <textarea name="body" rows="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary focus:outline-none transition-all" placeholder="รายละเอียดประกาศ..." required></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-white py-4 rounded-2xl font-bold hover:bg-blue-800 active:scale-[0.98] transition-all shadow-lg shadow-primary/20 mt-2">
+                            <i class="fas fa-save mr-2"></i> บันทึกข้อมูลประกาศ
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <h3 class="font-bold text-slate-700 mb-4 text-lg border-b pb-2"><i class="fas fa-bullhorn"></i> รายการข่าวสารทั้งหมด</h3>
+
+            <!-- List Table -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fas fa-bullhorn text-primary"></i> รายการประกาศ (${this.state.data.news.length})
+                    </h3>
+                </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[500px]">
-                        <thead><tr class="bg-slate-50 text-xs text-slate-500 uppercase"><th class="py-3 px-4 rounded-tl-lg">หัวข้อข่าว</th><th class="py-3 px-4">วันที่</th><th class="py-3 px-4 text-right rounded-tr-lg">จัดการ</th></tr></thead>
-                        <tbody>${this.state.data.news.map(n => `<tr class="border-b border-slate-100 hover:bg-slate-50 transition"><td class="py-3 px-4 font-medium text-sm text-slate-700">${this.escapeHtml(n.title)}</td><td class="py-3 px-4 text-xs text-slate-500">${this.escapeHtml(n.date)}</td><td class="py-3 px-4 text-right"><button onclick="App.deleteAction('deleteNews', '${n.id}', '${this.escapeHtml(n.title)}')" class="text-red-500 hover:bg-red-100 w-9 h-9 rounded-xl transition shadow-sm border border-red-50 cursor-pointer"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}</tbody>
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[10px] text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                <th class="py-4 px-6 font-bold">หัวข้อข่าว</th>
+                                <th class="py-4 px-6 font-bold text-right">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            ${this.state.data.news.map(n => `
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="py-4 px-6">
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-slate-700 text-sm truncate">${this.escapeHtml(n.title)}</p>
+                                            <p class="text-[11px] text-slate-400 font-medium mt-0.5">${this.escapeHtml(n.date)}</p>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-6 text-right">
+                                        <button onclick="App.deleteAction('deleteNews', '${n.id}', '${this.escapeHtml(n.title)}')" class="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white active:scale-90 transition-all">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
                     </table>
                 </div>
             </div>`;
