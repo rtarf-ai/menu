@@ -40,6 +40,7 @@ const App = {
         this.elements = {
             app: document.getElementById('app'),
             loading: document.getElementById('loading'),
+            loadingText: document.getElementById('loading-text'),
             newsModal: document.getElementById('news-modal'),
             newsModalContent: document.getElementById('news-modal-content'),
             modalTitle: document.getElementById('modal-title'),
@@ -803,25 +804,29 @@ const App = {
     // ==========================================
     showLoading(text = 'กำลังโหลด...') {
         if (this.elements.loading) {
-            this.elements.loading.classList.remove('hidden');
-            this.elements.loading.classList.remove('opacity-0');
-            this.elements.loading.innerHTML = `
-                <div class="flex flex-col items-center justify-center">
-                    <div class="w-16 h-16 rounded-full border-4 border-slate-100 absolute"></div>
-                    <div class="w-16 h-16 rounded-full border-4 border-primary border-t-accent animate-spin mb-6"></div>
-                    <h1 class="text-xl font-bold text-slate-800">MyMDU<span class="text-primary">.25</span></h1>
-                    <p class="text-slate-400 text-xs mt-2 animate-pulse">${text}</p>
-                </div>
-            `;
+            // อัปเดตข้อความถ้ามี element รองรับ
+            if (this.elements.loadingText) {
+                this.elements.loadingText.innerText = text;
+            }
+            
+            // แสดงผลหน้า Loading
+            this.elements.loading.style.display = 'flex';
+            this.elements.loading.classList.remove('opacity-0', 'pointer-events-none');
+            this.elements.loading.classList.add('opacity-100', 'pointer-events-auto');
         }
     },
 
     hideLoading() {
         if (this.elements.loading) {
-            this.elements.loading.classList.add('opacity-0');
+            this.elements.loading.classList.remove('opacity-100', 'pointer-events-auto');
+            this.elements.loading.classList.add('opacity-0', 'pointer-events-none');
+            
+            // รอให้ Animation จบแล้วค่อยซ่อน display เพื่อป้องกันการซ้อนทับ
             setTimeout(() => {
-                this.elements.loading.classList.add('hidden');
-            }, 500);
+                if (this.elements.loading.classList.contains('opacity-0')) {
+                    this.elements.loading.style.display = 'none';
+                }
+            }, 300);
         }
     },
 
