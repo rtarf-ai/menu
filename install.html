@@ -123,7 +123,7 @@
         window.addEventListener('load', () => {
             // ก) ถ้าติดตั้งอยู่แล้ว ให้เด้งไปหน้า index.html
             if (isStandalone) {
-                window.location.href = 'index.html';
+                window.location.href = '2026/index.html';
                 return;
             }
 
@@ -162,7 +162,7 @@
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    window.location.href = 'index.html';
+                    window.location.href = '2026/index.html';
                 }
                 deferredPrompt = null;
             }
@@ -170,7 +170,7 @@
 
         // ลงทะเบียน Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('2026/sw.js');
         }
     </script>
 </body>
