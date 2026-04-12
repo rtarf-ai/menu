@@ -152,13 +152,12 @@
         // ==========================================
         // ⚙️ ตั้งค่าระบบ (เปลี่ยน API URL ที่นี่)
         // ==========================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec'; // <--- ใส่ URL ตรงนี้
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec'; 
         
         let currentUser = null;
         let globalData = { banners: [], menus: [] };
         let swipers = {};
         
-        // ตัวแปรสำหรับเก็บ ID เมนูที่กำลังถูกแก้ไข
         let editingMenuId = null;
 
         document.addEventListener('DOMContentLoaded', fetchAppData);
@@ -348,17 +347,16 @@
                 <div class="flex items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
                     <img src="${b.image}" class="w-16 h-10 object-cover rounded mr-3">
                     <div class="flex-grow overflow-hidden"><p class="text-xs truncate text-gray-400">${b.link}</p></div>
-                    <button onclick="deleteItem('deleteBanner', ${b.id})" class="text-red-400 p-2 hover:bg-slate-700 rounded"><i class="fa-solid fa-trash"></i></button>
+                    <button onclick="deleteItem('deleteBanner', '${b.id}')" class="text-red-400 p-2 hover:bg-slate-700 rounded"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `).join('');
 
-            // ปรับรายการเมนู ให้มีปุ่ม ดินสอ (แก้ไข) เพิ่มขึ้นมา
             document.getElementById('admin-menu-list').innerHTML = globalData.menus.map(m => `
                 <div class="flex items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
                     <div class="w-8 h-8 flex items-center justify-center bg-slate-700 rounded mr-3 text-gray-300"><i class="${m.icon}"></i></div>
                     <div class="flex-grow"><p class="text-sm font-medium">${m.title}</p><p class="text-[10px] text-gray-500">ลำดับ: ${m.order}</p></div>
-                    <button onclick="prepareEditMenu(${m.id})" class="text-blue-400 p-2 hover:bg-slate-700 rounded mr-1"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="deleteItem('deleteMenu', ${m.id})" class="text-red-400 p-2 hover:bg-slate-700 rounded"><i class="fa-solid fa-trash"></i></button>
+                    <button onclick="prepareEditMenu('${m.id}')" class="text-blue-400 p-2 hover:bg-slate-700 rounded mr-1"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="deleteItem('deleteMenu', '${m.id}')" class="text-red-400 p-2 hover:bg-slate-700 rounded"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `).join('');
         }
@@ -377,31 +375,27 @@
             }
         }
 
-        // ฟังก์ชันเตรียมข้อมูลเพื่อแก้ไขเมนู
+        // การใช้ string comparison จะชัวร์กว่าเสมอ ไม่ว่าข้อมูลเป็นตัวเลขหรือข้อความ
         function prepareEditMenu(id) {
-            const menu = globalData.menus.find(m => m.id === id);
+            const menu = globalData.menus.find(m => String(m.id) === String(id));
             if(!menu) return;
             
-            editingMenuId = menu.id; // เก็บสถานะว่ากำลังแก้ไข ID ไหน
+            editingMenuId = menu.id; 
             
-            // นำข้อมูลเก่ามาใส่ในช่องกรอก
             document.getElementById('new-menu-title').value = menu.title;
             document.getElementById('new-menu-icon').value = menu.icon;
             document.getElementById('new-menu-url').value = menu.url;
             document.getElementById('new-menu-order').value = menu.order;
             
-            // เปลี่ยนหน้าตา UI ของฟอร์ม
             document.getElementById('menu-form-title').innerHTML = '<i class="fa-solid fa-pen mr-2"></i> แก้ไขข้อมูลเมนู';
             document.getElementById('btn-save-menu').innerText = 'อัปเดตข้อมูลเมนู';
             document.getElementById('btn-save-menu').classList.replace('bg-purple-600', 'bg-blue-600');
             document.getElementById('btn-cancel-menu').classList.remove('hidden');
             document.getElementById('menu-form-container').classList.add('border-blue-500');
             
-            // เลื่อนจอขึ้นไปด้านบนตรงฟอร์ม
             document.getElementById('tab-menus').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ฟังก์ชันยกเลิกการแก้ไข (เคลียร์ฟอร์ม)
         function cancelEditMenu() {
             editingMenuId = null;
             document.getElementById('new-menu-title').value = '';
@@ -416,7 +410,6 @@
             document.getElementById('menu-form-container').classList.remove('border-blue-500');
         }
 
-        // ฟังก์ชันบันทึกเมนู (ใช้ร่วมกันทั้ง เพิ่มใหม่ และ แก้ไข)
         async function saveMenu() {
             const title = document.getElementById('new-menu-title').value;
             const icon = document.getElementById('new-menu-icon').value || 'fa-solid fa-star';
@@ -427,13 +420,12 @@
             
             const payloadData = { title: title, icon: icon, url: url, order: parseInt(order), active: 1 };
             
-            // ถ้ามีการกดแก้ไขอยู่ ให้แนบ id เดิมส่งไปด้วย (หลังบ้านจะรู้ทันทีว่าต้องเอาไป Update ไม่ใช่ Insert)
             if(editingMenuId) {
                 payloadData.id = editingMenuId;
             }
             
             if(await apiPost({ action: 'saveMenu', data: payloadData })) {
-                cancelEditMenu(); // พอบันทึกเสร็จให้ล้างฟอร์มกลับไปเป็นโหมด "เพิ่มใหม่"
+                cancelEditMenu(); 
             }
         }
 
