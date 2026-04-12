@@ -26,6 +26,20 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
+<script>
+        // ฟังก์ชันเช็คว่าเปิดจากหน้าจอโฮม (ติดตั้งแล้ว) หรือไม่
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                             window.navigator.standalone || 
+                             document.referrer.includes('android-app://');
+        
+        // เช็คว่ามี Parameter อนุญาตให้ข้ามการติดตั้งหรือไม่ (เผื่อผู้ใช้ไม่อยากโหลดลงเครื่อง)
+        const skipInstall = window.location.search.includes('skipInstall=true');
+
+        // หากยังไม่ติดตั้ง และไม่ได้กดข้าม ให้เด้งไปหน้า install.html
+        if (!isStandalone && !skipInstall) {
+            window.location.replace('./install.html');
+        }
+    </script>
 </head>
 <body class="text-white">
 
