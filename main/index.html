@@ -16,8 +16,6 @@
         .swiper-pagination-bullet { background: #fff; opacity: 0.3; }
         .swiper-pagination-bullet-active { background: #3b82f6; opacity: 1; }
         #loader { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 999; display: flex; justify-content: center; align-items: center; }
-        
-        /* Custom Scrollbar for Admin Panel */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
@@ -117,22 +115,28 @@
                             <input type="text" id="new-banner-link" placeholder="ลิงก์ปลายทาง (ใส่ # หากไม่มี)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-emerald-500">
                             <button onclick="addBanner()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-bold text-white transition-colors">บันทึกแบนเนอร์</button>
                         </div>
-                        <h4 class="text-xs text-gray-400 uppercase font-bold mt-4">รายการแบนเนอร์ปัจจุบัน</h4>
+                        <h4 class="text-xs text-gray-400 uppercase font-bold mt-4">รายการแบนเนอร์</h4>
                         <div id="admin-banner-list" class="space-y-2 pb-10"></div>
                     </div>
 
                     <div id="tab-menus" class="tab-content hidden space-y-4">
-                        <div class="bg-slate-800 p-4 rounded-xl border border-purple-500/30 space-y-3">
-                            <h4 class="text-sm font-bold text-purple-400 flex items-center"><i class="fa-solid fa-plus mr-2"></i> เพิ่มเมนูใหม่</h4>
+                        <div class="bg-slate-800 p-4 rounded-xl border border-purple-500/30 space-y-3 transition-all" id="menu-form-container">
+                            <h4 id="menu-form-title" class="text-sm font-bold text-purple-400 flex items-center"><i class="fa-solid fa-plus mr-2"></i> เพิ่มเมนูใหม่</h4>
+                            
                             <div class="flex gap-2">
                                 <input type="text" id="new-menu-title" placeholder="ชื่อเมนู" class="w-1/2 p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
                                 <input type="text" id="new-menu-icon" placeholder="คลาสไอคอน (เช่น fa-solid fa-star)" class="w-1/2 p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
                             </div>
                             <input type="text" id="new-menu-url" placeholder="ลิงก์ปลายทาง (ใส่ # หากไม่มี)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
-                            <input type="number" id="new-menu-order" placeholder="ลำดับแสดงผล (เลข)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
-                            <button onclick="addMenu()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-bold text-white transition-colors">บันทึกเมนู</button>
+                            <input type="number" id="new-menu-order" placeholder="ลำดับแสดงผล (ตัวเลข)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
+                            
+                            <div class="flex gap-2 mt-2">
+                                <button onclick="saveMenu()" id="btn-save-menu" class="w-full py-3 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-bold text-white transition-colors">บันทึกเมนู</button>
+                                <button onclick="cancelEditMenu()" id="btn-cancel-menu" class="hidden py-3 px-4 bg-slate-600 hover:bg-slate-500 rounded-lg text-sm font-bold text-white transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
                         </div>
-                        <h4 class="text-xs text-gray-400 uppercase font-bold mt-4">รายการเมนูปัจจุบัน</h4>
+
+                        <h4 class="text-xs text-gray-400 uppercase font-bold mt-4">รายการเมนู</h4>
                         <div id="admin-menu-list" class="space-y-2 pb-10"></div>
                     </div>
 
@@ -148,11 +152,14 @@
         // ==========================================
         // ⚙️ ตั้งค่าระบบ (เปลี่ยน API URL ที่นี่)
         // ==========================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec'; 
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec'; // <--- ใส่ URL ตรงนี้
         
         let currentUser = null;
         let globalData = { banners: [], menus: [] };
         let swipers = {};
+        
+        // ตัวแปรสำหรับเก็บ ID เมนูที่กำลังถูกแก้ไข
+        let editingMenuId = null;
 
         document.addEventListener('DOMContentLoaded', fetchAppData);
 
@@ -172,7 +179,7 @@
                 
                 renderApp();
                 if(currentUser && currentUser.role === 'admin') {
-                    renderAdminLists(); // อัปเดตรายการในหน้าแอดมินด้วยถ้าล็อกอินอยู่
+                    renderAdminLists(); 
                 }
             } catch (error) {
                 console.error(error);
@@ -183,7 +190,6 @@
         }
 
         function renderApp() {
-            // Render Banners
             const bCont = document.getElementById('banner-container');
             bCont.innerHTML = globalData.banners.map(b => `
                 <div class="swiper-slide cursor-pointer" onclick="window.open('${b.link}', '_blank')">
@@ -191,7 +197,6 @@
                 </div>
             `).join('');
 
-            // Render Menus (Chunk by 9)
             const mCont = document.getElementById('menu-container');
             let mHtml = '';
             for (let i = 0; i < globalData.menus.length; i += 9) {
@@ -206,7 +211,6 @@
             }
             mCont.innerHTML = mHtml;
 
-            // Init/Update Swipers
             if(swipers.banner) swipers.banner.destroy();
             if(swipers.menu) swipers.menu.destroy();
 
@@ -237,7 +241,7 @@
                 if (data.status === 'success') {
                     currentUser = data.user;
                     currentUser.username = user;
-                    currentUser.password = pass; // เก็บไว้ชั่วคราวเพื่อส่งตรวจสอบตอนเปลี่ยนรหัส
+                    currentUser.password = pass; 
                     updateUI();
                 } else alert('Username หรือ Password ไม่ถูกต้อง');
             } catch (e) { alert('เกิดข้อผิดพลาดในการเชื่อมต่อ'); } 
@@ -264,7 +268,7 @@
                 badge.className = "px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-[10px] uppercase font-bold";
                 document.getElementById('admin-tabs-nav').classList.add('hidden');
                 document.getElementById('admin-tabs-nav').classList.remove('grid');
-                switchTab('tab-profile'); // บังคับให้เห็นแค่หน้าโปรไฟล์
+                switchTab('tab-profile');
             }
         }
 
@@ -302,7 +306,7 @@
                 const data = await res.json();
                 if(data.status === 'success') {
                     if(['saveBanner', 'deleteBanner', 'saveMenu', 'deleteMenu'].includes(payload.action)){
-                        await fetchAppData(); // โหลดข้อมูลใหม่ทั้งหมดเมื่อมีการแก้ไข
+                        await fetchAppData(); 
                     }
                     alert('ดำเนินการเรียบร้อย');
                     return true;
@@ -318,7 +322,6 @@
             }
         }
 
-        // --- Profile Actions ---
         async function saveProfile() {
             const name = document.getElementById('edit-name').value;
             if(await apiPost({ action: 'updateProfile', username: currentUser.username, name: name })) {
@@ -332,7 +335,6 @@
             const oldP = document.getElementById('old-pass').value;
             const newP = document.getElementById('new-pass').value;
             if(!oldP || !newP) return alert('กรอกข้อมูลให้ครบ');
-            
             if(await apiPost({ action: 'changePassword', username: currentUser.username, oldPass: oldP, newPass: newP })) {
                 document.getElementById('old-pass').value = '';
                 document.getElementById('new-pass').value = '';
@@ -340,9 +342,8 @@
             }
         }
 
-        // --- Admin Render Lists ---
+        // --- ระบบ Render รายการในแอดมิน ---
         function renderAdminLists() {
-            // Render Admin Banners
             document.getElementById('admin-banner-list').innerHTML = globalData.banners.map(b => `
                 <div class="flex items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
                     <img src="${b.image}" class="w-16 h-10 object-cover rounded mr-3">
@@ -351,17 +352,21 @@
                 </div>
             `).join('');
 
-            // Render Admin Menus
+            // ปรับรายการเมนู ให้มีปุ่ม ดินสอ (แก้ไข) เพิ่มขึ้นมา
             document.getElementById('admin-menu-list').innerHTML = globalData.menus.map(m => `
                 <div class="flex items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
                     <div class="w-8 h-8 flex items-center justify-center bg-slate-700 rounded mr-3 text-gray-300"><i class="${m.icon}"></i></div>
                     <div class="flex-grow"><p class="text-sm font-medium">${m.title}</p><p class="text-[10px] text-gray-500">ลำดับ: ${m.order}</p></div>
+                    <button onclick="prepareEditMenu(${m.id})" class="text-blue-400 p-2 hover:bg-slate-700 rounded mr-1"><i class="fa-solid fa-pen"></i></button>
                     <button onclick="deleteItem('deleteMenu', ${m.id})" class="text-red-400 p-2 hover:bg-slate-700 rounded"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `).join('');
         }
 
-        // --- Admin Actions (Add/Delete) ---
+        // ==========================================
+        // 4. ฟังก์ชันเพิ่ม/แก้ไข/ลบ ข้อมูล
+        // ==========================================
+        
         async function addBanner() {
             const img = document.getElementById('new-banner-img').value;
             const link = document.getElementById('new-banner-link').value || '#';
@@ -372,18 +377,63 @@
             }
         }
 
-        async function addMenu() {
+        // ฟังก์ชันเตรียมข้อมูลเพื่อแก้ไขเมนู
+        function prepareEditMenu(id) {
+            const menu = globalData.menus.find(m => m.id === id);
+            if(!menu) return;
+            
+            editingMenuId = menu.id; // เก็บสถานะว่ากำลังแก้ไข ID ไหน
+            
+            // นำข้อมูลเก่ามาใส่ในช่องกรอก
+            document.getElementById('new-menu-title').value = menu.title;
+            document.getElementById('new-menu-icon').value = menu.icon;
+            document.getElementById('new-menu-url').value = menu.url;
+            document.getElementById('new-menu-order').value = menu.order;
+            
+            // เปลี่ยนหน้าตา UI ของฟอร์ม
+            document.getElementById('menu-form-title').innerHTML = '<i class="fa-solid fa-pen mr-2"></i> แก้ไขข้อมูลเมนู';
+            document.getElementById('btn-save-menu').innerText = 'อัปเดตข้อมูลเมนู';
+            document.getElementById('btn-save-menu').classList.replace('bg-purple-600', 'bg-blue-600');
+            document.getElementById('btn-cancel-menu').classList.remove('hidden');
+            document.getElementById('menu-form-container').classList.add('border-blue-500');
+            
+            // เลื่อนจอขึ้นไปด้านบนตรงฟอร์ม
+            document.getElementById('tab-menus').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ฟังก์ชันยกเลิกการแก้ไข (เคลียร์ฟอร์ม)
+        function cancelEditMenu() {
+            editingMenuId = null;
+            document.getElementById('new-menu-title').value = '';
+            document.getElementById('new-menu-icon').value = '';
+            document.getElementById('new-menu-url').value = '';
+            document.getElementById('new-menu-order').value = '';
+            
+            document.getElementById('menu-form-title').innerHTML = '<i class="fa-solid fa-plus mr-2"></i> เพิ่มเมนูใหม่';
+            document.getElementById('btn-save-menu').innerText = 'บันทึกเมนู';
+            document.getElementById('btn-save-menu').classList.replace('bg-blue-600', 'bg-purple-600');
+            document.getElementById('btn-cancel-menu').classList.add('hidden');
+            document.getElementById('menu-form-container').classList.remove('border-blue-500');
+        }
+
+        // ฟังก์ชันบันทึกเมนู (ใช้ร่วมกันทั้ง เพิ่มใหม่ และ แก้ไข)
+        async function saveMenu() {
             const title = document.getElementById('new-menu-title').value;
             const icon = document.getElementById('new-menu-icon').value || 'fa-solid fa-star';
             const url = document.getElementById('new-menu-url').value || '#';
             const order = document.getElementById('new-menu-order').value || 99;
             
             if(!title) return alert('กรุณาใส่ชื่อเมนู');
-            if(await apiPost({ action: 'saveMenu', data: { title: title, icon: icon, url: url, order: parseInt(order), active: 1 } })) {
-                document.getElementById('new-menu-title').value = '';
-                document.getElementById('new-menu-icon').value = '';
-                document.getElementById('new-menu-url').value = '';
-                document.getElementById('new-menu-order').value = '';
+            
+            const payloadData = { title: title, icon: icon, url: url, order: parseInt(order), active: 1 };
+            
+            // ถ้ามีการกดแก้ไขอยู่ ให้แนบ id เดิมส่งไปด้วย (หลังบ้านจะรู้ทันทีว่าต้องเอาไป Update ไม่ใช่ Insert)
+            if(editingMenuId) {
+                payloadData.id = editingMenuId;
+            }
+            
+            if(await apiPost({ action: 'saveMenu', data: payloadData })) {
+                cancelEditMenu(); // พอบันทึกเสร็จให้ล้างฟอร์มกลับไปเป็นโหมด "เพิ่มใหม่"
             }
         }
 
