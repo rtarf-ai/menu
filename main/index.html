@@ -7,7 +7,9 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/732/732221.png"> <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/732/732221.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     
@@ -20,8 +22,6 @@
         .swiper-pagination-bullet { background: #fff; opacity: 0.3; }
         .swiper-pagination-bullet-active { background: #3b82f6; opacity: 1; }
         #loader { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 999; display: flex; justify-content: center; align-items: center; }
-        
-        /* Custom Scrollbar for Modal content */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
@@ -35,16 +35,16 @@
         </div>
 
         <div id="iframe-view" class="absolute inset-0 bg-slate-900 z-[100] hidden flex-col transition-transform duration-300 translate-x-full">
-            <div class="h-14 bg-slate-800 flex items-center px-4 border-b border-slate-700 shadow-md z-10">
-                <button onclick="closeInApp()" class="text-blue-400 p-2 hover:bg-slate-700 rounded-lg transition-colors mr-2">
+            <div class="h-14 bg-slate-800 flex items-center px-4 border-b border-slate-700 shadow-md z-10 w-full">
+                <button onclick="closeInApp()" class="text-blue-400 p-2 hover:bg-slate-700 rounded-lg mr-2">
                     <i class="fa-solid fa-chevron-left text-xl"></i>
                 </button>
                 <h2 id="iframe-title" class="font-bold text-white truncate flex-grow text-center text-sm md:text-base">Loading...</h2>
-                <button onclick="openExternal()" class="text-gray-400 p-2 hover:text-white transition-colors ml-2" title="เปิดในเบราว์เซอร์หลัก">
+                <button onclick="openExternal()" class="text-gray-400 p-2 hover:text-white ml-2">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </button>
             </div>
-            <iframe id="app-iframe" class="flex-grow w-full border-none bg-white"></iframe>
+            <iframe id="app-iframe" class="w-full border-none bg-white flex-grow" style="height: calc(100% - 56px);"></iframe>
         </div>
 
         <div class="w-full h-1/3 relative">
@@ -72,16 +72,12 @@
         </div>
 
         <div id="user-modal" class="absolute inset-0 bg-[#0f172a] z-50 transition-transform translate-y-full flex flex-col duration-300">
-            
             <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center z-20">
-                <h2 id="modal-title" class="text-lg font-bold">จัดการระบบ</h2>
-                <button onclick="toggleModal(false)" class="text-gray-400 hover:text-white p-2">
-                    <i class="fa-solid fa-chevron-down text-xl"></i>
-                </button>
+                <h2 class="text-lg font-bold">จัดการระบบ</h2>
+                <button onclick="toggleModal(false)" class="text-gray-400 p-2"><i class="fa-solid fa-chevron-down text-xl"></i></button>
             </div>
 
             <div class="flex-grow overflow-y-auto p-4 relative">
-                
                 <div id="login-form" class="space-y-4 pt-10">
                     <div class="text-center mb-8">
                         <div class="w-20 h-20 bg-slate-800 rounded-full mx-auto flex items-center justify-center mb-4 border border-slate-700">
@@ -89,358 +85,194 @@
                         </div>
                         <h3 class="font-bold text-xl">เข้าสู่ระบบ</h3>
                     </div>
-                    <input type="text" id="login-user" placeholder="Username" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white">
-                    <input type="password" id="login-pass" placeholder="Password" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white">
-                    <button onclick="login()" class="w-full p-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition-all mt-2">ลงชื่อเข้าใช้</button>
+                    <input type="text" id="login-user" placeholder="Username" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                    <input type="password" id="login-pass" placeholder="Password" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                    <button onclick="login()" class="w-full p-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold mt-2">ลงชื่อเข้าใช้</button>
                 </div>
 
                 <div id="user-content" class="hidden flex flex-col h-full">
-                    
                     <div class="flex items-center space-x-4 p-4 bg-slate-800 border border-slate-700 rounded-2xl mb-4">
                         <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-xl font-bold" id="user-avatar-text">U</div>
                         <div class="flex-grow">
                             <h3 id="user-display-name" class="font-bold text-lg">---</h3>
-                            <span id="user-role-badge" class="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-[10px] uppercase tracking-wider font-bold">User</span>
+                            <span id="user-role-badge" class="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-[10px] uppercase font-bold">User</span>
                         </div>
-                        <button onclick="logout()" class="p-2 text-red-400 bg-red-400/10 rounded-lg hover:bg-red-400/20"><i class="fa-solid fa-power-off"></i></button>
+                        <button onclick="logout()" class="p-2 text-red-400 bg-red-400/10 rounded-lg"><i class="fa-solid fa-power-off"></i></button>
                     </div>
 
                     <div id="admin-tabs-nav" class="hidden grid grid-cols-3 gap-2 mb-4 bg-slate-800 p-1 rounded-xl">
-                        <button onclick="switchTab('tab-profile')" id="btn-tab-profile" class="tab-btn py-2 text-sm font-medium rounded-lg bg-blue-600 text-white transition-all">โปรไฟล์</button>
-                        <button onclick="switchTab('tab-banners')" id="btn-tab-banners" class="tab-btn py-2 text-sm font-medium rounded-lg text-gray-400 hover:text-white transition-all">แบนเนอร์</button>
-                        <button onclick="switchTab('tab-menus')" id="btn-tab-menus" class="tab-btn py-2 text-sm font-medium rounded-lg text-gray-400 hover:text-white transition-all">เมนู</button>
+                        <button onclick="switchTab('tab-profile')" id="btn-tab-profile" class="tab-btn py-2 text-sm font-medium rounded-lg bg-blue-600">โปรไฟล์</button>
+                        <button onclick="switchTab('tab-banners')" id="btn-tab-banners" class="tab-btn py-2 text-sm font-medium rounded-lg text-gray-400">แบนเนอร์</button>
+                        <button onclick="switchTab('tab-menus')" id="btn-tab-menus" class="tab-btn py-2 text-sm font-medium rounded-lg text-gray-400">เมนู</button>
                     </div>
 
                     <div id="tab-profile" class="tab-content space-y-4">
                         <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 space-y-3">
-                            <h4 class="text-sm font-semibold text-gray-300 border-b border-slate-700 pb-2">แก้ไขข้อมูล</h4>
-                            <label class="text-xs text-gray-500">ชื่อที่แสดง</label>
-                            <input type="text" id="edit-name" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg outline-none focus:border-blue-500">
-                            <button onclick="saveProfile()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors">บันทึกชื่อ</button>
+                            <h4 class="text-sm font-semibold text-gray-300">แก้ไขข้อมูล</h4>
+                            <input type="text" id="edit-name" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg outline-none">
+                            <button onclick="saveProfile()" class="w-full py-3 bg-blue-600 rounded-lg text-sm">บันทึกชื่อ</button>
                         </div>
-
                         <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 space-y-3">
-                            <h4 class="text-sm font-semibold text-gray-300 border-b border-slate-700 pb-2">เปลี่ยนรหัสผ่าน</h4>
-                            <input type="password" id="old-pass" placeholder="รหัสผ่านเดิม" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg outline-none text-sm">
-                            <input type="password" id="new-pass" placeholder="รหัสผ่านใหม่" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg outline-none text-sm">
-                            <button onclick="changePassword()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors text-white">อัปเดตรหัสผ่าน</button>
+                            <h4 class="text-sm font-semibold text-gray-300">เปลี่ยนรหัสผ่าน</h4>
+                            <input type="password" id="old-pass" placeholder="รหัสผ่านเดิม" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
+                            <input type="password" id="new-pass" placeholder="รหัสผ่านใหม่" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
+                            <button onclick="changePassword()" class="w-full py-3 bg-slate-700 rounded-lg text-sm text-white">อัปเดตรหัสผ่าน</button>
                         </div>
                     </div>
 
                     <div id="tab-banners" class="tab-content hidden space-y-4">
                         <div class="bg-slate-800 p-4 rounded-xl border border-emerald-500/30 space-y-3">
-                            <h4 class="text-sm font-bold text-emerald-400 flex items-center"><i class="fa-solid fa-plus mr-2"></i> เพิ่มแบนเนอร์ใหม่</h4>
-                            <input type="text" id="new-banner-img" placeholder="URL รูปภาพ (เช่น https://...)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-emerald-500">
-                            <input type="text" id="new-banner-link" placeholder="ลิงก์ปลายทาง (ใส่ # หากไม่มี)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-emerald-500">
-                            <button onclick="addBanner()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-bold text-white transition-colors">บันทึกแบนเนอร์</button>
+                            <h4 class="text-sm font-bold text-emerald-400">เพิ่มแบนเนอร์</h4>
+                            <input type="text" id="new-banner-img" placeholder="URL รูปภาพ" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
+                            <input type="text" id="new-banner-link" placeholder="ลิงก์ปลายทาง" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
+                            <button onclick="addBanner()" class="w-full py-3 bg-emerald-600 rounded-lg text-sm font-bold">บันทึก</button>
                         </div>
-                        <h4 class="text-xs text-gray-400 uppercase font-bold mt-4">รายการแบนเนอร์</h4>
                         <div id="admin-banner-list" class="space-y-2 pb-10"></div>
                     </div>
 
                     <div id="tab-menus" class="tab-content hidden space-y-4">
-                        <div class="bg-slate-800 p-4 rounded-xl border border-purple-500/30 space-y-3 transition-all" id="menu-form-container">
-                            <h4 id="menu-form-title" class="text-sm font-bold text-purple-400 flex items-center"><i class="fa-solid fa-plus mr-2"></i> เพิ่มเมนูใหม่</h4>
-                            
+                        <div class="bg-slate-800 p-4 rounded-xl border border-purple-500/30 space-y-3" id="menu-form-container">
+                            <h4 id="menu-form-title" class="text-sm font-bold text-purple-400">เพิ่มเมนูใหม่</h4>
                             <div class="flex gap-2">
-                                <input type="text" id="new-menu-title" placeholder="ชื่อเมนู" class="w-1/2 p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
-                                <input type="text" id="new-menu-icon" placeholder="คลาสไอคอน (เช่น fa-solid fa-star)" class="w-1/2 p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
+                                <input type="text" id="new-menu-title" placeholder="ชื่อเมนู" class="w-1/2 p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
+                                <input type="text" id="new-menu-icon" placeholder="ไอคอน (fa-...)" class="w-1/2 p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
                             </div>
-                            <input type="text" id="new-menu-url" placeholder="ลิงก์ปลายทาง (ใส่ # หากไม่มี)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
-                            <input type="number" id="new-menu-order" placeholder="ลำดับแสดงผล (ตัวเลข)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
-                            
-                            <div class="flex gap-2 mt-2">
-                                <button onclick="saveMenu()" id="btn-save-menu" class="w-full py-3 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-bold text-white transition-colors">บันทึกเมนู</button>
-                                <button onclick="cancelEditMenu()" id="btn-cancel-menu" class="hidden py-3 px-4 bg-slate-600 hover:bg-slate-500 rounded-lg text-sm font-bold text-white transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                            <input type="text" id="new-menu-url" placeholder="URL เว็บปลายทาง" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
+                            <input type="number" id="new-menu-order" placeholder="ลำดับ" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
+                            <div class="flex gap-2">
+                                <button onclick="saveMenu()" id="btn-save-menu" class="w-full py-3 bg-purple-600 rounded-lg text-sm font-bold">บันทึก</button>
+                                <button onclick="cancelEditMenu()" id="btn-cancel-menu" class="hidden py-3 px-4 bg-slate-600 rounded-lg text-sm font-bold"><i class="fa-solid fa-xmark"></i></button>
                             </div>
                         </div>
-
-                        <h4 class="text-xs text-gray-400 uppercase font-bold mt-4">รายการเมนู</h4>
                         <div id="admin-menu-list" class="space-y-2 pb-10"></div>
                     </div>
-
                 </div>
             </div>
         </div>
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    
     <script>
-        // ==========================================
-        // ⚙️ ตั้งค่าระบบ
-        // ==========================================
-        // 1. ลงทะเบียน PWA Service Worker (หากมีไฟล์ sw.js)
+        // *** ตั้งค่า API URL เพียงจุดเดียว ***
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec'; 
+
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Reg failed', err));
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW fail', err)); });
         }
 
-        // 2. URL ของ Google Apps Script (สำคัญมาก: ต้องเปลี่ยน!)
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec'; 
-        
         let currentUser = null;
         let globalData = { banners: [], menus: [] };
         let swipers = {};
-        
         let editingMenuId = null;
         let currentExternalUrl = '';
 
         document.addEventListener('DOMContentLoaded', fetchAppData);
 
-        // ==========================================
-        // ระบบดึงและแสดงผลข้อมูล (Core App)
-        // ==========================================
         async function fetchAppData() {
             showLoader(true);
             try {
-                if(API_URL.includes('YOUR_GAS')) {
-                    console.warn("ใช้ข้อมูลจำลอง (Mock Data) กรุณาใส่ API_URL ของคุณ");
-                    globalData = getMockData();
-                } else {
-                    const res = await fetch(`${API_URL}?action=getData`);
-                    globalData = await res.json();
-                }
-                
+                if(API_URL.includes('YOUR_GAS')) { globalData = getMockData(); } 
+                else { const res = await fetch(`${API_URL}?action=getData`); globalData = await res.json(); }
                 renderApp();
-                if(currentUser && currentUser.role === 'admin') {
-                    renderAdminLists(); 
-                }
-            } catch (error) {
-                console.error(error);
-                alert('ไม่สามารถโหลดข้อมูลได้');
-            } finally {
-                showLoader(false);
-            }
+                if(currentUser && currentUser.role === 'admin') renderAdminLists();
+            } catch (error) { console.error(error); alert('โหลดข้อมูลไม่สำเร็จ'); } 
+            finally { showLoader(false); }
         }
 
         function renderApp() {
-            // Render Banners (คลิกแล้วเปิดแท็บใหม่ปกติ ป้องกันปัญหาขนาดจอ)
             const bCont = document.getElementById('banner-container');
-            bCont.innerHTML = globalData.banners.map(b => `
-                <div class="swiper-slide cursor-pointer" onclick="window.open('${b.link}', '_blank')">
-                    <img src="${b.image}" class="w-full h-full object-cover">
-                </div>
-            `).join('');
+            bCont.innerHTML = globalData.banners.map(b => `<div class="swiper-slide cursor-pointer" onclick="window.open('${b.link}', '_blank')"><img src="${b.image}" class="w-full h-full object-cover"></div>`).join('');
 
-            // Render Menus (คลิกแล้วเปิดใน In-App Browser)
             const mCont = document.getElementById('menu-container');
             let mHtml = '';
             for (let i = 0; i < globalData.menus.length; i += 9) {
                 const chunk = globalData.menus.slice(i, i + 9);
-                mHtml += `<div class="swiper-slide"><div class="grid grid-cols-3 gap-3">` + 
-                    chunk.map(m => `
-                        <div onclick="openInApp('${m.url}', '${m.title}')" class="menu-btn cursor-pointer aspect-square rounded-2xl flex flex-col items-center justify-center text-center p-2">
-                            <i class="${m.icon} text-3xl mb-2 text-gray-300"></i>
-                            <span class="text-xs font-light text-gray-300 leading-tight">${m.title}</span>
-                        </div>
-                    `).join('') + `</div></div>`;
+                mHtml += `<div class="swiper-slide"><div class="grid grid-cols-3 gap-3">` + chunk.map(m => `
+                    <div onclick="openInApp('${m.url}', '${m.title}')" class="menu-btn cursor-pointer aspect-square rounded-2xl flex flex-col items-center justify-center text-center p-2 transition-all">
+                        <i class="${m.icon} text-3xl mb-2 text-gray-300"></i>
+                        <span class="text-xs font-light text-gray-300 leading-tight">${m.title}</span>
+                    </div>`).join('') + `</div></div>`;
             }
             mCont.innerHTML = mHtml;
-
-            // Init Swipers
-            if(swipers.banner) swipers.banner.destroy();
-            if(swipers.menu) swipers.menu.destroy();
-
+            if(swipers.banner) swipers.banner.destroy(); if(swipers.menu) swipers.menu.destroy();
             swipers.banner = new Swiper(".bannerSwiper", { loop: true, autoplay: { delay: 4000 }, pagination: { el: ".banner-pagination" }});
             swipers.menu = new Swiper(".menuSwiper", { pagination: { el: ".menu-pagination" }});
         }
 
-        // ==========================================
-        // ระบบ In-App Browser
-        // ==========================================
         function openInApp(url, title) {
             if (!url || url === '#') return;
             currentExternalUrl = url;
             document.getElementById('iframe-title').innerText = title;
             document.getElementById('app-iframe').src = url;
-            
-            const iframeView = document.getElementById('iframe-view');
-            iframeView.classList.remove('hidden');
-            setTimeout(() => iframeView.classList.remove('translate-x-full'), 10);
+            const view = document.getElementById('iframe-view');
+            view.classList.remove('hidden');
+            setTimeout(() => view.classList.remove('translate-x-full'), 10);
         }
 
         function closeInApp() {
-            const iframeView = document.getElementById('iframe-view');
-            iframeView.classList.add('translate-x-full');
-            setTimeout(() => {
-                iframeView.classList.add('hidden');
-                document.getElementById('app-iframe').src = '';
-                document.getElementById('iframe-title').innerText = 'Loading...';
-            }, 300);
+            const view = document.getElementById('iframe-view');
+            view.classList.add('translate-x-full');
+            setTimeout(() => { view.classList.add('hidden'); document.getElementById('app-iframe').src = ''; }, 300);
         }
 
-        function openExternal() {
-            if(currentExternalUrl) window.open(currentExternalUrl, '_blank');
-        }
-
-        // ==========================================
-        // ระบบ User & Authentication
-        // ==========================================
-        function toggleModal(show) { document.getElementById('user-modal').classList.toggle('translate-y-full', !show); }
-        function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+        function openExternal() { if(currentExternalUrl) window.open(currentExternalUrl, '_blank'); }
 
         async function login() {
             const user = document.getElementById('login-user').value;
             const pass = document.getElementById('login-pass').value;
-            if(!user || !pass) return alert('กรอกข้อมูลให้ครบ');
-
+            if(!user || !pass) return;
             showLoader(true);
             try {
                 const res = await fetch(`${API_URL}?action=login&user=${user}&pass=${pass}`);
                 const data = await res.json();
-                if (data.status === 'success') {
-                    currentUser = data.user;
-                    currentUser.username = user;
-                    currentUser.password = pass; 
-                    updateUI();
-                } else alert('Username หรือ Password ไม่ถูกต้อง');
-            } catch (e) { alert('เกิดข้อผิดพลาดในการเชื่อมต่อ'); } 
-            finally { showLoader(false); }
+                if (data.status === 'success') { currentUser = data.user; currentUser.username = user; updateUI(); } 
+                else alert('เข้าระบบไม่สำเร็จ');
+            } catch (e) { alert('เชื่อมต่อผิดพลาด'); } finally { showLoader(false); }
         }
 
         function updateUI() {
             document.getElementById('login-form').classList.add('hidden');
             document.getElementById('user-content').classList.remove('hidden');
-            
             document.getElementById('user-display-name').innerText = currentUser.name;
             document.getElementById('user-avatar-text').innerText = currentUser.name.charAt(0).toUpperCase();
             document.getElementById('edit-name').value = currentUser.name;
-            
-            const badge = document.getElementById('user-role-badge');
-            badge.innerText = currentUser.role;
-            
             if(currentUser.role === 'admin') {
-                badge.className = "px-2 py-1 bg-emerald-900/50 text-emerald-400 rounded text-[10px] uppercase font-bold";
                 document.getElementById('admin-tabs-nav').classList.remove('hidden');
                 document.getElementById('admin-tabs-nav').classList.add('grid');
                 renderAdminLists();
-            } else {
-                badge.className = "px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-[10px] uppercase font-bold";
-                document.getElementById('admin-tabs-nav').classList.add('hidden');
-                document.getElementById('admin-tabs-nav').classList.remove('grid');
-                switchTab('tab-profile');
-            }
+            } else { switchTab('tab-profile'); }
         }
 
-        function logout() {
-            currentUser = null;
-            document.getElementById('login-user').value = '';
-            document.getElementById('login-pass').value = '';
-            document.getElementById('login-form').classList.remove('hidden');
-            document.getElementById('user-content').classList.add('hidden');
-            switchTab('tab-profile');
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('text-gray-400', 'bg-transparent');
-            });
-            const activeBtn = document.getElementById('btn-' + tabId);
-            if(activeBtn) {
-                activeBtn.classList.remove('text-gray-400', 'bg-transparent');
-                activeBtn.classList.add('bg-blue-600', 'text-white');
-            }
-        }
-
-        // ==========================================
-        // ระบบ Backend Communication (CRUD)
-        // ==========================================
-        async function apiPost(payload) {
-            showLoader(true);
-            try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const data = await res.json();
-                if(data.status === 'success') {
-                    if(['saveBanner', 'deleteBanner', 'saveMenu', 'deleteMenu'].includes(payload.action)){
-                        await fetchAppData(); 
-                    }
-                    alert('ดำเนินการเรียบร้อย');
-                    return true;
-                } else {
-                    alert('ล้มเหลว: ' + (data.message || ''));
-                    return false;
-                }
-            } catch (e) {
-                alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
-                return false;
-            } finally {
-                showLoader(false);
-            }
-        }
-
-        async function saveProfile() {
-            const name = document.getElementById('edit-name').value;
-            if(await apiPost({ action: 'updateProfile', username: currentUser.username, name: name })) {
-                currentUser.name = name;
-                document.getElementById('user-display-name').innerText = name;
-                document.getElementById('user-avatar-text').innerText = name.charAt(0).toUpperCase();
-            }
-        }
-
-        async function changePassword() {
-            const oldP = document.getElementById('old-pass').value;
-            const newP = document.getElementById('new-pass').value;
-            if(!oldP || !newP) return alert('กรอกข้อมูลให้ครบ');
-            if(await apiPost({ action: 'changePassword', username: currentUser.username, oldPass: oldP, newPass: newP })) {
-                document.getElementById('old-pass').value = '';
-                document.getElementById('new-pass').value = '';
-                currentUser.password = newP;
-            }
-        }
-
-        // --- ระบบ Render รายการในแอดมิน ---
         function renderAdminLists() {
             document.getElementById('admin-banner-list').innerHTML = globalData.banners.map(b => `
                 <div class="flex items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
                     <img src="${b.image}" class="w-16 h-10 object-cover rounded mr-3">
                     <div class="flex-grow overflow-hidden"><p class="text-xs truncate text-gray-400">${b.link}</p></div>
-                    <button onclick="deleteItem('deleteBanner', '${b.id}')" class="text-red-400 p-2 hover:bg-slate-700 rounded"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `).join('');
+                    <button onclick="deleteItem('deleteBanner', '${b.id}')" class="text-red-400 p-2"><i class="fa-solid fa-trash"></i></button>
+                </div>`).join('');
 
             document.getElementById('admin-menu-list').innerHTML = globalData.menus.map(m => `
                 <div class="flex items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
-                    <div class="w-8 h-8 flex items-center justify-center bg-slate-700 rounded mr-3 text-gray-300"><i class="${m.icon}"></i></div>
+                    <div class="w-8 h-8 flex items-center justify-center bg-slate-700 rounded mr-3"><i class="${m.icon}"></i></div>
                     <div class="flex-grow"><p class="text-sm font-medium">${m.title}</p><p class="text-[10px] text-gray-500">ลำดับ: ${m.order}</p></div>
-                    <button onclick="prepareEditMenu('${m.id}')" class="text-blue-400 p-2 hover:bg-slate-700 rounded mr-1"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="deleteItem('deleteMenu', '${m.id}')" class="text-red-400 p-2 hover:bg-slate-700 rounded"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `).join('');
-        }
-
-        // --- ฟังก์ชันเพิ่ม/แก้ไข/ลบ ข้อมูล ---
-        async function addBanner() {
-            const img = document.getElementById('new-banner-img').value;
-            const link = document.getElementById('new-banner-link').value || '#';
-            if(!img) return alert('กรุณาใส่ URL รูปภาพ');
-            if(await apiPost({ action: 'saveBanner', data: { image: img, link: link, active: 1 } })) {
-                document.getElementById('new-banner-img').value = '';
-                document.getElementById('new-banner-link').value = '';
-            }
+                    <button onclick="prepareEditMenu('${m.id}')" class="text-blue-400 p-2 mr-1"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="deleteItem('deleteMenu', '${m.id}')" class="text-red-400 p-2"><i class="fa-solid fa-trash"></i></button>
+                </div>`).join('');
         }
 
         function prepareEditMenu(id) {
-            const menu = globalData.menus.find(m => String(m.id) === String(id));
-            if(!menu) return;
-            
-            editingMenuId = menu.id; 
-            document.getElementById('new-menu-title').value = menu.title;
-            document.getElementById('new-menu-icon').value = menu.icon;
-            document.getElementById('new-menu-url').value = menu.url;
-            document.getElementById('new-menu-order').value = menu.order;
-            
-            document.getElementById('menu-form-title').innerHTML = '<i class="fa-solid fa-pen mr-2"></i> แก้ไขข้อมูลเมนู';
-            document.getElementById('btn-save-menu').innerText = 'อัปเดตข้อมูลเมนู';
+            const m = globalData.menus.find(item => String(item.id) === String(id));
+            if(!m) return;
+            editingMenuId = m.id;
+            document.getElementById('new-menu-title').value = m.title;
+            document.getElementById('new-menu-icon').value = m.icon;
+            document.getElementById('new-menu-url').value = m.url;
+            document.getElementById('new-menu-order').value = m.order;
+            document.getElementById('menu-form-title').innerText = 'แก้ไขเมนู';
+            document.getElementById('btn-save-menu').innerText = 'อัปเดต';
             document.getElementById('btn-save-menu').classList.replace('bg-purple-600', 'bg-blue-600');
             document.getElementById('btn-cancel-menu').classList.remove('hidden');
-            document.getElementById('menu-form-container').classList.add('border-blue-500');
-            document.getElementById('tab-menus').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('tab-menus').scrollIntoView();
         }
 
         function cancelEditMenu() {
@@ -449,525 +281,40 @@
             document.getElementById('new-menu-icon').value = '';
             document.getElementById('new-menu-url').value = '';
             document.getElementById('new-menu-order').value = '';
-            
-            document.getElementById('menu-form-title').innerHTML = '<i class="fa-solid fa-plus mr-2"></i> เพิ่มเมนูใหม่';
-            document.getElementById('btn-save-menu').innerText = 'บันทึกเมนู';
+            document.getElementById('menu-form-title').innerText = 'เพิ่มเมนูใหม่';
+            document.getElementById('btn-save-menu').innerText = 'บันทึก';
             document.getElementById('btn-save-menu').classList.replace('bg-blue-600', 'bg-purple-600');
             document.getElementById('btn-cancel-menu').classList.add('hidden');
-            document.getElementById('menu-form-container').classList.remove('border-blue-500');
         }
 
         async function saveMenu() {
-            const title = document.getElementById('new-menu-title').value;
-            const icon = document.getElementById('new-menu-icon').value || 'fa-solid fa-star';
-            const url = document.getElementById('new-menu-url').value || '#';
-            const order = document.getElementById('new-menu-order').value || 99;
-            
-            if(!title) return alert('กรุณาใส่ชื่อเมนู');
-            
-            const payloadData = { title: title, icon: icon, url: url, order: parseInt(order), active: 1 };
-            if(editingMenuId) payloadData.id = editingMenuId;
-            
-            if(await apiPost({ action: 'saveMenu', data: payloadData })) cancelEditMenu(); 
+            const data = { title: document.getElementById('new-menu-title').value, icon: document.getElementById('new-menu-icon').value, url: document.getElementById('new-menu-url').value, order: parseInt(document.getElementById('new-menu-order').value), active: 1 };
+            if(!data.title) return alert('กรอกชื่อเมนู');
+            if(editingMenuId) data.id = editingMenuId;
+            if(await apiPost({ action: 'saveMenu', data })) cancelEditMenu();
         }
 
-        function deleteItem(actionString, id) {
-            if(confirm('ต้องการลบรายการนี้ใช่หรือไม่?')) apiPost({ action: actionString, id: id });
-        }
-
-        // --- Mock Data (ตัวอย่าง) ---
-        function getMockData() {
-            return {
-                banners: [{ id:1, image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80", link: "#", active: 1 }],
-                menus: Array.from({length: 12}).map((_, i) => ({ id:i, title: `เมนู ${i+1}`, icon: 'fa-solid fa-star', url: "https://example.com", order: i+1, active: 1 }))
-            };
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Premium App Portal</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/732/732221.png"> <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
-        body { font-family: 'Prompt', sans-serif; background-color: #0f172a; margin: 0; padding: 0; }
-        .app-container { max-width: 480px; margin: 0 auto; height: 100vh; height: 100dvh; background-color: #1e293b; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .menu-btn { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .menu-btn:active { transform: scale(0.95); }
-        .swiper-pagination-bullet { background: #fff; opacity: 0.3; }
-        .swiper-pagination-bullet-active { background: #3b82f6; opacity: 1; }
-        #loader { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 999; display: flex; justify-content: center; align-items: center; }
-        
-        /* Custom Scrollbar for Modal content */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-    </style>
-</head>
-<body class="text-white">
-
-    <div class="app-container flex flex-col">
-        <div id="loader">
-            <i class="fa-solid fa-circle-notch fa-spin fa-3x text-blue-500"></i>
-        </div>
-
-        <div id="iframe-view" class="absolute inset-0 bg-slate-900 z-[100] hidden flex-col transition-transform duration-300 translate-x-full">
-            <div class="h-14 bg-slate-800 flex items-center px-4 border-b border-slate-700 shadow-md z-10">
-                <button onclick="closeInApp()" class="text-blue-400 p-2 hover:bg-slate-700 rounded-lg transition-colors mr-2">
-                    <i class="fa-solid fa-chevron-left text-xl"></i>
-                </button>
-                <h2 id="iframe-title" class="font-bold text-white truncate flex-grow text-center text-sm md:text-base">Loading...</h2>
-                <button onclick="openExternal()" class="text-gray-400 p-2 hover:text-white transition-colors ml-2" title="เปิดในเบราว์เซอร์หลัก">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                </button>
-            </div>
-            <iframe id="app-iframe" class="flex-grow w-full border-none bg-white"></iframe>
-        </div>
-
-        <div class="w-full h-1/3 relative">
-            <div class="swiper bannerSwiper h-full w-full">
-                <div class="swiper-wrapper" id="banner-container"></div>
-                <div class="swiper-pagination banner-pagination"></div>
-            </div>
-            <div class="absolute inset-0 bg-gradient-to-t from-[#1e293b] to-transparent z-10 pointer-events-none"></div>
-        </div>
-
-        <div class="w-full flex-grow p-4 relative z-20 -mt-6">
-            <div class="swiper menuSwiper h-full">
-                <div class="swiper-wrapper" id="menu-container"></div>
-                <div class="swiper-pagination menu-pagination absolute bottom-0 mb-2"></div>
-            </div>
-        </div>
-
-        <div class="w-full h-16 bg-slate-800 flex justify-around items-center border-t border-slate-700 pb-safe z-30">
-            <button onclick="toggleModal(false)" class="flex flex-col items-center text-blue-400 w-1/2">
-                <i class="fa-solid fa-house text-xl"></i><span class="text-xs mt-1">หน้าแรก</span>
-            </button>
-            <button onclick="toggleModal(true)" class="flex flex-col items-center text-slate-400 hover:text-white w-1/2 transition-colors">
-                <i class="fa-solid fa-user text-xl"></i><span class="text-xs mt-1">ตั้งค่า</span>
-            </button>
-        </div>
-
-        <div id="user-modal" class="absolute inset-0 bg-[#0f172a] z-50 transition-transform translate-y-full flex flex-col duration-300">
-            
-            <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center z-20">
-                <h2 id="modal-title" class="text-lg font-bold">จัดการระบบ</h2>
-                <button onclick="toggleModal(false)" class="text-gray-400 hover:text-white p-2">
-                    <i class="fa-solid fa-chevron-down text-xl"></i>
-                </button>
-            </div>
-
-            <div class="flex-grow overflow-y-auto p-4 relative">
-                
-                <div id="login-form" class="space-y-4 pt-10">
-                    <div class="text-center mb-8">
-                        <div class="w-20 h-20 bg-slate-800 rounded-full mx-auto flex items-center justify-center mb-4 border border-slate-700">
-                            <i class="fa-solid fa-shield-halved text-3xl text-blue-400"></i>
-                        </div>
-                        <h3 class="font-bold text-xl">เข้าสู่ระบบ</h3>
-                    </div>
-                    <input type="text" id="login-user" placeholder="Username" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white">
-                    <input type="password" id="login-pass" placeholder="Password" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-white">
-                    <button onclick="login()" class="w-full p-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold transition-all mt-2">ลงชื่อเข้าใช้</button>
-                </div>
-
-                <div id="user-content" class="hidden flex flex-col h-full">
-                    
-                    <div class="flex items-center space-x-4 p-4 bg-slate-800 border border-slate-700 rounded-2xl mb-4">
-                        <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-xl font-bold" id="user-avatar-text">U</div>
-                        <div class="flex-grow">
-                            <h3 id="user-display-name" class="font-bold text-lg">---</h3>
-                            <span id="user-role-badge" class="px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-[10px] uppercase tracking-wider font-bold">User</span>
-                        </div>
-                        <button onclick="logout()" class="p-2 text-red-400 bg-red-400/10 rounded-lg hover:bg-red-400/20"><i class="fa-solid fa-power-off"></i></button>
-                    </div>
-
-                    <div id="admin-tabs-nav" class="hidden grid grid-cols-3 gap-2 mb-4 bg-slate-800 p-1 rounded-xl">
-                        <button onclick="switchTab('tab-profile')" id="btn-tab-profile" class="tab-btn py-2 text-sm font-medium rounded-lg bg-blue-600 text-white transition-all">โปรไฟล์</button>
-                        <button onclick="switchTab('tab-banners')" id="btn-tab-banners" class="tab-btn py-2 text-sm font-medium rounded-lg text-gray-400 hover:text-white transition-all">แบนเนอร์</button>
-                        <button onclick="switchTab('tab-menus')" id="btn-tab-menus" class="tab-btn py-2 text-sm font-medium rounded-lg text-gray-400 hover:text-white transition-all">เมนู</button>
-                    </div>
-
-                    <div id="tab-profile" class="tab-content space-y-4">
-                        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 space-y-3">
-                            <h4 class="text-sm font-semibold text-gray-300 border-b border-slate-700 pb-2">แก้ไขข้อมูล</h4>
-                            <label class="text-xs text-gray-500">ชื่อที่แสดง</label>
-                            <input type="text" id="edit-name" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg outline-none focus:border-blue-500">
-                            <button onclick="saveProfile()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors">บันทึกชื่อ</button>
-                        </div>
-
-                        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 space-y-3">
-                            <h4 class="text-sm font-semibold text-gray-300 border-b border-slate-700 pb-2">เปลี่ยนรหัสผ่าน</h4>
-                            <input type="password" id="old-pass" placeholder="รหัสผ่านเดิม" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg outline-none text-sm">
-                            <input type="password" id="new-pass" placeholder="รหัสผ่านใหม่" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg outline-none text-sm">
-                            <button onclick="changePassword()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors text-white">อัปเดตรหัสผ่าน</button>
-                        </div>
-                    </div>
-
-                    <div id="tab-banners" class="tab-content hidden space-y-4">
-                        <div class="bg-slate-800 p-4 rounded-xl border border-emerald-500/30 space-y-3">
-                            <h4 class="text-sm font-bold text-emerald-400 flex items-center"><i class="fa-solid fa-plus mr-2"></i> เพิ่มแบนเนอร์ใหม่</h4>
-                            <input type="text" id="new-banner-img" placeholder="URL รูปภาพ (เช่น https://...)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-emerald-500">
-                            <input type="text" id="new-banner-link" placeholder="ลิงก์ปลายทาง (ใส่ # หากไม่มี)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-emerald-500">
-                            <button onclick="addBanner()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-bold text-white transition-colors">บันทึกแบนเนอร์</button>
-                        </div>
-                        <h4 class="text-xs text-gray-400 uppercase font-bold mt-4">รายการแบนเนอร์</h4>
-                        <div id="admin-banner-list" class="space-y-2 pb-10"></div>
-                    </div>
-
-                    <div id="tab-menus" class="tab-content hidden space-y-4">
-                        <div class="bg-slate-800 p-4 rounded-xl border border-purple-500/30 space-y-3 transition-all" id="menu-form-container">
-                            <h4 id="menu-form-title" class="text-sm font-bold text-purple-400 flex items-center"><i class="fa-solid fa-plus mr-2"></i> เพิ่มเมนูใหม่</h4>
-                            
-                            <div class="flex gap-2">
-                                <input type="text" id="new-menu-title" placeholder="ชื่อเมนู" class="w-1/2 p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
-                                <input type="text" id="new-menu-icon" placeholder="คลาสไอคอน (เช่น fa-solid fa-star)" class="w-1/2 p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
-                            </div>
-                            <input type="text" id="new-menu-url" placeholder="ลิงก์ปลายทาง (ใส่ # หากไม่มี)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
-                            <input type="number" id="new-menu-order" placeholder="ลำดับแสดงผล (ตัวเลข)" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm outline-none focus:border-purple-500">
-                            
-                            <div class="flex gap-2 mt-2">
-                                <button onclick="saveMenu()" id="btn-save-menu" class="w-full py-3 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-bold text-white transition-colors">บันทึกเมนู</button>
-                                <button onclick="cancelEditMenu()" id="btn-cancel-menu" class="hidden py-3 px-4 bg-slate-600 hover:bg-slate-500 rounded-lg text-sm font-bold text-white transition-colors"><i class="fa-solid fa-xmark"></i></button>
-                            </div>
-                        </div>
-
-                        <h4 class="text-xs text-gray-400 uppercase font-bold mt-4">รายการเมนู</h4>
-                        <div id="admin-menu-list" class="space-y-2 pb-10"></div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    
-    <script>
-        // ==========================================
-        // ⚙️ ตั้งค่าระบบ
-        // ==========================================
-        // 1. ลงทะเบียน PWA Service Worker (หากมีไฟล์ sw.js)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Reg failed', err));
-            });
-        }
-
-        // 2. URL ของ Google Apps Script (สำคัญมาก: ต้องเปลี่ยน!)
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec'; 
-        
-        let currentUser = null;
-        let globalData = { banners: [], menus: [] };
-        let swipers = {};
-        
-        let editingMenuId = null;
-        let currentExternalUrl = '';
-
-        document.addEventListener('DOMContentLoaded', fetchAppData);
-
-        // ==========================================
-        // ระบบดึงและแสดงผลข้อมูล (Core App)
-        // ==========================================
-        async function fetchAppData() {
+        async function apiPost(p) {
             showLoader(true);
             try {
-                if(API_URL.includes('YOUR_GAS')) {
-                    console.warn("ใช้ข้อมูลจำลอง (Mock Data) กรุณาใส่ API_URL ของคุณ");
-                    globalData = getMockData();
-                } else {
-                    const res = await fetch(`${API_URL}?action=getData`);
-                    globalData = await res.json();
-                }
-                
-                renderApp();
-                if(currentUser && currentUser.role === 'admin') {
-                    renderAdminLists(); 
-                }
-            } catch (error) {
-                console.error(error);
-                alert('ไม่สามารถโหลดข้อมูลได้');
-            } finally {
-                showLoader(false);
-            }
-        }
-
-        function renderApp() {
-            // Render Banners (คลิกแล้วเปิดแท็บใหม่ปกติ ป้องกันปัญหาขนาดจอ)
-            const bCont = document.getElementById('banner-container');
-            bCont.innerHTML = globalData.banners.map(b => `
-                <div class="swiper-slide cursor-pointer" onclick="window.open('${b.link}', '_blank')">
-                    <img src="${b.image}" class="w-full h-full object-cover">
-                </div>
-            `).join('');
-
-            // Render Menus (คลิกแล้วเปิดใน In-App Browser)
-            const mCont = document.getElementById('menu-container');
-            let mHtml = '';
-            for (let i = 0; i < globalData.menus.length; i += 9) {
-                const chunk = globalData.menus.slice(i, i + 9);
-                mHtml += `<div class="swiper-slide"><div class="grid grid-cols-3 gap-3">` + 
-                    chunk.map(m => `
-                        <div onclick="openInApp('${m.url}', '${m.title}')" class="menu-btn cursor-pointer aspect-square rounded-2xl flex flex-col items-center justify-center text-center p-2">
-                            <i class="${m.icon} text-3xl mb-2 text-gray-300"></i>
-                            <span class="text-xs font-light text-gray-300 leading-tight">${m.title}</span>
-                        </div>
-                    `).join('') + `</div></div>`;
-            }
-            mCont.innerHTML = mHtml;
-
-            // Init Swipers
-            if(swipers.banner) swipers.banner.destroy();
-            if(swipers.menu) swipers.menu.destroy();
-
-            swipers.banner = new Swiper(".bannerSwiper", { loop: true, autoplay: { delay: 4000 }, pagination: { el: ".banner-pagination" }});
-            swipers.menu = new Swiper(".menuSwiper", { pagination: { el: ".menu-pagination" }});
-        }
-
-        // ==========================================
-        // ระบบ In-App Browser
-        // ==========================================
-        function openInApp(url, title) {
-            if (!url || url === '#') return;
-            currentExternalUrl = url;
-            document.getElementById('iframe-title').innerText = title;
-            document.getElementById('app-iframe').src = url;
-            
-            const iframeView = document.getElementById('iframe-view');
-            iframeView.classList.remove('hidden');
-            setTimeout(() => iframeView.classList.remove('translate-x-full'), 10);
-        }
-
-        function closeInApp() {
-            const iframeView = document.getElementById('iframe-view');
-            iframeView.classList.add('translate-x-full');
-            setTimeout(() => {
-                iframeView.classList.add('hidden');
-                document.getElementById('app-iframe').src = '';
-                document.getElementById('iframe-title').innerText = 'Loading...';
-            }, 300);
-        }
-
-        function openExternal() {
-            if(currentExternalUrl) window.open(currentExternalUrl, '_blank');
-        }
-
-        // ==========================================
-        // ระบบ User & Authentication
-        // ==========================================
-        function toggleModal(show) { document.getElementById('user-modal').classList.toggle('translate-y-full', !show); }
-        function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
-
-        async function login() {
-            const user = document.getElementById('login-user').value;
-            const pass = document.getElementById('login-pass').value;
-            if(!user || !pass) return alert('กรอกข้อมูลให้ครบ');
-
-            showLoader(true);
-            try {
-                const res = await fetch(`${API_URL}?action=login&user=${user}&pass=${pass}`);
-                const data = await res.json();
-                if (data.status === 'success') {
-                    currentUser = data.user;
-                    currentUser.username = user;
-                    currentUser.password = pass; 
-                    updateUI();
-                } else alert('Username หรือ Password ไม่ถูกต้อง');
-            } catch (e) { alert('เกิดข้อผิดพลาดในการเชื่อมต่อ'); } 
-            finally { showLoader(false); }
-        }
-
-        function updateUI() {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('user-content').classList.remove('hidden');
-            
-            document.getElementById('user-display-name').innerText = currentUser.name;
-            document.getElementById('user-avatar-text').innerText = currentUser.name.charAt(0).toUpperCase();
-            document.getElementById('edit-name').value = currentUser.name;
-            
-            const badge = document.getElementById('user-role-badge');
-            badge.innerText = currentUser.role;
-            
-            if(currentUser.role === 'admin') {
-                badge.className = "px-2 py-1 bg-emerald-900/50 text-emerald-400 rounded text-[10px] uppercase font-bold";
-                document.getElementById('admin-tabs-nav').classList.remove('hidden');
-                document.getElementById('admin-tabs-nav').classList.add('grid');
-                renderAdminLists();
-            } else {
-                badge.className = "px-2 py-1 bg-blue-900/50 text-blue-400 rounded text-[10px] uppercase font-bold";
-                document.getElementById('admin-tabs-nav').classList.add('hidden');
-                document.getElementById('admin-tabs-nav').classList.remove('grid');
-                switchTab('tab-profile');
-            }
-        }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('login-user').value = '';
-            document.getElementById('login-pass').value = '';
-            document.getElementById('login-form').classList.remove('hidden');
-            document.getElementById('user-content').classList.add('hidden');
-            switchTab('tab-profile');
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('text-gray-400', 'bg-transparent');
-            });
-            const activeBtn = document.getElementById('btn-' + tabId);
-            if(activeBtn) {
-                activeBtn.classList.remove('text-gray-400', 'bg-transparent');
-                activeBtn.classList.add('bg-blue-600', 'text-white');
-            }
-        }
-
-        // ==========================================
-        // ระบบ Backend Communication (CRUD)
-        // ==========================================
-        async function apiPost(payload) {
-            showLoader(true);
-            try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const data = await res.json();
-                if(data.status === 'success') {
-                    if(['saveBanner', 'deleteBanner', 'saveMenu', 'deleteMenu'].includes(payload.action)){
-                        await fetchAppData(); 
-                    }
-                    alert('ดำเนินการเรียบร้อย');
-                    return true;
-                } else {
-                    alert('ล้มเหลว: ' + (data.message || ''));
-                    return false;
-                }
-            } catch (e) {
-                alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(p) });
+                const d = await res.json();
+                if(d.status === 'success') { await fetchAppData(); return true; }
                 return false;
-            } finally {
-                showLoader(false);
-            }
+            } catch (e) { return false; } finally { showLoader(false); }
         }
 
-        async function saveProfile() {
-            const name = document.getElementById('edit-name').value;
-            if(await apiPost({ action: 'updateProfile', username: currentUser.username, name: name })) {
-                currentUser.name = name;
-                document.getElementById('user-display-name').innerText = name;
-                document.getElementById('user-avatar-text').innerText = name.charAt(0).toUpperCase();
-            }
+        function toggleModal(s) { document.getElementById('user-modal').classList.toggle('translate-y-full', !s); }
+        function showLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+        function logout() { currentUser = null; document.getElementById('login-form').classList.remove('hidden'); document.getElementById('user-content').classList.add('hidden'); toggleModal(false); }
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(t).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('bg-blue-600'); b.classList.add('text-gray-400'); });
+            document.getElementById('btn-' + t).classList.add('bg-blue-600');
         }
-
-        async function changePassword() {
-            const oldP = document.getElementById('old-pass').value;
-            const newP = document.getElementById('new-pass').value;
-            if(!oldP || !newP) return alert('กรอกข้อมูลให้ครบ');
-            if(await apiPost({ action: 'changePassword', username: currentUser.username, oldPass: oldP, newPass: newP })) {
-                document.getElementById('old-pass').value = '';
-                document.getElementById('new-pass').value = '';
-                currentUser.password = newP;
-            }
-        }
-
-        // --- ระบบ Render รายการในแอดมิน ---
-        function renderAdminLists() {
-            document.getElementById('admin-banner-list').innerHTML = globalData.banners.map(b => `
-                <div class="flex items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
-                    <img src="${b.image}" class="w-16 h-10 object-cover rounded mr-3">
-                    <div class="flex-grow overflow-hidden"><p class="text-xs truncate text-gray-400">${b.link}</p></div>
-                    <button onclick="deleteItem('deleteBanner', '${b.id}')" class="text-red-400 p-2 hover:bg-slate-700 rounded"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `).join('');
-
-            document.getElementById('admin-menu-list').innerHTML = globalData.menus.map(m => `
-                <div class="flex items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
-                    <div class="w-8 h-8 flex items-center justify-center bg-slate-700 rounded mr-3 text-gray-300"><i class="${m.icon}"></i></div>
-                    <div class="flex-grow"><p class="text-sm font-medium">${m.title}</p><p class="text-[10px] text-gray-500">ลำดับ: ${m.order}</p></div>
-                    <button onclick="prepareEditMenu('${m.id}')" class="text-blue-400 p-2 hover:bg-slate-700 rounded mr-1"><i class="fa-solid fa-pen"></i></button>
-                    <button onclick="deleteItem('deleteMenu', '${m.id}')" class="text-red-400 p-2 hover:bg-slate-700 rounded"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `).join('');
-        }
-
-        // --- ฟังก์ชันเพิ่ม/แก้ไข/ลบ ข้อมูล ---
-        async function addBanner() {
-            const img = document.getElementById('new-banner-img').value;
-            const link = document.getElementById('new-banner-link').value || '#';
-            if(!img) return alert('กรุณาใส่ URL รูปภาพ');
-            if(await apiPost({ action: 'saveBanner', data: { image: img, link: link, active: 1 } })) {
-                document.getElementById('new-banner-img').value = '';
-                document.getElementById('new-banner-link').value = '';
-            }
-        }
-
-        function prepareEditMenu(id) {
-            const menu = globalData.menus.find(m => String(m.id) === String(id));
-            if(!menu) return;
-            
-            editingMenuId = menu.id; 
-            document.getElementById('new-menu-title').value = menu.title;
-            document.getElementById('new-menu-icon').value = menu.icon;
-            document.getElementById('new-menu-url').value = menu.url;
-            document.getElementById('new-menu-order').value = menu.order;
-            
-            document.getElementById('menu-form-title').innerHTML = '<i class="fa-solid fa-pen mr-2"></i> แก้ไขข้อมูลเมนู';
-            document.getElementById('btn-save-menu').innerText = 'อัปเดตข้อมูลเมนู';
-            document.getElementById('btn-save-menu').classList.replace('bg-purple-600', 'bg-blue-600');
-            document.getElementById('btn-cancel-menu').classList.remove('hidden');
-            document.getElementById('menu-form-container').classList.add('border-blue-500');
-            document.getElementById('tab-menus').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function cancelEditMenu() {
-            editingMenuId = null;
-            document.getElementById('new-menu-title').value = '';
-            document.getElementById('new-menu-icon').value = '';
-            document.getElementById('new-menu-url').value = '';
-            document.getElementById('new-menu-order').value = '';
-            
-            document.getElementById('menu-form-title').innerHTML = '<i class="fa-solid fa-plus mr-2"></i> เพิ่มเมนูใหม่';
-            document.getElementById('btn-save-menu').innerText = 'บันทึกเมนู';
-            document.getElementById('btn-save-menu').classList.replace('bg-blue-600', 'bg-purple-600');
-            document.getElementById('btn-cancel-menu').classList.add('hidden');
-            document.getElementById('menu-form-container').classList.remove('border-blue-500');
-        }
-
-        async function saveMenu() {
-            const title = document.getElementById('new-menu-title').value;
-            const icon = document.getElementById('new-menu-icon').value || 'fa-solid fa-star';
-            const url = document.getElementById('new-menu-url').value || '#';
-            const order = document.getElementById('new-menu-order').value || 99;
-            
-            if(!title) return alert('กรุณาใส่ชื่อเมนู');
-            
-            const payloadData = { title: title, icon: icon, url: url, order: parseInt(order), active: 1 };
-            if(editingMenuId) payloadData.id = editingMenuId;
-            
-            if(await apiPost({ action: 'saveMenu', data: payloadData })) cancelEditMenu(); 
-        }
-
-        function deleteItem(actionString, id) {
-            if(confirm('ต้องการลบรายการนี้ใช่หรือไม่?')) apiPost({ action: actionString, id: id });
-        }
-
-        // --- Mock Data (ตัวอย่าง) ---
-        function getMockData() {
-            return {
-                banners: [{ id:1, image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80", link: "#", active: 1 }],
-                menus: Array.from({length: 12}).map((_, i) => ({ id:i, title: `เมนู ${i+1}`, icon: 'fa-solid fa-star', url: "https://example.com", order: i+1, active: 1 }))
-            };
-        }
+        function deleteItem(a, id) { if(confirm('ลบรายการนี้?')) apiPost({ action: a, id }); }
+        function getMockData() { return { banners: [{ id:1, image: "https://via.placeholder.com/800x400", link: "#" }], menus: [{ id:1, title: "เมนูตัวอย่าง", icon: "fa-solid fa-star", url: "#", order: 1, active: 1 }] }; }
     </script>
 </body>
 </html>
