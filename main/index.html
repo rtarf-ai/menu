@@ -120,7 +120,7 @@
     
     <script>
         // *** วาง URL ของ Google Apps Script ของคุณที่นี่ ***
-        const API_URL = 'YOUR_GAS_WEB_APP_URL_HERE'; 
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec'; 
         
         let currentUser = null;
 
@@ -133,7 +133,7 @@
         // ==========================================
         async function fetchAppData() {
             try {
-                if(API_URL === 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec') {
+                if(API_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
                     console.log("แสดงข้อมูลตัวอย่าง (Mock Data) เนื่องจากยังไม่ได้ใส่ API URL");
                     renderApp(getMockData());
                     return;
