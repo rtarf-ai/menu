@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ติดตั้งแอปพลิเคชัน</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Sarabun', sans-serif; background-color: #0f172a; margin: 0; padding: 0; }
+        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; min-height: 100dvh; background-color: #1e293b; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .bounce-anim { animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
+    </style>
+</head>
+<body class="text-white">
+
+    <div class="app-container">
+        
+        <div class="w-24 h-24 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-3xl shadow-xl shadow-blue-900/50 flex items-center justify-center mb-6 border-2 border-white/10">
+            <i class="fa-solid fa-mobile-screen-button text-4xl text-white"></i>
+        </div>
+        
+        <h1 class="text-2xl font-bold mb-2">ติดตั้ง App ของเรา</h1>
+        <p class="text-gray-400 text-sm mb-8">เพื่อการใช้งานที่รวดเร็วและเต็มจอเหมือนแอปพลิเคชันจริง กรุณาติดตั้งลงบนหน้าจอโฮมของคุณ</p>
+
+        <div id="webview-alert" class="hidden bg-yellow-500/10 border border-yellow-500/50 rounded-xl p-4 mb-6 w-full">
+            <i class="fa-solid fa-triangle-exclamation text-yellow-400 text-3xl mb-2"></i>
+            <h3 class="text-yellow-400 font-bold">ไม่สามารถติดตั้งผ่านแอปนี้ได้</h3>
+            <p class="text-xs text-yellow-200/80 mt-1">กรุณากดไอคอน <i class="fa-solid fa-ellipsis-vertical mx-1"></i> มุมขวาบน แล้วเลือก <b>"เปิดด้วยเบราว์เซอร์เริ่มต้น"</b> (Open in Browser) เพื่อติดตั้ง</p>
+        </div>
+
+        <div id="android-install" class="hidden w-full space-y-4">
+            <button id="btn-install-android" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg shadow-blue-900/50 transition-all text-lg flex items-center justify-center">
+                <i class="fa-solid fa-download mr-2"></i> กดเพื่อติดตั้งแอปพลิเคชัน
+            </button>
+        </div>
+
+        <div id="ios-install" class="hidden w-full bg-slate-800 p-6 rounded-2xl border border-slate-700 relative">
+            <h3 class="font-bold text-blue-400 mb-4 text-left">วิธีติดตั้งบน iOS:</h3>
+            <div class="flex items-center text-left mb-3">
+                <span class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 shrink-0">1</span>
+                <p class="text-sm">แตะที่ไอคอน <b class="bg-white/10 px-2 py-1 rounded inline-flex"><i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> Share</b> ด้านล่างของจอ</p>
+            </div>
+            <div class="flex items-center text-left">
+                <span class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 shrink-0">2</span>
+                <p class="text-sm">เลื่อนลงมาแล้วเลือก <br><b class="bg-white/10 px-2 py-1 rounded inline-block mt-1"><i class="fa-regular fa-square-plus text-gray-300"></i> เพิ่มไปยังหน้าจอโฮม</b> <br><span class="text-xs text-gray-500">(Add to Home Screen)</span></p>
+            </div>
+            <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-blue-400 bounce-anim">
+                <i class="fa-solid fa-arrow-down text-2xl"></i>
+            </div>
+        </div>
+
+        <button onclick="skipInstall()" class="mt-12 text-gray-500 hover:text-white text-sm transition-colors border-b border-gray-600 pb-1">
+            ข้ามการติดตั้ง เข้าสู่เว็บไซต์
+        </button>
+
+    </div>
+
+    <script>
+        // ตัวแปรสำหรับเก็บ Event การติดตั้งของระบบ Android
+        let deferredPrompt;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            
+            // 1. เช็คว่าเป็น Webview (Line, Facebook, IG) หรือไม่
+            const isWebview = (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1) || (ua.indexOf('Line') > -1);
+            
+            // 2. เช็คว่าเป็น iOS หรือไม่
+            const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+            
+            if (isWebview) {
+                // ถ้าสแกนจาก Line ให้แจ้งเตือนให้ออกไปเปิดเบราว์เซอร์นอก
+                document.getElementById('webview-alert').classList.remove('hidden');
+            } 
+            else if (isIOS) {
+                // ถ้าเป็น iPhone ให้แสดงรูปสอนติดตั้ง
+                document.getElementById('ios-install').classList.remove('hidden');
+            } 
+            else {
+                // ถ้าเป็น Android ให้เตรียมปุ่มติดตั้ง
+                document.getElementById('android-install').classList.remove('hidden');
+            }
+        });
+
+        // ==========================================
+        // ระบบดักจับการติดตั้งของ Android (PWA)
+        // ==========================================
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // ป้องกันไม่ให้ Chrome แสดง pop-up อัตโนมัติที่ขอบล่าง
+            e.preventDefault();
+            // เก็บ Event ไว้ใช้เมื่อผู้ใช้กดปุ่มของเรา
+            deferredPrompt = e;
+        });
+
+        document.getElementById('btn-install-android').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // แสดง Pop-up ติดตั้งของระบบ Android
+                deferredPrompt.prompt();
+                // รอรับค่าว่าผู้ใช้กดยอมรับหรือยกเลิก
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('ติดตั้งสำเร็จ');
+                    // ถ้าติดตั้งเสร็จ ส่งเข้าแอปเลย
+                    window.location.replace('./index.html');
+                }
+                deferredPrompt = null;
+            } else {
+                alert('ระบบติดตั้งพร้อมใช้งานแล้ว หรือเบราว์เซอร์ของคุณไม่รองรับ');
+            }
+        });
+
+        // ดักจับว่าเมื่อแอปติดตั้งลงเครื่องเสร็จสมบูรณ์ให้เด้งเข้า index ทันที
+        window.addEventListener('appinstalled', () => {
+            window.location.replace('./index.html');
+        });
+
+        // ==========================================
+        // ฟังก์ชันข้ามการติดตั้ง
+        // ==========================================
+        function skipInstall() {
+            // ส่ง Parameter skipInstall=true ไปเพื่อไม่ให้ index.html เตะกลับมาหน้านี้อีก
+            window.location.replace('./index.html?skipInstall=true');
+        }
+    </script>
+</body>
+</html>
