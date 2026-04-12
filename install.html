@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ติดตั้ง MyMDU.25 :: แอปพลิเคชั่น นพค.25</title>
+    <title>ติดตั้ง Premium App</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MyMDU.25">
+    <meta name="apple-mobile-web-app-title" content="PremiumApp">
     <link rel="apple-touch-icon" href="https://rtarf-ai.github.io/menu/icon-192.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -46,12 +46,12 @@
             <div class="relative mb-10 inline-block">
                 <div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
                 <div class="relative bg-white p-5 rounded-[2.8rem] shadow-2xl border border-slate-100">
-                    <img src="https://rtarf-ai.github.io/menu/icon-512.png" alt="MyMDU Logo" class="w-32 h-32 rounded-[2.2rem]">
+                    <img src="https://rtarf-ai.github.io/menu/icon-512.png" alt="App Logo" class="w-32 h-32 rounded-[2.2rem]">
                 </div>
             </div>
 
-            <h1 class="text-3xl font-bold text-slate-900 mb-2">MyMDU.25</h1>
-            <p class="text-lg font-medium text-primary mb-4 italic">แอปพลิเคชั่น นพค.25</p>
+            <h1 class="text-3xl font-bold text-slate-900 mb-2">Premium App</h1>
+            <p class="text-lg font-medium text-primary mb-4 italic">Portal System</p>
             <p class="text-slate-500 mb-12 leading-relaxed text-sm">ติดตั้งแอปเพื่อรับข้อมูลข่าวสาร ประวัติส่วนตัว และเมนูบริการต่างๆ ได้อย่างรวดเร็วผ่านหน้าจอหลัก</p>
 
             <button id="android-btn" class="hidden w-full bg-primary hover:bg-blue-900 text-white font-bold py-5 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
@@ -63,6 +63,10 @@
                 <div class="w-6 h-6 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
                 <p class="text-xs text-slate-400 font-medium tracking-wide">กำลังตรวจสอบสถานะอุปกรณ์...</p>
             </div>
+
+            <button onclick="skipInstall()" class="mt-10 text-sm text-slate-400 hover:text-primary underline decoration-slate-300 underline-offset-4 transition-colors">
+                ข้ามการติดตั้ง เข้าสู่เว็บไซต์
+            </button>
         </div>
     </main>
 
@@ -109,7 +113,7 @@
 
         // --- 2. การตรวจจับ Browser & Platform ---
         const ua = navigator.userAgent || navigator.vendor || window.opera;
-        const isLine = ua.indexOf('Line') > -1;
+        const isLine = ua.indexOf('Line') > -1 || ua.indexOf('FBAN') > -1 || ua.indexOf('FBAV') > -1;
         const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
         const isAndroid = /Android/i.test(ua);
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
@@ -119,19 +123,24 @@
         const lineOverlay = document.getElementById('line-overlay');
         const checker = document.getElementById('checker');
 
+        // ตั้งค่า URL ปลายทางที่ต้องการให้ Redirect ไปเมื่อติดตั้งเสร็จ
+        const MAIN_APP_URL = './index.html'; 
+
         // --- 3. Logic การทำงานหลัก ---
         window.addEventListener('load', () => {
-            // ก) ถ้าติดตั้งอยู่แล้ว ให้เด้งไปหน้า index.html
-            if (isStandalone) {
-                window.location.href = '2026/index.html';
+            // ก) ถ้าติดตั้งอยู่แล้ว หรือมีคำสั่ง skip ให้เด้งไปหน้าเว็บหลัก
+            if (isStandalone || window.location.search.includes('skipInstall=true')) {
+                window.location.replace(MAIN_APP_URL);
                 return;
             }
 
-            // ข) จัดการผู้ใช้จากแอป LINE
+            // ข) จัดการผู้ใช้จากแอป LINE / Facebook
             if (isLine) {
                 if (isAndroid) {
+                    // ใช้ Intent เตะออกไปเปิดใน Chrome อัตโนมัติ (Android Only)
                     window.location.href = `intent://${window.location.host}${window.location.pathname}#Intent;scheme=https;package=com.android.chrome;end`;
                 } else {
+                    // สำหรับ iOS ใน Line เตะไม่ได้ ต้องโชว์แบนเนอร์บอกให้กด
                     lineOverlay.classList.remove('hidden');
                     checker.classList.add('hidden');
                 }
@@ -144,8 +153,20 @@
                 setTimeout(() => {
                     iosSheet.classList.remove('hidden');
                     iosSheet.classList.add('flex');
-                }, 1000);
+                }, 800);
+                return;
             }
+
+            // ง) กรณีเป็น Android ที่เปิดผ่าน Chrome ปกติ แต่ไม่มี Event ติดตั้งโผล่มา
+            // รอ 3 วินาที ถ้าปุ่ม Android ยังไม่แสดง (อาจเกิดจากถูกบล็อก หรือปิด Pop-up ไปแล้ว) ให้โชว์ปุ่มขึ้นมาเลย
+            setTimeout(() => {
+                if(androidBtn.classList.contains('hidden') && checker.classList.contains('hidden') === false) {
+                    checker.classList.add('hidden');
+                    androidBtn.classList.remove('hidden');
+                    androidBtn.innerHTML = `<i class="fas fa-ellipsis-v text-xl mr-2"></i> กรุณากดเมนูเพื่อติดตั้งแอป`;
+                    androidBtn.classList.replace('bg-primary', 'bg-slate-700');
+                }
+            }, 3000);
         });
 
         // --- 4. Android Install Prompt ---
@@ -162,15 +183,23 @@
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    window.location.href = '2026/index.html';
+                    window.location.replace(MAIN_APP_URL);
                 }
                 deferredPrompt = null;
+            } else {
+                // ถ้ากดแล้วไม่มี Pop-up ให้แนะนำแบบ Manual
+                alert('กรุณากดเมนู (⋮) มุมขวาบน แล้วเลือก "เพิ่มลงในหน้าจอหลัก" (Add to Home screen)');
             }
         });
 
+        // ฟังก์ชันข้ามการติดตั้ง
+        function skipInstall() {
+            window.location.replace(`${MAIN_APP_URL}?skipInstall=true`);
+        }
+
         // ลงทะเบียน Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('2026/sw.js');
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Reg failed', err));
         }
     </script>
 </body>
