@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Premium App Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
+        body { font-family: 'Prompt', sans-serif; background-color: #0f172a; }
+        .app-container { max-width: 480px; margin: 0 auto; height: 100vh; background-color: #1e293b; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .menu-btn { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .menu-btn:active { transform: scale(0.95); }
+        .swiper-pagination-bullet { background: #fff; opacity: 0.5; }
+        .swiper-pagination-bullet-active { background: #3b82f6; opacity: 1; }
+        
+        /* Loading Screen */
+        #loader { position: absolute; inset: 0; background: #1e293b; z-index: 50; display: flex; justify-content: center; align-items: center; color: white; }
+    </style>
+</head>
+<body class="text-white">
+
+    <div class="app-container flex flex-col">
+        <div id="loader">
+            <i class="fa-solid fa-circle-notch fa-spin fa-3x"></i>
+        </div>
+
+        <div class="w-full h-1/3 relative">
+            <div class="swiper bannerSwiper h-full w-full">
+                <div class="swiper-wrapper" id="banner-container">
+                    </div>
+                <div class="swiper-pagination banner-pagination"></div>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#1e293b] to-transparent z-10 pointer-events-none"></div>
+        </div>
+
+        <div class="w-full flex-grow p-4 relative z-20 -mt-6">
+            <div class="swiper menuSwiper h-full">
+                <div class="swiper-wrapper" id="menu-container">
+                    </div>
+                <div class="swiper-pagination menu-pagination absolute bottom-0"></div>
+            </div>
+        </div>
+
+        <div class="w-full h-16 bg-slate-800 flex justify-around items-center border-t border-slate-700 pb-safe">
+            <button class="flex flex-col items-center text-blue-400">
+                <i class="fa-solid fa-house text-xl"></i>
+                <span class="text-xs mt-1">หน้าแรก</span>
+            </button>
+            <button class="flex flex-col items-center text-slate-400 hover:text-white" onclick="alert('แสดงหน้าจัดการโปรไฟล์/ล็อกอิน')">
+                <i class="fa-solid fa-user text-xl"></i>
+                <span class="text-xs mt-1">โปรไฟล์</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    
+    <script>
+        // *** เปลี่ยน URL ตรงนี้เป็น URL ของ Google Apps Script ที่ Deploy ไว้ ***
+        const API_URL = 'YOUR_GAS_WEB_APP_URL_HERE'; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAppData();
+        });
+
+        async function fetchAppData() {
+            try {
+                // หากยังไม่ได้ใส่ URL ให้แสดง Mockup Data เพื่อดูดีไซน์
+                if(API_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+                    console.log("Using Mockup Data. Please insert your GAS URL.");
+                    renderApp(getMockData());
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}?action=getData`);
+                const data = await response.json();
+                
+                if(data.status === 'success') {
+                    renderApp(data);
+                } else {
+                    alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+            }
+        }
+
+        function renderApp(data) {
+            renderBanners(data.banners);
+            renderMenus(data.menus);
+            
+            // Hide Loader
+            document.getElementById('loader').style.display = 'none';
+
+            // Initialize Banner Swiper
+            new Swiper(".bannerSwiper", {
+                loop: true,
+                autoplay: { delay: 3500, disableOnInteraction: false },
+                pagination: { el: ".banner-pagination", clickable: true },
+            });
+
+            // Initialize Menu Swiper
+            new Swiper(".menuSwiper", {
+                pagination: { el: ".menu-pagination", clickable: true },
+            });
+        }
+
+        function renderBanners(banners) {
+            const container = document.getElementById('banner-container');
+            container.innerHTML = banners.map(banner => `
+                <div class="swiper-slide cursor-pointer" onclick="window.open('${banner.link}', '_blank')">
+                    <img src="${banner.image}" class="w-full h-full object-cover" alt="Banner">
+                </div>
+            `).join('');
+        }
+
+        function renderMenus(menus) {
+            const container = document.getElementById('menu-container');
+            let html = '';
+            
+            // แบ่งเมนูออกเป็นชุด ชุดละ 9 ไอเทม
+            const chunkSize = 9;
+            for (let i = 0; i < menus.length; i += chunkSize) {
+                const chunk = menus.slice(i, i + chunkSize);
+                
+                let gridHtml = `<div class="swiper-slide"><div class="grid grid-cols-3 gap-3">`;
+                
+                chunk.forEach(menu => {
+                    gridHtml += `
+                        <a href="${menu.url}" target="_blank" class="menu-btn aspect-square rounded-2xl flex flex-col items-center justify-center text-center p-2 transition-all hover:bg-slate-700">
+                            <i class="${menu.icon} text-3xl mb-2 text-gray-300"></i>
+                            <span class="text-xs font-light text-gray-300 leading-tight">${menu.title}</span>
+                        </a>
+                    `;
+                });
+                
+                gridHtml += `</div></div>`;
+                html += gridHtml;
+            }
+            container.innerHTML = html;
+        }
+
+        // Mockup Data สำหรับทดสอบ UI ทันทีที่รัน (ลบออกได้เมื่อเชื่อม API จริง)
+        function getMockData() {
+            return {
+                banners: [
+                    { image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80", link: "#" },
+                    { image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80", link: "#" }
+                ],
+                menus: Array.from({length: 14}).map((_, i) => ({
+                    title: ['Events', 'Things to Do', 'Shopping', 'Nightlife', 'Lodging', 'My Plan', 'Profile', 'Noti', 'Map', 'Settings', 'News', 'Contact', 'FAQ', 'More'][i],
+                    icon: ['fa-regular fa-calendar', 'fa-solid fa-flag', 'fa-solid fa-bag-shopping', 'fa-solid fa-martini-glass', 'fa-solid fa-bed', 'fa-regular fa-circle-check', 'fa-solid fa-user', 'fa-regular fa-bell', 'fa-solid fa-map-location-dot', 'fa-solid fa-gear', 'fa-regular fa-newspaper', 'fa-solid fa-phone', 'fa-solid fa-circle-question', 'fa-solid fa-ellipsis'][i],
+                    url: "#"
+                }))
+            };
+        }
+    </script>
+</body>
+</html>
