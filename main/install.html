@@ -33,13 +33,16 @@
         <div id="webview-alert" class="hidden bg-yellow-500/10 border border-yellow-500/50 rounded-xl p-4 mb-6 w-full">
             <i class="fa-solid fa-triangle-exclamation text-yellow-400 text-3xl mb-2"></i>
             <h3 class="text-yellow-400 font-bold">ไม่สามารถติดตั้งผ่านแอปนี้ได้</h3>
-            <p class="text-xs text-yellow-200/80 mt-1">กรุณากดไอคอน <i class="fa-solid fa-ellipsis-vertical mx-1"></i> มุมขวาบน แล้วเลือก <b>"เปิดด้วยเบราว์เซอร์เริ่มต้น"</b> (Open in Browser) เพื่อติดตั้ง</p>
+            <p class="text-xs text-yellow-200/80 mt-1">กรุณากดไอคอน <i class="fa-solid fa-ellipsis-vertical mx-1"></i> มุมขวาบน แล้วเลือก <b>"เปิดด้วยเบราว์เซอร์เริ่มต้น"</b> เพื่อติดตั้ง</p>
         </div>
 
         <div id="android-install" class="hidden w-full space-y-4">
-            <button id="btn-install-android" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg shadow-blue-900/50 transition-all text-lg flex items-center justify-center">
-                <i class="fa-solid fa-download mr-2"></i> กดเพื่อติดตั้งแอปพลิเคชัน
+            <button id="btn-install-android" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg shadow-blue-900/50 transition-all text-lg flex items-center justify-center relative overflow-hidden">
+                <i class="fa-solid fa-download mr-2 z-10"></i> <span class="z-10">กดเพื่อติดตั้งแอปพลิเคชัน</span>
             </button>
+            <p id="android-helper-text" class="text-xs text-gray-400 hidden mt-4 bg-slate-800 p-3 rounded-lg border border-slate-700">
+                หากปุ่มไม่ทำงาน กรุณากดปุ่มเมนูของเบราว์เซอร์ (☰ หรือ ⋮) แล้วเลือก <b>"เพิ่มไปยังหน้าจอหลัก" (Add to Home screen)</b> หรือสังเกตไอคอนดาวน์โหลดที่แถบ URL ด้านบน
+            </p>
         </div>
 
         <div id="ios-install" class="hidden w-full bg-slate-800 p-6 rounded-2xl border border-slate-700 relative">
@@ -50,7 +53,7 @@
             </div>
             <div class="flex items-center text-left">
                 <span class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 shrink-0">2</span>
-                <p class="text-sm">เลื่อนลงมาแล้วเลือก <br><b class="bg-white/10 px-2 py-1 rounded inline-block mt-1"><i class="fa-regular fa-square-plus text-gray-300"></i> เพิ่มไปยังหน้าจอโฮม</b> <br><span class="text-xs text-gray-500">(Add to Home Screen)</span></p>
+                <p class="text-sm">เลื่อนลงมาแล้วเลือก <br><b class="bg-white/10 px-2 py-1 rounded inline-block mt-1"><i class="fa-regular fa-square-plus text-gray-300"></i> เพิ่มไปยังหน้าจอโฮม</b></p>
             </div>
             <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-blue-400 bounce-anim">
                 <i class="fa-solid fa-arrow-down text-2xl"></i>
@@ -64,69 +67,54 @@
     </div>
 
     <script>
-        // ตัวแปรสำหรับเก็บ Event การติดตั้งของระบบ Android
+        // เรียกใช้ Service Worker เพื่อให้เบราว์เซอร์รู้ว่าเป็น PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Reg failed', err));
+            });
+        }
+
         let deferredPrompt;
 
         document.addEventListener('DOMContentLoaded', () => {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
-            
-            // 1. เช็คว่าเป็น Webview (Line, Facebook, IG) หรือไม่
             const isWebview = (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1) || (ua.indexOf('Line') > -1);
-            
-            // 2. เช็คว่าเป็น iOS หรือไม่
             const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
             
             if (isWebview) {
-                // ถ้าสแกนจาก Line ให้แจ้งเตือนให้ออกไปเปิดเบราว์เซอร์นอก
                 document.getElementById('webview-alert').classList.remove('hidden');
-            } 
-            else if (isIOS) {
-                // ถ้าเป็น iPhone ให้แสดงรูปสอนติดตั้ง
+            } else if (isIOS) {
                 document.getElementById('ios-install').classList.remove('hidden');
-            } 
-            else {
-                // ถ้าเป็น Android ให้เตรียมปุ่มติดตั้ง
+            } else {
                 document.getElementById('android-install').classList.remove('hidden');
+                
+                // ถ้าระบบรองรับ PWA ปกติ จะโชว์ปุ่ม และดักจับ Event
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                });
             }
-        });
-
-        // ==========================================
-        // ระบบดักจับการติดตั้งของ Android (PWA)
-        // ==========================================
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // ป้องกันไม่ให้ Chrome แสดง pop-up อัตโนมัติที่ขอบล่าง
-            e.preventDefault();
-            // เก็บ Event ไว้ใช้เมื่อผู้ใช้กดปุ่มของเรา
-            deferredPrompt = e;
         });
 
         document.getElementById('btn-install-android').addEventListener('click', async () => {
             if (deferredPrompt) {
-                // แสดง Pop-up ติดตั้งของระบบ Android
                 deferredPrompt.prompt();
-                // รอรับค่าว่าผู้ใช้กดยอมรับหรือยกเลิก
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    console.log('ติดตั้งสำเร็จ');
-                    // ถ้าติดตั้งเสร็จ ส่งเข้าแอปเลย
                     window.location.replace('./index.html');
                 }
                 deferredPrompt = null;
             } else {
-                alert('ระบบติดตั้งพร้อมใช้งานแล้ว หรือเบราว์เซอร์ของคุณไม่รองรับ');
+                // ถ้าปุ่มกดแล้วไม่มี Pop-up ให้แสดงคำแนะนำการติดตั้งด้วยตัวเองแทน Alert ที่น่ารำคาญ
+                document.getElementById('android-helper-text').classList.remove('hidden');
             }
         });
 
-        // ดักจับว่าเมื่อแอปติดตั้งลงเครื่องเสร็จสมบูรณ์ให้เด้งเข้า index ทันที
         window.addEventListener('appinstalled', () => {
             window.location.replace('./index.html');
         });
 
-        // ==========================================
-        // ฟังก์ชันข้ามการติดตั้ง
-        // ==========================================
         function skipInstall() {
-            // ส่ง Parameter skipInstall=true ไปเพื่อไม่ให้ index.html เตะกลับมาหน้านี้อีก
             window.location.replace('./index.html?skipInstall=true');
         }
     </script>
