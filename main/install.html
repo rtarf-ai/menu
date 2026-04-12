@@ -28,46 +28,57 @@
         </div>
         
         <h1 class="text-2xl font-bold mb-2">ติดตั้ง App ของเรา</h1>
-        <p class="text-gray-400 text-sm mb-8">เพื่อการใช้งานที่รวดเร็วและเต็มจอเหมือนแอปพลิเคชันจริง กรุณาติดตั้งลงบนหน้าจอโฮมของคุณ</p>
+        <p class="text-gray-400 text-sm mb-8">เพื่อการใช้งานที่รวดเร็วและเต็มจอเหมือนแอปพลิเคชันจริง</p>
 
-        <div id="webview-alert" class="hidden bg-yellow-500/10 border border-yellow-500/50 rounded-xl p-4 mb-6 w-full">
-            <i class="fa-solid fa-triangle-exclamation text-yellow-400 text-3xl mb-2"></i>
-            <h3 class="text-yellow-400 font-bold">ไม่สามารถติดตั้งผ่านแอปนี้ได้</h3>
-            <p class="text-xs text-yellow-200/80 mt-1">กรุณากดไอคอน <i class="fa-solid fa-ellipsis-vertical mx-1"></i> มุมขวาบน แล้วเลือก <b>"เปิดด้วยเบราว์เซอร์เริ่มต้น"</b> เพื่อติดตั้ง</p>
+        <div id="webview-alert" class="hidden bg-yellow-500/10 border border-yellow-500/50 rounded-xl p-4 mb-6 w-full text-left">
+            <div class="flex items-center mb-2">
+                <i class="fa-solid fa-triangle-exclamation text-yellow-400 text-2xl mr-3"></i>
+                <h3 class="text-yellow-400 font-bold text-lg">เปิดในเบราว์เซอร์หลัก</h3>
+            </div>
+            <p class="text-sm text-yellow-200/80 mb-3">ไม่สามารถติดตั้งแอปผ่านหน้านี้ได้ กรุณาทำตามขั้นตอน:</p>
+            <ol class="text-sm text-yellow-200/90 list-decimal pl-5 space-y-1">
+                <li>กดที่ไอคอนเมนู <b>(⋮) หรือ (⋯)</b> มุมขวาบน/ล่าง</li>
+                <li>เลือกคำว่า <b>"เปิดด้วยเบราว์เซอร์เริ่มต้น"</b> หรือ <b>"Open in Browser"</b></li>
+            </ol>
         </div>
 
         <div id="android-install" class="hidden w-full space-y-4">
-            <button id="btn-install-android" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg shadow-blue-900/50 transition-all text-lg flex items-center justify-center relative overflow-hidden">
-                <i class="fa-solid fa-download mr-2 z-10"></i> <span class="z-10">กดเพื่อติดตั้งแอปพลิเคชัน</span>
+            <button id="btn-install-android" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg shadow-blue-900/50 transition-all text-lg flex items-center justify-center">
+                <i class="fa-solid fa-download mr-2"></i> กดเพื่อติดตั้งแอปพลิเคชัน
             </button>
-            <p id="android-helper-text" class="text-xs text-gray-400 hidden mt-4 bg-slate-800 p-3 rounded-lg border border-slate-700">
-                หากปุ่มไม่ทำงาน กรุณากดปุ่มเมนูของเบราว์เซอร์ (☰ หรือ ⋮) แล้วเลือก <b>"เพิ่มไปยังหน้าจอหลัก" (Add to Home screen)</b> หรือสังเกตไอคอนดาวน์โหลดที่แถบ URL ด้านบน
-            </p>
+            
+            <div id="manual-android-guide" class="hidden bg-slate-800 p-4 rounded-xl border border-slate-700 text-left mt-4 transition-all">
+                <h4 class="text-blue-400 font-bold text-sm mb-2"><i class="fa-solid fa-circle-info mr-1"></i> เบราว์เซอร์ของคุณต้องติดตั้งแบบแมนนวล</h4>
+                <ul class="text-sm text-gray-300 space-y-2 pl-2 border-l-2 border-blue-500">
+                    <li>1. กดที่ไอคอนเมนู <b>(⋮)</b> หรือ <b>(☰)</b> ของเบราว์เซอร์</li>
+                    <li>2. เลือกเมนู <b>"เพิ่มลงในหน้าจอหลัก"</b> <br><span class="text-xs text-gray-500">(Add to Home screen)</span> หรือ <b>"ติดตั้งแอป"</b></li>
+                </ul>
+            </div>
         </div>
 
         <div id="ios-install" class="hidden w-full bg-slate-800 p-6 rounded-2xl border border-slate-700 relative">
-            <h3 class="font-bold text-blue-400 mb-4 text-left">วิธีติดตั้งบน iOS:</h3>
-            <div class="flex items-center text-left mb-3">
+            <h3 class="font-bold text-blue-400 mb-4 text-left">วิธีติดตั้งบน iPhone/iPad:</h3>
+            <div class="flex items-center text-left mb-4">
                 <span class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 shrink-0">1</span>
-                <p class="text-sm">แตะที่ไอคอน <b class="bg-white/10 px-2 py-1 rounded inline-flex"><i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> Share</b> ด้านล่างของจอ</p>
+                <p class="text-sm">แตะที่ไอคอน <b class="bg-white/10 px-2 py-1 rounded inline-flex mx-1"><i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i> Share</b> ที่แถบด้านล่าง</p>
             </div>
             <div class="flex items-center text-left">
                 <span class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 shrink-0">2</span>
-                <p class="text-sm">เลื่อนลงมาแล้วเลือก <br><b class="bg-white/10 px-2 py-1 rounded inline-block mt-1"><i class="fa-regular fa-square-plus text-gray-300"></i> เพิ่มไปยังหน้าจอโฮม</b></p>
+                <p class="text-sm">เลื่อนลงมาแล้วเลือก <br><b class="bg-white/10 px-2 py-1 rounded inline-block mt-2"><i class="fa-regular fa-square-plus text-gray-300 mr-1"></i> เพิ่มไปยังหน้าจอโฮม</b></p>
             </div>
             <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-blue-400 bounce-anim">
                 <i class="fa-solid fa-arrow-down text-2xl"></i>
             </div>
         </div>
 
-        <button onclick="skipInstall()" class="mt-12 text-gray-500 hover:text-white text-sm transition-colors border-b border-gray-600 pb-1">
+        <button onclick="skipInstall()" class="mt-12 text-gray-500 hover:text-white text-sm transition-colors border-b border-slate-700 pb-1">
             ข้ามการติดตั้ง เข้าสู่เว็บไซต์
         </button>
 
     </div>
 
     <script>
-        // เรียกใช้ Service Worker เพื่อให้เบราว์เซอร์รู้ว่าเป็น PWA
+        // 1. กระตุ้น Service Worker เพื่อยืนยันตัวตนว่าเป็น PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Reg failed', err));
@@ -77,39 +88,52 @@
         let deferredPrompt;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const ua = navigator.userAgent || navigator.vendor || window.opera;
-            const isWebview = (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1) || (ua.indexOf('Line') > -1);
-            const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+            const ua = navigator.userAgent.toLowerCase();
+            
+            // เช็ค In-App Browser อย่างละเอียด (ครอบคลุม FB, Line, IG, TikTok, Twitter)
+            const isWebview = /fbav|line|instagram|tiktok|twitter/i.test(ua);
+            // เช็ค iOS
+            const isIOS = /ipad|iphone|ipod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             
             if (isWebview) {
+                // ถ้าสแกนจากแอปแชท ให้โชว์คำเตือน
                 document.getElementById('webview-alert').classList.remove('hidden');
             } else if (isIOS) {
+                // ถ้าเป็นผลไม้ ให้โชว์วิธีทำด้วยตัวเอง
                 document.getElementById('ios-install').classList.remove('hidden');
             } else {
+                // ถ้าระบบอื่นๆ โชว์ปุ่มเตรียมไว้ก่อน
                 document.getElementById('android-install').classList.remove('hidden');
                 
-                // ถ้าระบบรองรับ PWA ปกติ จะโชว์ปุ่ม และดักจับ Event
+                // ดักจับ Event หากเบราว์เซอร์ยอมให้โชว์ Pop-up อัตโนมัติ
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
-                    deferredPrompt = e;
+                    deferredPrompt = e; 
                 });
             }
         });
 
+        // เมื่อกดปุ่มติดตั้ง (สำหรับ Android/Desktop)
         document.getElementById('btn-install-android').addEventListener('click', async () => {
             if (deferredPrompt) {
+                // ถ้าเบราว์เซอร์รองรับ (เช่น Chrome) ให้โชว์ Pop-up ของระบบ
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
+                    console.log('User accepted');
                     window.location.replace('./index.html');
                 }
                 deferredPrompt = null;
             } else {
-                // ถ้าปุ่มกดแล้วไม่มี Pop-up ให้แสดงคำแนะนำการติดตั้งด้วยตัวเองแทน Alert ที่น่ารำคาญ
-                document.getElementById('android-helper-text').classList.remove('hidden');
+                // *** ไม้ตาย: ถ้ากดปุ่มแล้วเงียบ (เช่นเปิดใน Firefox หรือ Samsung Browser) 
+                // ให้โชว์คำแนะนำว่าต้องกดเมนูตรงไหน แทนการเงียบไปเฉยๆ
+                document.getElementById('manual-android-guide').classList.remove('hidden');
+                document.getElementById('btn-install-android').classList.add('opacity-50', 'cursor-not-allowed');
+                document.getElementById('btn-install-android').innerText = 'กรุณาทำตามขั้นตอนด้านล่าง';
             }
         });
 
+        // เมื่อติดตั้งเสร็จสมบูรณ์ ให้เด้งกลับหน้าหลัก
         window.addEventListener('appinstalled', () => {
             window.location.replace('./index.html');
         });
