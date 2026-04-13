@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MyMDU.25 Portal</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e293b">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Sarabun', sans-serif; background-color: #0f172a; margin: 0; padding: 0; }
+        .app-container { max-width: 480px; margin: 0 auto; height: 100vh; height: 100dvh; background-color: #1e293b; position: relative; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .menu-btn { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .menu-btn:active { transform: scale(0.95); }
+        .swiper-pagination-bullet { background: #fff; opacity: 0.3; }
+        .swiper-pagination-bullet-active { background: #3b82f6; opacity: 1; }
+        #loader { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 999; display: flex; justify-content: center; align-items: center; }
+    </style>
+    <script>
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        const skipInstall = window.location.search.includes('skipInstall=true');
+        if (!isStandalone && !skipInstall) { window.location.replace('./install.html'); }
+    </script>
+</head>
+<body class="text-white">
+
+    <div class="app-container flex flex-col">
+        <div id="loader">
+            <i class="fa-solid fa-circle-notch fa-spin fa-3x text-blue-500"></i>
+        </div>
+
+        <div id="iframe-view" class="absolute inset-0 bg-slate-900 z-[100] hidden flex-col transition-transform duration-300 translate-x-full">
+            <div class="h-14 bg-slate-800 flex items-center px-4 border-b border-slate-700 shadow-md z-10 w-full">
+                <button onclick="closeInApp()" class="text-blue-400 p-2 hover:bg-slate-700 rounded-lg mr-2"><i class="fa-solid fa-chevron-left text-xl"></i></button>
+                <h2 id="iframe-title" class="font-bold text-white truncate flex-grow text-center text-sm md:text-base">Loading...</h2>
+                <button onclick="openExternal()" class="text-gray-400 p-2 hover:text-white ml-2"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+            </div>
+            <iframe id="app-iframe" class="w-full border-none bg-white flex-grow" style="height: calc(100% - 56px);"></iframe>
+        </div>
+
+        <div class="w-full h-1/3 relative">
+            <div class="swiper bannerSwiper h-full w-full">
+                <div class="swiper-wrapper" id="banner-container"></div>
+                <div class="swiper-pagination banner-pagination"></div>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#1e293b] to-transparent z-10 pointer-events-none"></div>
+        </div>
+
+        <div class="w-full flex-grow p-4 relative z-20 -mt-6">
+            <div class="swiper menuSwiper h-full">
+                <div class="swiper-wrapper" id="menu-container"></div>
+                <div class="swiper-pagination menu-pagination absolute bottom-0 mb-2"></div>
+            </div>
+        </div>
+
+        <div class="w-full h-16 bg-slate-800 flex justify-around items-center border-t border-slate-700 pb-safe z-30">
+            <button onclick="toggleModal(false)" class="flex flex-col items-center text-blue-400 w-1/2">
+                <i class="fa-solid fa-house text-xl"></i><span class="text-xs mt-1">หน้าแรก</span>
+            </button>
+            <button onclick="toggleModal(true)" class="flex flex-col items-center text-slate-400 hover:text-white w-1/2 transition-colors">
+                <i class="fa-solid fa-user text-xl"></i><span class="text-xs mt-1">โปรไฟล์</span>
+            </button>
+        </div>
+
+        <div id="user-modal" class="absolute inset-0 bg-[#0f172a] z-50 transition-transform translate-y-full flex flex-col duration-300">
+            <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center z-20">
+                <h2 class="text-lg font-bold">ข้อมูลผู้ใช้งาน</h2>
+                <button onclick="toggleModal(false)" class="text-gray-400 p-2"><i class="fa-solid fa-chevron-down text-xl"></i></button>
+            </div>
+
+            <div class="flex-grow overflow-y-auto p-4">
+                <div id="login-form" class="space-y-4 pt-10">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-slate-800 rounded-full mx-auto flex items-center justify-center mb-4 border border-slate-700">
+                            <i class="fa-solid fa-shield-halved text-3xl text-blue-400"></i>
+                        </div>
+                        <h3 class="font-bold text-xl">เข้าสู่ระบบ MyMDU.25</h3>
+                    </div>
+                    <input type="text" id="login-user" placeholder="รหัสพนักงาน (EmpID)" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="password" id="login-pass" placeholder="รหัสผ่าน" class="w-full p-4 bg-slate-800 border border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="login()" class="w-full p-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold mt-2 transition-all">ลงชื่อเข้าใช้</button>
+                </div>
+
+                <div id="user-content" class="hidden flex flex-col h-full">
+                    <div class="flex items-center space-x-4 p-4 bg-slate-800 border border-slate-700 rounded-2xl mb-4">
+                        <div id="user-avatar-container" class="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center overflow-hidden text-xl font-bold border-2 border-blue-400/50">
+                            <span id="user-avatar-text">U</span>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 id="user-display-name" class="font-bold text-lg">---</h3>
+                            <div class="flex gap-2 items-center">
+                                <span id="user-role-badge" class="px-2 py-0.5 bg-blue-900/50 text-blue-400 rounded text-[10px] uppercase font-bold">User</span>
+                                <span id="user-status-text" class="text-xs text-gray-400 font-light italic">---</span>
+                            </div>
+                        </div>
+                        <button onclick="logout()" class="p-2 text-red-400 bg-red-400/10 rounded-lg"><i class="fa-solid fa-power-off"></i></button>
+                    </div>
+
+                    <div id="admin-tabs-nav" class="hidden grid grid-cols-3 gap-2 mb-4 bg-slate-800 p-1 rounded-xl">
+                        <button onclick="switchTab('tab-profile')" id="btn-tab-profile" class="tab-btn py-2 text-sm font-medium rounded-lg bg-blue-600">โปรไฟล์</button>
+                        <button onclick="switchTab('tab-banners')" id="btn-tab-banners" class="tab-btn py-2 text-sm font-medium rounded-lg text-gray-400">แบนเนอร์</button>
+                        <button onclick="switchTab('tab-menus')" id="btn-tab-menus" class="tab-btn py-2 text-sm font-medium rounded-lg text-gray-400">เมนู</button>
+                    </div>
+
+                    <div id="tab-profile" class="tab-content space-y-4">
+                        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 space-y-3">
+                            <h4 class="text-sm font-semibold text-gray-300">แก้ไขชื่อที่แสดง</h4>
+                            <input type="text" id="edit-name" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg outline-none">
+                            <button onclick="saveProfile()" class="w-full py-3 bg-blue-600 rounded-lg text-sm font-bold">บันทึกการเปลี่ยนแปลง</button>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 space-y-3">
+                            <h4 class="text-sm font-semibold text-gray-300">เปลี่ยนรหัสผ่าน</h4>
+                            <input type="password" id="old-pass" placeholder="รหัสผ่านปัจจุบัน" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
+                            <input type="password" id="new-pass" placeholder="รหัสผ่านใหม่" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-lg text-sm">
+                            <button onclick="changePassword()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm text-white">อัปเดตรหัสผ่าน</button>
+                        </div>
+                    </div>
+
+                    <div id="tab-banners" class="tab-content hidden space-y-4">
+                        <div id="admin-banner-list" class="space-y-2 pb-10"></div>
+                    </div>
+                    <div id="tab-menus" class="tab-content hidden space-y-4">
+                        <div id="admin-menu-list" class="space-y-2 pb-10"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxy4usGWe1RKdo7lzrcQty_aqGqfhvsmOD_IpH91rjatluKtECz7kEW9oW09qdokkc/exec'; 
+
+        let currentUser = null;
+        let globalData = { banners: [], menus: [] };
+        let swipers = {};
+
+        document.addEventListener('DOMContentLoaded', fetchAppData);
+
+        async function fetchAppData() {
+            showLoader(true);
+            try {
+                const res = await fetch(`${API_URL}?action=getData`);
+                globalData = await res.json();
+                renderApp();
+            } catch (error) { console.error(error); } finally { showLoader(false); }
+        }
+
+        function renderApp() {
+            const bCont = document.getElementById('banner-container');
+            bCont.innerHTML = globalData.banners.map(b => `<div class="swiper-slide cursor-pointer" onclick="window.open('${b.link}', '_blank')"><img src="${b.image}" class="w-full h-full object-cover"></div>`).join('');
+
+            const mCont = document.getElementById('menu-container');
+            let mHtml = '';
+            for (let i = 0; i < globalData.menus.length; i += 9) {
+                const chunk = globalData.menus.slice(i, i + 9);
+                mHtml += `<div class="swiper-slide"><div class="grid grid-cols-3 gap-3">` + chunk.map(m => `
+                    <div onclick="openInApp('${m.url}', '${m.title}')" class="menu-btn cursor-pointer aspect-square rounded-2xl flex flex-col items-center justify-center text-center p-2 transition-all">
+                        <i class="${m.icon} text-3xl mb-2 text-blue-300"></i>
+                        <span class="text-[10px] font-medium text-gray-300 leading-tight">${m.title}</span>
+                    </div>`).join('') + `</div></div>`;
+            }
+            mCont.innerHTML = mHtml;
+            swipers.banner = new Swiper(".bannerSwiper", { loop: true, autoplay: { delay: 4000 }, pagination: { el: ".banner-pagination" }});
+            swipers.menu = new Swiper(".menuSwiper", { pagination: { el: ".menu-pagination" }});
+        }
+
+        async function login() {
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+            if(!user || !pass) return;
+            showLoader(true);
+            try {
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', user, pass }) });
+                const d = await res.json();
+                if (d.status === 'success') { currentUser = d.user; updateUI(); } 
+                else alert('EmpID หรือ รหัสผ่านไม่ถูกต้อง');
+            } catch (e) { alert('เชื่อมต่อผิดพลาด'); } finally { showLoader(false); }
+        }
+
+        function updateUI() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('user-content').classList.remove('hidden');
+            document.getElementById('user-display-name').innerText = currentUser.name;
+            document.getElementById('user-status-text').innerText = currentUser.status || '';
+            document.getElementById('user-role-badge').innerText = currentUser.role.toUpperCase();
+            
+            // Render Avatar
+            const avText = document.getElementById('user-avatar-text');
+            if (currentUser.avatar) {
+                avText.parentElement.innerHTML = `<img src="${currentUser.avatar}" class="w-full h-full object-cover">`;
+            } else {
+                avText.innerText = currentUser.name.charAt(0).toUpperCase();
+            }
+
+            document.getElementById('edit-name').value = currentUser.name;
+            
+            if(currentUser.role === 'admin') {
+                document.getElementById('admin-tabs-nav').classList.replace('hidden', 'grid');
+                renderAdminLists(); // คุณต้องเขียนฟังก์ชัน Render รายการแบนเนอร์/เมนูแอดมินเพิ่ม
+            } else {
+                document.getElementById('admin-tabs-nav').classList.add('hidden');
+                switchTab('tab-profile');
+            }
+        }
+
+        async function saveProfile() {
+            const name = document.getElementById('edit-name').value;
+            showLoader(true);
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'updateProfile', empid: currentUser.username, name }) });
+            const d = await res.json();
+            if(d.status === 'success') { currentUser.name = name; alert('บันทึกสำเร็จ'); updateUI(); }
+            showLoader(false);
+        }
+
+        async function changePassword() {
+            const oldPass = document.getElementById('old-pass').value;
+            const newPass = document.getElementById('new-pass').value;
+            showLoader(true);
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'changePassword', empid: currentUser.username, oldPass, newPass }) });
+            const d = await res.json();
+            if(d.status === 'success') { alert('เปลี่ยนรหัสผ่านสำเร็จ'); logout(); } else { alert(d.message); }
+            showLoader(false);
+        }
+
+        function logout() { currentUser = null; location.reload(); }
+        function showLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+        function toggleModal(s) { document.getElementById('user-modal').classList.toggle('translate-y-full', !s); }
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(t).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('bg-blue-600'); b.classList.add('text-gray-400'); });
+            document.getElementById('btn-' + t).classList.add('bg-blue-600');
+        }
+        function openInApp(url, title) {
+            if (!url || url === '#') return;
+            document.getElementById('iframe-title').innerText = title;
+            document.getElementById('app-iframe').src = url;
+            const view = document.getElementById('iframe-view');
+            view.classList.remove('hidden');
+            setTimeout(() => view.classList.remove('translate-x-full'), 10);
+        }
+        function closeInApp() {
+            const view = document.getElementById('iframe-view');
+            view.classList.add('translate-x-full');
+            setTimeout(() => { view.classList.add('hidden'); document.getElementById('app-iframe').src = ''; }, 300);
+        }
+    </script>
+</body>
+</html>
